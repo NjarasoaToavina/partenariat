@@ -33,7 +33,7 @@ return new class extends Migration
             $table->string('scan');
             $table->timestamps();
 
-            // Clé étrangère vers activités
+            // Clé étrangère
             $table->foreignId('id_part')
                     ->nullable()
                     ->constrained('partenariats', 'id_part')

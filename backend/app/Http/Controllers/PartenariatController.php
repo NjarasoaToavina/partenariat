@@ -13,6 +13,9 @@ class PartenariatController extends Controller
     public function index()
     {
         //
+        $partenariats = Partenariat::all();
+
+        return response()->json($partenariats);
     }
 
     /**
@@ -29,6 +32,20 @@ class PartenariatController extends Controller
     public function store(Request $request)
     {
         //
+        $validated = $request->validate([
+            'nom_part' => 'required|string|max:255',
+            'campus_part' => 'required|string|max:255',
+            'statut_part' => 'required|string|max:255',
+            'type_part' => 'required|string|max:255',
+            'nbr_intervenant' => 'required|integer|min:0',
+            'prochaine_action' => 'required|string|max:255',
+            'contact_part' => 'required|string|max:255',
+            'observation' => 'required|string',
+        ]);
+
+        $partenariat = Partenariat::create($validated);
+
+        return response()->json($partenariat, 201);
     }
 
     /**
@@ -37,6 +54,7 @@ class PartenariatController extends Controller
     public function show(Partenariat $partenariat)
     {
         //
+        return response()->json($partenariat);
     }
 
     /**
@@ -53,6 +71,20 @@ class PartenariatController extends Controller
     public function update(Request $request, Partenariat $partenariat)
     {
         //
+        $validated = $request->validate([
+            'nom_part' => 'sometimes|required|string|max:255',
+            'campus_part' => 'sometimes|required|string|max:255',
+            'statut_part' => 'sometimes|required|string|max:255',
+            'type_part' => 'sometimes|required|string|max:255',
+            'nbr_intervenant' => 'sometimes|required|integer|min:0',
+            'prochaine_action' => 'sometimes|required|string|max:255',
+            'contact_part' => 'sometimes|required|string|max:255',
+            'observation' => 'sometimes|required|string',
+        ]);
+
+        $partenariat->update($validated);
+
+        return response()->json($partenariat);
     }
 
     /**
@@ -61,5 +93,10 @@ class PartenariatController extends Controller
     public function destroy(Partenariat $partenariat)
     {
         //
+        $partenariat->delete();
+
+        return response()->json([
+            'message' => 'Partenariat supprimé avec succès.'
+        ]);
     }
 }

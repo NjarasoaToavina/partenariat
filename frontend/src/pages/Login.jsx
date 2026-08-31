@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { Mail, Lock, Eye, EyeOff, Link as LinkIcon } from "lucide-react";
+import logoEsmia from "../assets/logo.png";
+
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -13,17 +15,13 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-slate-100 p-0 md:p-8">
-      <div className="w-full max-w-5xl md:min-h-[600px] flex flex-col md:flex-row md:rounded-2xl md:overflow-hidden md:shadow-xl bg-white">
+    <div className="min-h-screen w-full flex items-center justify-center bg-[#063C58] p-0 md:p-8">
+      <div className="w-full max-w-5xl md:min-h-[600px] flex flex-col md:flex-row md:rounded-2xl md:overflow-hidden md:shadow-xl">
         {/* Panneau gauche / haut */}
-        <div className="relative bg-[#0a2942] text-white px-8 pt-10 pb-14 md:w-1/2 md:p-14 md:flex md:flex-col md:justify-between rounded-b-3xl md:rounded-none">
+        <div className="relative bg-[#03334E] text-white px-8 pt-10 pb-14 md:w-1/2 md:p-14 md:flex md:flex-col md:justify-between rounded-b-3xl md:rounded-none">
           <div>
-            <div className="w-20 h-20 rounded-full bg-gradient-to-b from-slate-200 to-slate-400 p-[3px] shadow-lg mb-6">
-              <div className="w-full h-full rounded-full bg-[#0a2942] flex items-center justify-center overflow-hidden">
-                <span className="text-cyan-300 font-extrabold tracking-tight text-sm">
-                  ESMIA
-                </span>
-              </div>
+            <div className="w-30 h-30 mb-6">
+              <img src={logoEsmia} alt="Logo ESMIA" className="w-full h-full object-contain" />
             </div>
 
             <p className="text-xs font-semibold tracking-wide text-slate-300 mb-3">
@@ -41,7 +39,7 @@ export default function Login() {
           </div>
 
           <a
-            href="#"
+            href="https://www.esmia-i.com/home"
             className="hidden md:inline-flex items-center gap-2 text-slate-300 hover:text-white text-sm mt-10 transition-colors"
           >
             <LinkIcon size={16} />

@@ -1,6 +1,7 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { LogOut, X } from "lucide-react";
 import { NAV_ITEMS } from "../../data/navItems";
+import LogoEsmia from "../../assets/logo.png";
 
 export default function Sidebar({ open = false, onClose = () => {} }) {
   const navigate = useNavigate();
@@ -22,17 +23,20 @@ export default function Sidebar({ open = false, onClose = () => {} }) {
       )}
 
       <aside
-        className={`fixed z-50 inset-y-0 left-0 w-64 bg-[#0a2942] text-white flex flex-col transition-transform duration-300 md:static md:z-auto md:translate-x-0 md:flex md:shrink-0 ${
+        className={`fixed z-50 inset-y-0 left-0 w-64 bg-[#03334E] text-white flex flex-col transition-transform duration-300 md:static md:z-auto md:translate-x-0 md:flex md:shrink-0 ${
           open ? "translate-x-0" : "-translate-x-full"
         }`}
       >
         <div className="flex items-center gap-3 px-6 py-6">
-          <div className="w-11 h-11 rounded-full bg-gradient-to-b from-slate-200 to-slate-400 p-[2px] shrink-0">
-            <div className="w-full h-full rounded-full bg-[#0a2942] flex items-center justify-center">
+          <div className="w-18 h-18 bg-gradient-to-b p-[2px] shrink-0">
+            {/* <div className="w-full h-full rounded-full bg-[#03334E] flex items-center justify-center">
               <span className="text-cyan-300 font-extrabold text-[9px]">
                 ESMIA
               </span>
-            </div>
+            </div> */}
+            <img
+              src={LogoEsmia}
+              alt="Logo ESMIA"/>
           </div>
           <div className="flex-1 min-w-0">
             <p className="font-bold leading-tight">ESMIA</p>
@@ -58,7 +62,7 @@ export default function Sidebar({ open = false, onClose = () => {} }) {
               className={({ isActive }) =>
                 `w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                   isActive
-                    ? "bg-sky-600 text-white"
+                    ? "bg-[#0065CD] text-white"
                     : "text-slate-300 hover:bg-white/5 hover:text-white"
                 }`
               }

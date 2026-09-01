@@ -1,4 +1,5 @@
 import { Menu, Bell, UserCircle } from "lucide-react";
+import LogoEsmia from "../../assets/logo.png";
 
 export default function Header({
   section = "Visualisation des informations",
@@ -10,7 +11,7 @@ export default function Header({
   return (
     <header>
       {/* Version mobile : bandeau sombre avec logo, comme la sidebar */}
-      <div className="md:hidden flex items-center justify-between gap-3 bg-[#0a2942] text-white px-4 py-3">
+      <div className="md:hidden flex items-center justify-between gap-3 bg-[#03334E] text-white px-4 py-3">
         <div className="flex items-center gap-3 min-w-0">
           <button
             onClick={onMenuClick}
@@ -20,11 +21,14 @@ export default function Header({
             <Menu size={22} />
           </button>
 
-          <div className="w-9 h-9 rounded-full bg-gradient-to-b from-slate-200 to-slate-400 p-[2px] shrink-0">
-            <div className="w-full h-full rounded-full bg-[#0a2942] flex items-center justify-center">
-              <span className="text-cyan-300 font-extrabold text-[7px]">
+          <div className="w-12 h-12 rounded-full bg-gradient-to-b p-[2px] shrink-0">
+            <div className="w-full h-full rounded-full bg-[#03334E] flex items-center justify-center">
+              {/* <span className="text-cyan-300 font-extrabold text-[7px]">
                 ESMIA
-              </span>
+              </span> */}
+              <img
+                  src={LogoEsmia}
+                  alt="Logo ESMIA"/>
             </div>
           </div>
 
@@ -65,7 +69,7 @@ export default function Header({
           <button className="text-slate-500 hover:text-slate-700">
             <Bell size={20} />
           </button>
-          <div className="w-9 h-9 rounded-full bg-[#0a2942] text-white flex items-center justify-center">
+          <div className="w-9 h-9 rounded-full bg-[#03334E] text-white flex items-center justify-center">
             <UserCircle size={20} />
           </div>
           <div>

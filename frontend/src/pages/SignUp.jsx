@@ -51,7 +51,7 @@ const SignUp = () => {
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-[#063C58] p-0 md:p-8">
-      <div className="w-full h-auto max-w-5xl flex flex-col md:flex-row bg-white md:rounded-2xl md:overflow-hidden md:shadow-xl">
+      <div className="w-full h-auto max-w-5xl flex flex-col md:flex-row md:rounded-2xl md:overflow-hidden md:shadow-xl">
 
         {/* Panneau gauche / haut */}
         <div className="relative bg-[#03334E] text-white px-8 pt-10 pb-14 md:w-2/5 md:p-14 md:flex md:flex-col md:justify-between rounded-b-3xl md:rounded-none">

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom"
 import { Mail, Lock, Eye, EyeOff, Link as LinkIcon } from "lucide-react";
 import logoEsmia from "../assets/logo.png";
 
@@ -7,11 +8,13 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault();
     // Brancher ici l'appel d'authentification
     console.log("Connexion avec", { email, password });
+    navigate("/dashboard");
   };
 
   return (

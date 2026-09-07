@@ -19,7 +19,7 @@ export default function StatusTable({ rows, title = "Statut des partenaires par 
       <div className="overflow-x-auto">
         <table className="w-full min-w-[640px] border-separate border-spacing-0">
           <thead>
-            <tr className="bg-[#0a2942] text-white text-sm">
+            <tr className="bg-[#03334E] text-white text-sm">
               <th className="text-left font-semibold px-4 py-3 rounded-l-xl">
                 Campus
               </th>

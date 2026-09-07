@@ -1,6 +1,7 @@
 import './App.css'
 import Login from './pages/Login'
 import SignUp from './pages/SignUp'
+import Partenaire from './pages/Partenaire'
 import Dashboard from './pages/Dashboard'
 import AppLayout from './components/layout/AppLayout'
 import PlaceholderPage from './pages/Placeholderpage'
@@ -17,9 +18,11 @@ function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<SignUp />} />
 
+      {/* Routes privées */}
       <Route element={<AppLayout />} >
         <Route path="/dashboard" element={<Dashboard />} />
-         {NAV_ITEMS.filter((item) => item.path !== "/dashboard").map(
+        <Route path="/partenaires" element={<Partenaire />} />
+         {NAV_ITEMS.filter((item) => item.path !== "/dashboard" && item.path !== "/partenaires").map(
           (item) => (
             <Route
               key={item.path}

@@ -1,6 +1,8 @@
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import CampusLogo from "../common/CampusLogo";
 import { STATUS_COLORS, statusData } from "../../data/campusData";
+import logoEsmia from "../../assets/logo.png";
+import logoBeati from '../../assets/logo-beati.png';
 
 export default function DonutCard({ title, badge, row }) {
   const data = statusData(row);
@@ -8,7 +10,7 @@ export default function DonutCard({ title, badge, row }) {
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 flex-1 min-w-0">
       <div className="flex items-center gap-2 mb-6">
-        <CampusLogo label={badge.slice(0, 2)} />
+        <img src={row.name === "ESMIA" ? logoEsmia : logoBeati} alt={`Logo ${row.name}`} className="w-6 h-6" />
         <h3 className="text-sm font-bold text-slate-900 flex-1">{title}</h3>
         <span className="text-xs font-semibold text-sky-700 bg-sky-100 px-3 py-1 rounded-md">
           {badge}

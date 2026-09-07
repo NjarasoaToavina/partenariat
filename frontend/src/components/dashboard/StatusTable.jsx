@@ -6,7 +6,8 @@ import {
   ShieldCheck,
   Users,
 } from "lucide-react";
-import CampusLogo from "../common/CampusLogo";
+import logoEsmia from "../../assets/logo.png";
+import logoBeati from '../../assets/logo-beati.png';
 
 export default function StatusTable({ rows, title = "Statut des partenaires par campus" }) {
   return (
@@ -19,7 +20,7 @@ export default function StatusTable({ rows, title = "Statut des partenaires par 
       <div className="overflow-x-auto">
         <table className="w-full min-w-[640px] border-separate border-spacing-0">
           <thead>
-            <tr className="bg-[#03334E] text-white text-sm">
+            <tr className="bg-[#0065CD] text-white text-sm">
               <th className="text-left font-semibold px-4 py-3 rounded-l-xl">
                 Campus
               </th>
@@ -55,7 +56,7 @@ export default function StatusTable({ rows, title = "Statut des partenaires par 
               <tr key={row.key} className="border-b border-slate-100 last:border-b-0">
                 <td className="px-4 py-4">
                   <span className="flex items-center gap-3 font-semibold text-slate-900">
-                    <CampusLogo label={row.badge.slice(0, 2)} />
+                    <img src={row.name === "ESMIA" ? logoEsmia : logoBeati} alt={`Logo ${row.name}`} className="w-6 h-6" />
                     {row.name}
                   </span>
                 </td>

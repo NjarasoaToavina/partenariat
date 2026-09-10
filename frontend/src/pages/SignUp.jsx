@@ -1,63 +1,69 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import {
   User,
   Mail,
-  Briefcase,
   Lock,
-  Eye,
-  EyeOff,
+  Briefcase,
+  Building2,
+  BookOpen,
+  GraduationCap,
   Link as LinkIcon,
-  UserCircle2,
 } from "lucide-react";
 
 import logoEsmia from "../assets/logo.png";
+import { ROLES, roleHasField, resolveRole } from "../data/signuproles";
+import FormField from "../components/auth/FormField";
+import PhotoUpload from "../components/auth/PhotoUpload";
 
-const SignUp = () => {
+export default function SignUp() {
+  const navigate = useNavigate();
+  const { role: roleFromUrl } = useParams();
+
+  // Le rôle vient de l'URL (/signup -> etudiant par défaut,
+  // /signup/responsable, /signup/service... pour les liens spéciaux).
+  // Un rôle inconnu ou absent retombe automatiquement sur "etudiant".
+  const userType = resolveRole(roleFromUrl);
+  const roleLabel = ROLES.find((r) => r.key === userType)?.label ?? "";
+
+  // Champs communs à tous les rôles
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
-  const [role, setRole] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  // Champs propres à certains rôles
+  const [fonction, setFonction] = useState("");
+  const [nomService, setNomService] = useState("");
+  const [filiere, setFiliere] = useState("");
+  const [niveau, setNiveau] = useState("");
   const [photo, setPhoto] = useState(null);
-  const [isDragging, setIsDragging] = useState(false);
-  const fileInputRef = useRef(null);
-
-  const handleFile = (file) => {
-    if (file && file.type.startsWith("image/")) {
-      setPhoto(file);
-    }
-  };
-
-  const handleDrop = (e) => {
-    e.preventDefault();
-    setIsDragging(false);
-    handleFile(e.dataTransfer.files?.[0]);
-  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    const payload = { userType, fullName, email, password, photo };
+    if (roleHasField(userType, "fonction")) payload.fonction = fonction;
+    if (roleHasField(userType, "nom_service")) payload.nom_service = nomService;
+    if (roleHasField(userType, "filiere")) payload.filiere = filiere;
+    if (roleHasField(userType, "niveau")) payload.niveau = niveau;
+
     // Brancher ici l'appel de création de compte
-    console.log("Inscription", {
-      fullName,
-      email,
-      role,
-      password,
-      confirmPassword,
-      photo,
-    });
+    console.log("Inscription", payload);
+    navigate("/dashboard");
   };
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-[#063C58] p-0 md:p-8">
-      <div className="w-full h-auto max-w-5xl flex flex-col md:flex-row md:rounded-2xl md:overflow-hidden md:shadow-xl">
-
+      <div className="w-full h-auto max-w-5xl flex flex-col md:flex-row bg-white md:rounded-2xl md:overflow-hidden md:shadow-xl">
         {/* Panneau gauche / haut */}
         <div className="relative bg-[#03334E] text-white px-8 pt-10 pb-14 md:w-2/5 md:p-14 md:flex md:flex-col md:justify-between rounded-b-3xl md:rounded-none">
           <div>
-            <div className="w-30 h-30 mb-6">
-                <img src={logoEsmia} alt="Logo ESMIA" className="w-full h-full object-contain" />
+            <div className="w-28 h-28 mb-6">
+              <img
+                src={logoEsmia}
+                alt="Logo ESMIA"
+                className="w-full h-full object-contain"
+              />
             </div>
 
             <p className="text-xs font-semibold tracking-wide text-slate-300 mb-3">
@@ -89,199 +95,103 @@ const SignUp = () => {
           <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mb-2">
             Inscription
           </h2>
-          <p className="text-slate-500 text-sm mb-8">Créez votre compte.</p>
+          <p className="text-slate-500 text-sm mb-1">Créez votre compte.</p>
+          <p className="text-xs font-semibold text-sky-600 mb-8">
+            Compte {roleLabel}
+          </p>
 
           <form onSubmit={handleSubmit} className="space-y-5">
-            <div>
-              <label
-                htmlFor="fullName"
-                className="block text-sm font-semibold text-slate-900 mb-2"
-              >
-                Nom complet
-              </label>
-              <div className="flex items-center gap-3 border border-slate-200 bg-slate-50 rounded-xl px-4 py-3 focus-within:ring-2 focus-within:ring-sky-500 focus-within:border-sky-500">
-                <User size={18} className="text-slate-400 shrink-0" />
-                <input
-                  id="fullName"
-                  type="text"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  placeholder="Entrez votre nom complet"
-                  className="w-full bg-transparent outline-none text-slate-800 placeholder:text-slate-400 text-sm"
-                  autoComplete="name"
-                  required
-                />
-              </div>
-            </div>
+            <FormField
+              id="fullName"
+              label="Nom complet"
+              icon={User}
+              value={fullName}
+              onChange={setFullName}
+              placeholder="Entrez votre nom complet"
+              autoComplete="name"
+            />
 
-            <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-semibold text-slate-900 mb-2"
-              >
-                Adresse email
-              </label>
-              <div className="flex items-center gap-3 border border-slate-200 bg-slate-50 rounded-xl px-4 py-3 focus-within:ring-2 focus-within:ring-sky-500 focus-within:border-sky-500">
-                <Mail size={18} className="text-slate-400 shrink-0" />
-                <input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="nom@gmail.com"
-                  className="w-full bg-transparent outline-none text-slate-800 placeholder:text-slate-400 text-sm"
-                  autoComplete="email"
-                  required
-                />
-              </div>
-            </div>
+            <FormField
+              id="email"
+              label="Adresse email"
+              icon={Mail}
+              type="email"
+              value={email}
+              onChange={setEmail}
+              placeholder="nom@gmail.com"
+              autoComplete="email"
+            />
 
-            <div>
-              <label
-                htmlFor="role"
-                className="block text-sm font-semibold text-slate-900 mb-2"
-              >
-                Fonction
-              </label>
-              <div className="flex items-center gap-3 border border-slate-200 bg-slate-50 rounded-xl px-4 py-3 focus-within:ring-2 focus-within:ring-sky-500 focus-within:border-sky-500">
-                <Briefcase size={18} className="text-slate-400 shrink-0" />
-                <input
-                  id="role"
-                  type="text"
-                  value={role}
-                  onChange={(e) => setRole(e.target.value)}
-                  placeholder="Entrez votre fonction"
-                  className="w-full bg-transparent outline-none text-slate-800 placeholder:text-slate-400 text-sm"
-                  required
-                />
-              </div>
-            </div>
+            <PhotoUpload photo={photo} onChange={setPhoto} />
 
-            <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-semibold text-slate-900 mb-2"
-              >
-                Mot de passe
-              </label>
-              <div className="flex items-center gap-3 border border-slate-200 bg-slate-50 rounded-xl px-4 py-3 focus-within:ring-2 focus-within:ring-sky-500 focus-within:border-sky-500">
-                <Lock size={18} className="text-slate-400 shrink-0" />
-                <input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="w-full bg-transparent outline-none text-slate-800 placeholder:text-slate-400 text-sm"
-                  autoComplete="new-password"
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword((v) => !v)}
-                  className="text-slate-400 hover:text-slate-600 shrink-0"
-                  aria-label={
-                    showPassword
-                      ? "Masquer le mot de passe"
-                      : "Afficher le mot de passe"
-                  }
-                >
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                </button>
-              </div>
-            </div>
+            {/* Uniquement pour Partenaire */}
+            {roleHasField(userType, "fonction") && (
+              <FormField
+                id="fonction"
+                label="Fonction"
+                icon={Briefcase}
+                value={fonction}
+                onChange={setFonction}
+                placeholder="Entrez votre fonction"
+              />
+            )}
 
-            <div>
-              <label
-                htmlFor="confirmPassword"
-                className="block text-sm font-semibold text-slate-900 mb-2"
-              >
-                Confirmez le mot de passe
-              </label>
-              <div className="flex items-center gap-3 border border-slate-200 bg-slate-50 rounded-xl px-4 py-3 focus-within:ring-2 focus-within:ring-sky-500 focus-within:border-sky-500">
-                <Lock size={18} className="text-slate-400 shrink-0" />
-                <input
-                  id="confirmPassword"
-                  type={showConfirmPassword ? "text" : "password"}
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="w-full bg-transparent outline-none text-slate-800 placeholder:text-slate-400 text-sm"
-                  autoComplete="new-password"
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmPassword((v) => !v)}
-                  className="text-slate-400 hover:text-slate-600 shrink-0"
-                  aria-label={
-                    showConfirmPassword
-                      ? "Masquer le mot de passe"
-                      : "Afficher le mot de passe"
-                  }
-                >
-                  {showConfirmPassword ? (
-                    <EyeOff size={18} />
-                  ) : (
-                    <Eye size={18} />
-                  )}
-                </button>
-              </div>
-            </div>
+            {/* Uniquement pour Service */}
+            {roleHasField(userType, "nom_service") && (
+              <FormField
+                id="nomService"
+                label="Nom du service"
+                icon={Building2}
+                value={nomService}
+                onChange={setNomService}
+                placeholder="Entrez le nom du service"
+              />
+            )}
 
-            <div>
-              <label className="block text-sm font-semibold text-slate-900 mb-2">
-                Photo de profil
-              </label>
-              <div
-                onClick={() => fileInputRef.current?.click()}
-                onDragOver={(e) => {
-                  e.preventDefault();
-                  setIsDragging(true);
-                }}
-                onDragLeave={() => setIsDragging(false)}
-                onDrop={handleDrop}
-                className={`flex items-center gap-4 border-2 border-dashed rounded-xl px-5 py-5 cursor-pointer transition-colors ${
-                  isDragging
-                    ? "border-sky-500 bg-sky-50"
-                    : "border-slate-300 hover:border-slate-400"
-                }`}
-              >
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/jpeg,image/png"
-                  className="hidden"
-                  onChange={(e) => handleFile(e.target.files?.[0])}
-                />
-                {photo ? (
-                  <img
-                    src={URL.createObjectURL(photo)}
-                    alt="Aperçu du profil"
-                    className="w-14 h-14 rounded-full object-cover shrink-0"
-                  />
-                ) : (
-                  <UserCircle2
-                    size={44}
-                    className="text-slate-300 shrink-0"
-                    strokeWidth={1.2}
-                  />
-                )}
-                <div className="min-w-0">
-                  <p className="text-sm font-semibold text-slate-900">
-                    {photo
-                      ? photo.name
-                      : "Cliquez pour ajouter une photo"}
-                  </p>
-                  <p className="text-sm text-slate-400">
-                    ou glissez-déposez votre image ici
-                  </p>
-                  <p className="text-xs text-slate-400 mt-1">
-                    Formats acceptés : JPG, PNG (max 2 Mo)
-                  </p>
-                </div>
-              </div>
-            </div>
+            <FormField
+              id="password"
+              label="Mot de passe"
+              icon={Lock}
+              type="password"
+              value={password}
+              onChange={setPassword}
+              placeholder="••••••••"
+              autoComplete="new-password"
+            />
+
+            <FormField
+              id="confirmPassword"
+              label="Confirmez le mot de passe"
+              icon={Lock}
+              type="password"
+              value={confirmPassword}
+              onChange={setConfirmPassword}
+              placeholder="••••••••"
+              autoComplete="new-password"
+            />
+
+            {/* Uniquement pour Étudiant */}
+            {roleHasField(userType, "filiere") && (
+              <FormField
+                id="filiere"
+                label="Filière"
+                icon={BookOpen}
+                value={filiere}
+                onChange={setFiliere}
+                placeholder="Entrez votre filière"
+              />
+            )}
+
+            {roleHasField(userType, "niveau") && (
+              <FormField
+                id="niveau"
+                label="Niveau"
+                icon={GraduationCap}
+                value={niveau}
+                onChange={setNiveau}
+                placeholder="Ex: Licence 3, Master 1..."
+              />
+            )}
 
             <button
               type="submit"
@@ -293,17 +203,12 @@ const SignUp = () => {
 
           <p className="text-sm text-slate-500 text-center md:text-left mt-6">
             Vous avez déjà un compte?{" "}
-            <a
-              href="#"
-              className="text-sky-600 font-semibold hover:text-sky-700"
-            >
+            <Link to="/login" className="text-sky-600 font-semibold hover:text-sky-700">
               Se connecter
-            </a>
+            </Link>
           </p>
         </div>
       </div>
     </div>
   );
 }
-
-export default SignUp;

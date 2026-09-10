@@ -17,6 +17,7 @@ function App() {
       <Route path="/" element={<Navigate to="/login" replace />} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<SignUp />} />
+      <Route path="/signup/:role" element={<SignUp />} />
 
       {/* Routes privées */}
       <Route element={<AppLayout />} >

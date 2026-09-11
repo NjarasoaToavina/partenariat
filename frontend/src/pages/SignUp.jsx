@@ -41,7 +41,12 @@ export default function SignUp() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const payload = { userType, fullName, email, password, photo };
+    const payload = { 
+      userType, 
+      fullName, 
+      email, 
+      password, 
+      photo };
     if (roleHasField(userType, "fonction")) payload.fonction = fonction;
     if (roleHasField(userType, "nom_service")) payload.nom_service = nomService;
     if (roleHasField(userType, "filiere")) payload.filiere = filiere;

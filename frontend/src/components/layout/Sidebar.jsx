@@ -53,7 +53,7 @@ export default function Sidebar({ open = false, onClose = () => {} }) {
           </button>
         </div>
 
-        <nav className="flex-1 px-3 mt-2 space-y-1">
+        <nav className="flex-1 overflow-y-auto px-3 mt-2 space-y-1">
           {NAV_ITEMS.map(({ label, icon: Icon, path }) => (
             <NavLink
               key={path}

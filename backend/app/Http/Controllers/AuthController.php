@@ -11,24 +11,40 @@ class AuthController extends Controller
 {
     public function register(Request $request)
     {
+
+    // 1. Initialiser le chemin de l'image à null
+    $imagePath = null;
+
+    // 2. Vérifier si une image a bien été envoyée dans la requête
+    if ($request->hasFile('image')) {
+        // Sauvegarde le fichier dans storage/app/public/profiles et récupère le chemin abrégé
+        $imagePath = $request->file('image')->store('profiles', 'public');
+    }
+
         $validated = $request->validate([
             'userType' => ['required', 'string'],
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'unique:users,email'],
             'password' => ['required', 'confirmed', 'min:8'],
-
             'image' => ['nullable', 'image', 'max:2048'],
-
             'fonction' => ['nullable', 'string', 'max:255'],
             'nom_service' => ['nullable', 'string', 'max:255'],
             'filiere' => ['nullable', 'string', 'max:255'],
             'niveau' => ['nullable', 'string', 'max:255'],
         ]);
 
+        // 1. GESTION ET SAUVEGARDE DU FICHIER PHOTO
+        $imagePath = null;
+        if ($request->hasFile('image')) {
+            // Cette ligne prend le fichier et le copie physiquement dans storage/app/public/profiles
+            $imagePath = $request->file('image')->store('profiles', 'public');
+        }
+
         $user = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => $validated['password'],
+            'image' => $imagePath,
             'fonction' => $validated['fonction'] ?? null,
             'nom_service' => $validated['nom_service'] ?? null,
             'filiere' => $validated['filiere'] ?? null,

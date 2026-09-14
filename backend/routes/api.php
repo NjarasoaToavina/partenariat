@@ -6,7 +6,8 @@ use App\Http\Controllers\PartenariatController;
 use App\Http\Controllers\AuthController;
 
 Route::get('/user', function (Request $request) {
-    return $request->user();
+    // ->load('roles') force Laravel à inclut le tableau des rôles Spatie dans le JSON
+    return $request->user()->load('roles');
 })->middleware('auth:sanctum');
 
 Route::post('/register', [AuthController::class, 'register']);

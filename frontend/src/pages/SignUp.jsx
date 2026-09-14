@@ -15,6 +15,7 @@ import logoEsmia from "../assets/logo.png";
 import { ROLES, roleHasField, resolveRole } from "../data/signuproles";
 import FormField from "../components/auth/FormField";
 import PhotoUpload from "../components/auth/PhotoUpload";
+import { register } from "../services/authService";
 
 export default function SignUp() {
   const navigate = useNavigate();
@@ -39,22 +40,68 @@ export default function SignUp() {
   const [niveau, setNiveau] = useState("");
   const [photo, setPhoto] = useState(null);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const payload = { 
-      userType, 
-      fullName, 
-      email, 
-      password, 
-      photo };
-    if (roleHasField(userType, "fonction")) payload.fonction = fonction;
-    if (roleHasField(userType, "nom_service")) payload.nom_service = nomService;
-    if (roleHasField(userType, "filiere")) payload.filiere = filiere;
-    if (roleHasField(userType, "niveau")) payload.niveau = niveau;
 
-    // Brancher ici l'appel de création de compte
-    console.log("Inscription", payload);
-    navigate("/dashboard");
+    if (password !== confirmPassword) {
+      alert("Les mots de passe ne correspondent pas.");
+      return;
+    }
+
+    const formData = new FormData();
+
+    formData.append("userType", userType);
+    formData.append("name", fullName);
+    formData.append("email", email);
+    formData.append("password", password);
+    formData.append("password_confirmation", confirmPassword);
+
+    if (photo) {
+      formData.append("image", photo);
+    }
+
+    if (roleHasField(userType, "fonction")) {
+      formData.append("fonction", fonction);
+    }
+
+    if (roleHasField(userType, "nom_service")) {
+      formData.append("nom_service", nomService);
+    }
+
+    if (roleHasField(userType, "filiere")) {
+      formData.append("filiere", filiere);
+    }
+
+    if (roleHasField(userType, "niveau")) {
+      formData.append("niveau", niveau);
+    }
+
+    try {
+      const response = await register(formData);
+
+      console.log("Inscription réussie :", response.data);
+
+      // 1. On récupère le token renvoyé par votre méthode Laravel register
+      const token = response.data.token;
+
+      if (token) {
+        // 2. On stocke le token dans le localStorage
+        localStorage.setItem("ACCESS_TOKEN", token);
+
+        // 3. On redirige DIRECTEMENT vers le dashboard sans passer par le login
+        navigate("/dashboard");
+      } else {
+        // Sécurité au cas où le token serait absent
+        console.warn("Jeton manquant dans la réponse, redirection login.");
+        navigate("/login");
+      }
+
+    } catch (error) {
+      console.error(error);
+      console.log("Erreur complète :", error);
+      console.log("Réponse Laravel :", error.response?.data);
+      console.log("Erreurs de validation :", error.response?.data?.errors);
+    }
   };
 
   return (

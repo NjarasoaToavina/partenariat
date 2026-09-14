@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom"
 import { Mail, Lock, Eye, EyeOff, Link as LinkIcon } from "lucide-react";
 import logoEsmia from "../assets/logo.png";
+import {login} from "../services/authService"; 
 
 
 export default function Login() {
@@ -10,12 +11,41 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Brancher ici l'appel d'authentification
-    console.log("Connexion avec", { email, password });
-    navigate("/dashboard");
+  const handleSubmit = async (e) => { // 1. Ajoutez 'async' ici
+  e.preventDefault();
+
+  try {
+    // 2. Appelez votre service de connexion (assurez-vous de l'importer en haut du fichier)
+    // Nous passons un objet avec l'email et le mot de passe
+    const response = await login({ email, password }); 
+    
+    console.log("Connexion réussie :", response.data);
+
+    // 3. Récupérez le jeton (token) renvoyé par Laravel
+    const token = response.data.token; 
+
+    if (token) {
+      // 4. Stockez le token dans le localStorage pour maintenir la session
+      localStorage.setItem("ACCESS_TOKEN", token);
+      
+      // Optionnel : Vous pouvez aussi stocker les infos de l'utilisateur si besoin
+      // localStorage.setItem("USER", JSON.stringify(response.data.user));
+
+      // 5. Redirigez enfin l'utilisateur vers son tableau de bord
+      navigate("/dashboard");
+    } else {
+      alert("Erreur : Aucun jeton d'authentification reçu.");
+    }
+
+    } catch (error) {
+      console.error("Erreur de connexion :", error);
+      
+      // Récupération du message d'erreur envoyé par Laravel (ex: "Identifiants incorrects")
+      const errorMessage = error.response?.data?.message || "Une erreur est survenue lors de la connexion.";
+      alert(errorMessage);
+    }
   };
+
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-[#063C58] p-0 md:p-8">

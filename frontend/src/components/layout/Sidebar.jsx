@@ -2,14 +2,22 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { LogOut, X } from "lucide-react";
 import { NAV_ITEMS } from "../../data/navItems";
 import LogoEsmia from "../../assets/logo.png";
+import { logout } from "../../services/authService";
 
 export default function Sidebar({ open = false, onClose = () => {} }) {
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    // Brancher ici la logique de déconnexion (clear token, etc.)
-    onClose();
-    navigate("/login");
+  const handleLogout = async () => {
+    try {
+      // 1. Appelle le endpoint pur via votre service
+      await logout();
+    } catch (error) {
+      console.error("Erreur API déconnexion :", error);
+    } finally {
+      // 2. Nettoie React et redirige dans tous les cas
+      localStorage.removeItem("ACCESS_TOKEN");
+      navigate("/login");
+    }
   };
 
   return (

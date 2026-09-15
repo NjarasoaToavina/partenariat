@@ -19,3 +19,5 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 Route::apiResource('partenariats', PartenariatController::class);
+
+Route::get('/partenariats', [PartenariatController::class, 'index']);

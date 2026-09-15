@@ -11,6 +11,7 @@ export default function FormField({
   placeholder,
   autoComplete,
   required = true,
+  disabled = false
 }) {
   const [showPassword, setShowPassword] = useState(false);
   const isPassword = type === "password";
@@ -32,6 +33,7 @@ export default function FormField({
           autoComplete={autoComplete}
           className="w-full bg-transparent outline-none text-slate-800 placeholder:text-slate-400 text-sm"
           required={required}
+          disabled={disabled}
         />
         {isPassword && (
           <button

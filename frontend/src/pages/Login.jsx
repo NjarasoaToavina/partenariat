@@ -3,16 +3,20 @@ import { useNavigate } from "react-router-dom"
 import { Mail, Lock, Eye, EyeOff, Link as LinkIcon } from "lucide-react";
 import logoEsmia from "../assets/logo.png";
 import {login} from "../services/authService"; 
+import Spinner from "../components/common/Spinner";
+import { Link } from "react-router-dom";
 
 
 export default function Login() {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false); // Pour gérer l'état de chargement
 
   const handleSubmit = async (e) => { // 1. Ajoutez 'async' ici
   e.preventDefault();
+  setIsLoading(true); // Active le spinner
 
   try {
     // 2. Appelez votre service de connexion (assurez-vous de l'importer en haut du fichier)
@@ -35,9 +39,11 @@ export default function Login() {
       navigate("/dashboard");
     } else {
       alert("Erreur : Aucun jeton d'authentification reçu.");
+      setIsLoading(false); // Désactive le spinner
     }
 
     } catch (error) {
+      setIsLoading(false); // Désactive le spinner en cas d'erreur
       console.error("Erreur de connexion :", error);
       
       // Récupération du message d'erreur envoyé par Laravel (ex: "Identifiants incorrects")
@@ -100,6 +106,7 @@ export default function Login() {
               <div className="flex items-center gap-3 border border-slate-200 bg-slate-50 rounded-xl px-4 py-3 focus-within:ring-2 focus-within:ring-sky-500 focus-within:border-sky-500">
                 <Mail size={18} className="text-slate-400 shrink-0" />
                 <input
+                  disabled={isLoading}
                   id="email"
                   type="email"
                   value={email}
@@ -122,6 +129,7 @@ export default function Login() {
               <div className="flex items-center gap-3 border border-slate-200 bg-slate-50 rounded-xl px-4 py-3 focus-within:ring-2 focus-within:ring-sky-500 focus-within:border-sky-500">
                 <Lock size={18} className="text-slate-400 shrink-0" />
                 <input
+                  disabled={isLoading} 
                   id="password"
                   type={showPassword ? "text" : "password"}
                   value={password}
@@ -134,7 +142,8 @@ export default function Login() {
                 <button
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
-                  className="text-slate-400 hover:text-slate-600 shrink-0"
+                  disabled={isLoading}
+                  className="text-slate-400 hover:text-slate-600 shrink-0 disabled:opacity-50"
                   aria-label={
                     showPassword
                       ? "Masquer le mot de passe"
@@ -148,20 +157,22 @@ export default function Login() {
 
             <button
               type="submit"
-              className="w-full bg-sky-600 hover:bg-sky-700 active:bg-sky-800 text-white font-semibold rounded-xl py-3.5 transition-colors mt-2"
+              disabled={isLoading}
+              className="w-full bg-sky-600 hover:bg-sky-700 active:bg-sky-800 disabled:bg-sky-400 disabled:cursor-not-allowed text-white font-semibold rounded-xl py-3.5 transition-colors mt-2 flex items-center justify-center gap-2"
             >
-              Se connecter
+              {isLoading && <Spinner size={18} className="text-white" />}
+              {isLoading ? "Connexion en cours..." : "Se connecter"}
             </button>
           </form>
 
           <p className="text-sm text-slate-500 text-center md:text-left mt-6">
             Pas encore de compte?{" "}
-            <a
-              href="#"
+            <Link
+              to="/signup"
               className="text-sky-600 font-semibold hover:text-sky-700"
             >
               Contactez l'équipe ESMIA
-            </a>
+            </Link>
           </p>
         </div>
       </div>

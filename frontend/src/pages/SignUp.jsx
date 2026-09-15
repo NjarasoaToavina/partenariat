@@ -16,6 +16,7 @@ import { ROLES, roleHasField, resolveRole } from "../data/signuproles";
 import FormField from "../components/auth/FormField";
 import PhotoUpload from "../components/auth/PhotoUpload";
 import { register } from "../services/authService";
+import Spinner from "../components/common/Spinner";
 
 export default function SignUp() {
   const navigate = useNavigate();
@@ -40,11 +41,16 @@ export default function SignUp() {
   const [niveau, setNiveau] = useState("");
   const [photo, setPhoto] = useState(null);
 
+  //variable de chargement
+  const [isLoading, setIsLoading] = useState(false);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true); 
 
     if (password !== confirmPassword) {
       alert("Les mots de passe ne correspondent pas.");
+      setIsLoading(false);
       return;
     }
 
@@ -97,6 +103,7 @@ export default function SignUp() {
       }
 
     } catch (error) {
+      setIsLoading(false);
       console.error(error);
       console.log("Erreur complète :", error);
       console.log("Réponse Laravel :", error.response?.data);
@@ -125,7 +132,7 @@ export default function SignUp() {
             <h1 className="text-2xl md:text-3xl font-bold leading-snug mb-4 max-w-xs">
               Rejoignez la plateforme de partenariat
             </h1>
-
+{/* Esmia*1509! */}
             <p className="text-slate-300 text-sm leading-relaxed max-w-xs">
               Créez votre compte pour accéder aux échanges, documents,
               opportunités de collaboration avec l'ESMIA Innovation en un
@@ -154,6 +161,7 @@ export default function SignUp() {
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <FormField
+              disabled={isLoading} 
               id="fullName"
               label="Nom complet"
               icon={User}
@@ -164,6 +172,7 @@ export default function SignUp() {
             />
 
             <FormField
+              disabled={isLoading}
               id="email"
               label="Adresse email"
               icon={Mail}
@@ -179,6 +188,7 @@ export default function SignUp() {
             {/* Uniquement pour Partenaire */}
             {roleHasField(userType, "fonction") && (
               <FormField
+                disabled={isLoading}
                 id="fonction"
                 label="Fonction"
                 icon={Briefcase}
@@ -191,6 +201,7 @@ export default function SignUp() {
             {/* Uniquement pour Service */}
             {roleHasField(userType, "nom_service") && (
               <FormField
+                disabled={isLoading}
                 id="nomService"
                 label="Nom du service"
                 icon={Building2}
@@ -201,6 +212,7 @@ export default function SignUp() {
             )}
 
             <FormField
+              disabled={isLoading}
               id="password"
               label="Mot de passe"
               icon={Lock}
@@ -212,6 +224,7 @@ export default function SignUp() {
             />
 
             <FormField
+              disabled={isLoading}
               id="confirmPassword"
               label="Confirmez le mot de passe"
               icon={Lock}
@@ -225,6 +238,7 @@ export default function SignUp() {
             {/* Uniquement pour Étudiant */}
             {roleHasField(userType, "filiere") && (
               <FormField
+                disabled={isLoading}
                 id="filiere"
                 label="Filière"
                 icon={BookOpen}
@@ -236,6 +250,7 @@ export default function SignUp() {
 
             {roleHasField(userType, "niveau") && (
               <FormField
+                disabled={isLoading}
                 id="niveau"
                 label="Niveau"
                 icon={GraduationCap}
@@ -247,9 +262,11 @@ export default function SignUp() {
 
             <button
               type="submit"
-              className="w-full bg-sky-600 hover:bg-sky-700 active:bg-sky-800 text-white font-semibold rounded-xl py-3.5 transition-colors mt-2"
+              disabled={isLoading}
+              className="w-full bg-sky-600 hover:bg-sky-700 active:bg-sky-800 disabled:bg-sky-400 disabled:cursor-not-allowed text-white font-semibold rounded-xl py-3.5 transition-colors mt-2 flex items-center justify-center gap-2"
             >
-              Créez le compte
+              {isLoading && <Spinner size={18} className="text-white" />}
+              {isLoading ? "Création du compte en cours..." : "Créer le compte"}
             </button>
           </form>
 

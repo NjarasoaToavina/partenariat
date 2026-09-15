@@ -6,6 +6,8 @@ import {login} from "../services/authService";
 import Spinner from "../components/common/Spinner";
 import { Link } from "react-router-dom";
 
+import {useToast} from "../context/ToastContext.jsx"; // Importez le hook useToast
+
 
 export default function Login() {
   const navigate = useNavigate();
@@ -14,6 +16,7 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false); // Pour gérer l'état de chargement
 
+  const toast = useToast();
   const handleSubmit = async (e) => { // 1. Ajoutez 'async' ici
   e.preventDefault();
   setIsLoading(true); // Active le spinner
@@ -35,10 +38,12 @@ export default function Login() {
       // Optionnel : Vous pouvez aussi stocker les infos de l'utilisateur si besoin
       // localStorage.setItem("USER", JSON.stringify(response.data.user));
 
+      toast.success("Connexion réussie, bienvenue !"); // Affiche un toast de succès
+
       // 5. Redirigez enfin l'utilisateur vers son tableau de bord
       navigate("/dashboard");
     } else {
-      alert("Erreur : Aucun jeton d'authentification reçu.");
+      toast.error("Erreur : Aucun jeton d'authentification reçu.");
       setIsLoading(false); // Désactive le spinner
     }
 
@@ -48,7 +53,7 @@ export default function Login() {
       
       // Récupération du message d'erreur envoyé par Laravel (ex: "Identifiants incorrects")
       const errorMessage = error.response?.data?.message || "Une erreur est survenue lors de la connexion.";
-      alert(errorMessage);
+      toast.error(errorMessage, { title: "Erreur de connexion" });
     }
   };
 

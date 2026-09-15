@@ -17,9 +17,11 @@ import FormField from "../components/auth/FormField";
 import PhotoUpload from "../components/auth/PhotoUpload";
 import { register } from "../services/authService";
 import Spinner from "../components/common/Spinner";
+import { useToast } from "../context/ToastContext.jsx"; 
 
 export default function SignUp() {
   const navigate = useNavigate();
+  const toast = useToast();
   const { role: roleFromUrl } = useParams();
 
   // Le rôle vient de l'URL (/signup -> etudiant par défaut,
@@ -49,7 +51,7 @@ export default function SignUp() {
     setIsLoading(true); 
 
     if (password !== confirmPassword) {
-      alert("Les mots de passe ne correspondent pas.");
+      toast.error("Les mots de passe ne correspondent pas.");
       setIsLoading(false);
       return;
     }

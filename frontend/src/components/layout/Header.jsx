@@ -78,11 +78,11 @@ export default function Header({
               <UserCircle size={20} />
             )}
           </div>
-          <div>
-            <p className="text-sm font-bold text-white leading-tight">
+          <div className="min-w-0">
+            <p className="text-sm font-bold text-white leading-tight truncate max-w-[100px]">
               {user?.name || userName}
             </p>
-            <p className="text-xs text-slate-400 leading-tight">
+            <p className="text-xs text-slate-400 leading-tight truncate max-w-[100px]">
               {displayRole || userRole}
             </p>
           </div>
@@ -109,11 +109,11 @@ export default function Header({
               <UserCircle size={20} />
             )}
           </div>
-          <div>
-            <p className="text-sm font-bold text-slate-900 leading-tight">
+          <div className="min-w-0">
+            <p className="text-sm font-bold text-slate-900 leading-tight truncate max-w-[160px]">
               {user?.name || userName}
             </p>
-            <p className="text-xs text-slate-400 leading-tight">
+            <p className="text-xs text-slate-400 leading-tight truncate max-w-[160px]">
               {displayRole || userRole}
             </p>
           </div>

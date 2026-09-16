@@ -3,19 +3,30 @@ import { LogOut, X } from "lucide-react";
 import { NAV_ITEMS } from "../../data/navItems";
 import LogoEsmia from "../../assets/logo.png";
 import { logout } from "../../services/authService";
+import { useAuth } from "../../context/AuthContext.jsx";
+import {useToast} from "../../context/ToastContext.jsx";
+import ConfirmModal from "../common/Confirmmodal.jsx";
+import { useState } from "react";
 
 export default function Sidebar({ open = false, onClose = () => {} }) {
   const navigate = useNavigate();
-
-  const handleLogout = async () => {
+  const { logoutUser } = useAuth();
+  const toast = useToast();
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const handleLogoutConfirmed = async () => {
     try {
       // 1. Appelle le endpoint pur via votre service
       await logout();
+      setConfirmOpen(false);
+      toast.success("Déconnexion réussie !");
     } catch (error) {
+      setConfirmOpen(false);
       console.error("Erreur API déconnexion :", error);
+      toast.error("Erreur lors de la déconnexion. Veuillez réessayer.");
+
     } finally {
       // 2. Nettoie React et redirige dans tous les cas
-      localStorage.removeItem("ACCESS_TOKEN");
+      logoutUser();
       navigate("/login");
     }
   };
@@ -83,7 +94,7 @@ export default function Sidebar({ open = false, onClose = () => {} }) {
 
         <div className="px-3 pb-6">
           <button
-            onClick={handleLogout}
+            onClick={() => setConfirmOpen(true)}
             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-white/5 hover:text-white transition-colors"
           >
             <LogOut size={18} />
@@ -91,6 +102,16 @@ export default function Sidebar({ open = false, onClose = () => {} }) {
           </button>
         </div>
       </aside>
+      <ConfirmModal
+        open={confirmOpen}
+        variant="danger"
+        title="Se déconnecter ?"
+        message="Vous devrez vous reconnecter pour accéder à votre espace."
+        confirmLabel="Se déconnecter"
+        cancelLabel="Annuler"
+        onConfirm={handleLogoutConfirmed}
+        onCancel={() => setConfirmOpen(false)}
+      />
     </>
   );
 }

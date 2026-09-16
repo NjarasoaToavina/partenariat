@@ -8,9 +8,16 @@ import AppLayout from './components/layout/AppLayout'
 import PlaceholderPage from './pages/Placeholderpage'
 import { NAV_ITEMS } from './data/navItems'
 import { Routes, Route, Navigate } from 'react-router-dom'
+import {useAuth} from './context/AuthContext.jsx'
+import Loader from './components/common/Loader.jsx'
+
 
 function App() {
+  const { loading } = useAuth();
 
+  if (loading) {
+    return <Loader label="Vérification de la session..." />; // Affiche un loader pendant le chargement de l'utilisateur
+  } 
   return (
     <Routes>
 

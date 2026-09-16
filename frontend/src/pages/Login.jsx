@@ -6,7 +6,8 @@ import {login} from "../services/authService";
 import Spinner from "../components/common/Spinner";
 import { Link } from "react-router-dom";
 
-import {useToast} from "../context/ToastContext.jsx"; // Importez le hook useToast
+import { useToast } from "../context/ToastContext.jsx"; // Importez le hook useToast
+import { useAuth } from "../context/AuthContext.jsx"; // Importez le hook useAuth
 
 
 export default function Login() {
@@ -17,6 +18,8 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(false); // Pour gérer l'état de chargement
 
   const toast = useToast();
+  const {loginUser} = useAuth(); 
+
   const handleSubmit = async (e) => { // 1. Ajoutez 'async' ici
   e.preventDefault();
   setIsLoading(true); // Active le spinner
@@ -34,11 +37,13 @@ export default function Login() {
     if (token) {
       // 4. Stockez le token dans le localStorage pour maintenir la session
       localStorage.setItem("ACCESS_TOKEN", token);
+
+      loginUser(response.data.user);
       
       // Optionnel : Vous pouvez aussi stocker les infos de l'utilisateur si besoin
       // localStorage.setItem("USER", JSON.stringify(response.data.user));
 
-      toast.success("Connexion réussie, bienvenue !"); // Affiche un toast de succès
+      // toast.success("Connexion réussie, bienvenue !"); // Affiche un toast de succès
 
       // 5. Redirigez enfin l'utilisateur vers son tableau de bord
       navigate("/dashboard");
@@ -49,8 +54,7 @@ export default function Login() {
 
     } catch (error) {
       setIsLoading(false); // Désactive le spinner en cas d'erreur
-      console.error("Erreur de connexion :", error);
-      
+     
       // Récupération du message d'erreur envoyé par Laravel (ex: "Identifiants incorrects")
       const errorMessage = error.response?.data?.message || "Une erreur est survenue lors de la connexion.";
       toast.error(errorMessage, { title: "Erreur de connexion" });

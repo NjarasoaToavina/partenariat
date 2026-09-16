@@ -1,3 +1,5 @@
+import LogoEsmia from "../../assets/logo.png";
+
 export default function Loader({ fullScreen = true, label = "Chargement..." }) {
   const content = (
     <div className="flex flex-col items-center justify-center gap-4">
@@ -7,14 +9,12 @@ export default function Loader({ fullScreen = true, label = "Chargement..." }) {
         {/* Anneau animé */}
         <div className="absolute inset-0 rounded-full border-4 border-sky-600 border-t-transparent animate-spin" />
         {/* Logo ESMIA au centre */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-9 h-9 rounded-full bg-gradient-to-b from-slate-200 to-slate-400 p-[2px]">
-            <div className="w-full h-full rounded-full bg-[#0a2942] flex items-center justify-center">
-              <span className="text-cyan-300 font-extrabold text-[6px]">
-                ESMIA
-              </span>
-            </div>
-          </div>
+        <div className="absolute inset-0 flex items-center justify-center p-3">
+          <img
+            src={LogoEsmia}
+            alt="Logo ESMIA"
+            className="w-full h-full object-contain"
+          />
         </div>
       </div>
 

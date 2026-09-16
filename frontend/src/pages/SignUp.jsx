@@ -19,6 +19,8 @@ import { register } from "../services/authService";
 import Spinner from "../components/common/Spinner";
 import { useToast } from "../context/ToastContext.jsx"; 
 
+import { useAuth } from "../context/AuthContext.jsx";
+
 export default function SignUp() {
   const navigate = useNavigate();
   const toast = useToast();
@@ -45,6 +47,8 @@ export default function SignUp() {
 
   //variable de chargement
   const [isLoading, setIsLoading] = useState(false);
+
+  const { loginUser } = useAuth(); // Récupère la fonction loginUser depuis le contexte AuthContext
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -96,17 +100,21 @@ export default function SignUp() {
         // 2. On stocke le token dans le localStorage
         localStorage.setItem("ACCESS_TOKEN", token);
 
+        loginUser(response.data.user); // Met à jour le contexte AuthContext avec les informations de l'utilisateur
+
         // 3. On redirige DIRECTEMENT vers le dashboard sans passer par le login
         navigate("/dashboard");
       } else {
         // Sécurité au cas où le token serait absent
         console.warn("Jeton manquant dans la réponse, redirection login.");
+        setIsLoading(false);
         navigate("/login");
       }
 
     } catch (error) {
       setIsLoading(false);
       console.error(error);
+      toast.error("Erreur lors de l'inscription. Veuillez vérifier vos informations et réessayer.");
       console.log("Erreur complète :", error);
       console.log("Réponse Laravel :", error.response?.data);
       console.log("Erreurs de validation :", error.response?.data?.errors);

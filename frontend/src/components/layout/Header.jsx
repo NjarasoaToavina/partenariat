@@ -1,8 +1,9 @@
 import { Menu, Bell, UserCircle } from "lucide-react";
 import LogoEsmia from "../../assets/logo.png";
-import {getCurrentUser} from "../../services/authService";
-import {useState,useEffect} from "react";
+
 import { URL } from "../../services/api";
+import {useAuth} from "../../context/AuthContext.jsx";
+import Loader from "../common/Loader.jsx";
 
 export default function Header({
   section = "Visualisation des informations",
@@ -11,21 +12,9 @@ export default function Header({
   userRole = "Responsable",
   onMenuClick = () => {},
 }) {
-  const [user,setUser] = useState(null);
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        // L'intercepteur Axios ajoute automatiquement le token Bearer en tâche de fond
-        const response = await getCurrentUser();
-        setUser(response.data); // Stocke l'objet user de Laravel dans l'état React
-      } catch (error) {
-        console.error("Impossible de récupérer l'utilisateur", error);
-      }
-    };
 
-    fetchUserData();
-  }, []);
-  
+  const {user,loading} = useAuth();
+
   const displayRole = user?.roles?.[0]?.name || userRole;
 
   // 1. GESTION DE L'URL DE LA PHOTO
@@ -66,27 +55,34 @@ export default function Header({
           </div>
         </div>
 
-        <div className="flex items-center gap-4 shrink-0">
-          <button className="text-white/90 hover:text-white">
-            <Bell size={20} />
-          </button>
-             {/* 2. AFFICHAGE DE LA PHOTO (MOBILE) */}
-          <div className="w-9 h-9 rounded-full bg-white/10 text-white flex items-center justify-center overflow-hidden border border-white/20">
-            {photoUrl ? (
-              <img src={photoUrl} alt="Profil" className="w-full h-full object-cover" />
-            ) : (
-              <UserCircle size={20} />
-            )}
-          </div>
-          <div className="min-w-0">
-            <p className="text-sm font-bold text-white leading-tight truncate max-w-[100px]">
-              {user?.name || userName}
-            </p>
-            <p className="text-xs text-slate-400 leading-tight truncate max-w-[100px]">
-              {displayRole || userRole}
-            </p>
-          </div>
-        </div>
+        {loading ? (
+              <div className="flex items-center shrink-0">
+                <Loader fullScreen={false} />
+              </div>
+         ) : (
+              <div className="flex items-center gap-3 shrink-0 min-w-0 max-w-[50%]">
+                <button className="text-white/90 hover:text-white shrink-0">
+                  <Bell size={20} />
+                </button>
+                
+                <div className="w-9 h-9 rounded-full bg-white/10 text-white flex items-center justify-center overflow-hidden border border-white/20 shrink-0">
+                  {photoUrl ? (
+                    <img src={photoUrl} alt="Profil" className="w-full h-full object-cover" />
+                  ) : (
+                    <UserCircle size={20} />
+                  )}
+                </div>
+                
+                <div className="min-w-0">
+                  <p className="text-sm font-bold text-white leading-tight truncate max-w-[100px]">
+                    {user?.name || userName}
+                  </p>
+                  <p className="text-xs text-slate-400 leading-tight truncate max-w-[100px]">
+                    {displayRole || userRole}
+                  </p>
+                </div>
+              </div>
+        )}
       </div>
 
       {/* Version desktop : bandeau blanc avec fil d'Ariane et utilisateur */}
@@ -96,28 +92,34 @@ export default function Header({
           <p className="text-sm font-bold text-slate-900">{page}</p>
         </div>
 
-        <div className="flex items-center gap-4">
-          <button className="text-slate-500 hover:text-slate-700">
-            <Bell size={20} />
-          </button>
-          
-          {/* 3. AFFICHAGE DE LA PHOTO (DESKTOP) */}
-          <div className="w-9 h-9 rounded-full bg-[#03334E] text-white flex items-center justify-center overflow-hidden border border-slate-200">
-            {photoUrl ? (
-              <img src={photoUrl} alt="Profil" className="w-full h-full object-cover" />
-            ) : (
-              <UserCircle size={20} />
-            )}
+        {loading ? (
+          <div className="flex items-center shrink-0">
+            <Loader fullScreen={false} />
           </div>
-          <div className="min-w-0">
-            <p className="text-sm font-bold text-slate-900 leading-tight truncate max-w-[160px]">
-              {user?.name || userName}
-            </p>
-            <p className="text-xs text-slate-400 leading-tight truncate max-w-[160px]">
-              {displayRole || userRole}
-            </p>
+        ) : (
+          <div className="flex items-center gap-4 shrink-0 min-w-0">
+            <button className="text-slate-500 hover:text-slate-700 shrink-0">
+              <Bell size={20} />
+            </button>
+            
+            <div className="w-9 h-9 rounded-full bg-[#03334E] text-white flex items-center justify-center overflow-hidden border border-slate-200 shrink-0">
+              {photoUrl ? (
+                <img src={photoUrl} alt="Profil" className="w-full h-full object-cover" />
+              ) : (
+                <UserCircle size={20} />
+              )}
+            </div>
+            
+            <div className="min-w-0">
+              <p className="text-sm font-bold text-slate-900 leading-tight truncate max-w-[160px]">
+                {user?.name || userName}
+              </p>
+              <p className="text-xs text-slate-400 leading-tight truncate max-w-[160px]">
+                {displayRole || userRole}
+              </p>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </header>
   );

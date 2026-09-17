@@ -1,8 +1,21 @@
+export const STATUS_LABELS = {
+  prospecte: "Prospecté",
+  cours: "En cours",
+  attente: "En attente de validation",
+  finalisation: "Finalisation",
+  signe: "Signé",
+  officieux: "Officieux",
+  renouvele: "Renouvelé",
+};
+
 export const STATUS_STYLES = {
-  Signé: "bg-emerald-50 text-emerald-600",
-  Renouvelé: "bg-blue-50 text-blue-600",
-  "En cours": "bg-amber-50 text-amber-600",
-  Officieux: "bg-violet-50 text-violet-600",
+  prospecte: "bg-sky-50 text-sky-600",
+  cours: "bg-amber-50 text-amber-600",
+  attente: "bg-orange-50 text-orange-600",
+  finalisation: "bg-indigo-50 text-indigo-600",
+  signe: "bg-emerald-50 text-emerald-600",
+  officieux: "bg-violet-50 text-violet-600",
+  renouvele: "bg-blue-50 text-blue-600",
 };
 
 export const PARTNERS = [

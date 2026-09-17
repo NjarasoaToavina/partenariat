@@ -1,12 +1,15 @@
 import { Search, ChevronDown, Plus } from "lucide-react";
+import { STATUS_LABELS } from "../../data/partnersData";
 
 export default function PartnersToolbar({
   search,
   onSearchChange,
   campusFilter,
   onCampusFilterChange,
+  campusOptions = [],
   statusFilter,
   onStatusFilterChange,
+  statusOptions = [],
   onAddPartner,
 }) {
   return (
@@ -30,8 +33,11 @@ export default function PartnersToolbar({
             className="appearance-none border border-slate-200 rounded-xl bg-white pl-4 pr-9 py-2.5 text-sm font-semibold text-slate-700 outline-none cursor-pointer"
           >
             <option value="Tous">Campus : Tous</option>
-            <option value="ESMIA">Campus : ESMIA</option>
-            <option value="BEATI">Campus : BEATI</option>
+            {campusOptions.map((campus) => (
+              <option key={campus} value={campus}>
+                Campus : {campus}
+              </option>
+            ))}
           </select>
           <ChevronDown
             size={16}
@@ -46,10 +52,11 @@ export default function PartnersToolbar({
             className="appearance-none border border-slate-200 rounded-xl bg-white pl-4 pr-9 py-2.5 text-sm font-semibold text-slate-700 outline-none cursor-pointer"
           >
             <option value="Tous">Statut : Tous</option>
-            <option value="Signé">Statut : Signé</option>
-            <option value="Renouvelé">Statut : Renouvelé</option>
-            <option value="En cours">Statut : En cours</option>
-            <option value="Officieux">Statut : Officieux</option>
+            {statusOptions.map((status) => (
+              <option key={status} value={status}>
+                Statut : {STATUS_LABELS[status] || status}
+              </option>
+            ))}
           </select>
           <ChevronDown
             size={16}

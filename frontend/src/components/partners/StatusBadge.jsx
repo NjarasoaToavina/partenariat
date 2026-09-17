@@ -1,4 +1,4 @@
-import { STATUS_STYLES } from "../../data/partnersData";
+import { STATUS_STYLES, STATUS_LABELS } from "../../data/partnersData";
 
 export default function StatusBadge({ status }) {
   return (
@@ -7,7 +7,7 @@ export default function StatusBadge({ status }) {
         STATUS_STYLES[status] || "bg-slate-100 text-slate-600"
       }`}
     >
-      {status}
+      {STATUS_LABELS[status] || status}
     </span>
   );
 }

@@ -24,37 +24,37 @@ export default function PartnersTable({ partners, onEdit }) {
         </thead>
         <tbody>
           {partners.map((partner) => (
-            <tr key={partner.id} className="border-t border-slate-100">
+            <tr key={partner.id_part} className="border-t border-slate-100">
               <td className="px-4 py-4 align-top">
                 <p className="text-sm font-bold text-slate-900">
-                  {partner.name}
+                  {partner.nom_part}
                 </p>
                 <p className="text-xs text-slate-400">{partner.sector}</p>
               </td>
               <td className="px-4 py-4 align-top text-sm text-slate-700">
-                {partner.campus}
+                {partner.campus_part}
               </td>
               <td className="px-4 py-4 align-top">
-                <StatusBadge status={partner.status} />
+                <StatusBadge status={partner.statut_part} />
               </td>
               <td className="px-4 py-4 align-top text-sm text-slate-700">
-                {partner.type}
+                {partner.type_part}
               </td>
               <td className="px-4 py-4 align-top text-sm text-slate-700">
-                {partner.members}
+                {partner.nbr_intervenant}
               </td>
               <td className="px-4 py-4 align-top text-sm text-slate-700 whitespace-nowrap">
-                {partner.nextAction}
+                {partner.prochaine_action}
               </td>
               <td className="px-4 py-4 align-top text-sm">
                 <p className="font-semibold text-slate-900">
-                  {partner.contact.name}
+                  {partner.contact_part}
                 </p>
                 <p className="text-xs text-slate-400">
-                  {partner.contact.email}
+                  {partner.contact_part}
                 </p>
                 <p className="text-xs text-slate-400">
-                  {partner.contact.phone}
+                  {partner.contact_part}
                 </p>
               </td>
               <td className="px-4 py-4 align-top text-sm text-slate-700 max-w-[160px]">
@@ -64,7 +64,7 @@ export default function PartnersTable({ partners, onEdit }) {
                 <button
                   onClick={() => onEdit?.(partner)}
                   className="w-8 h-8 flex items-center justify-center border border-slate-200 rounded-lg text-slate-500 hover:text-sky-600 hover:border-sky-300 transition-colors"
-                  aria-label={`Modifier ${partner.name}`}
+                  aria-label={`Modifier ${partner.nom_part}`}
                 >
                   <Pencil size={15} />
                 </button>

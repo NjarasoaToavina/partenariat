@@ -5,6 +5,7 @@ import Pagination from "../components/partners/Pagination";
 import Loader from "../components/common/Loader";
 import { getAllPartnerships } from "../services/partenariatService";
 import { useToast } from "../context/ToastContext.jsx";
+import { useNavigate } from "react-router-dom";
 
 const PAGE_SIZE = 6;
 
@@ -17,6 +18,7 @@ export default function Partenaire() {
   const [isLoading, setIsLoading] = useState(true);
 
   const toast = useToast();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchPartenaires = async () => {
@@ -70,13 +72,14 @@ export default function Partenaire() {
 
   const handleAddPartner = () => {
     // Brancher ici l'ouverture d'un formulaire / modale de création
-    console.log("Ajouter un partenaire");
+    navigate("/partenaires/ajouter");
   };
 
   const handleEdit = (partner) => {
     // Brancher ici l'ouverture d'un formulaire d'édition
     console.log("Modifier", partner);
   };
+
 
   return (
     <div className="space-y-4">

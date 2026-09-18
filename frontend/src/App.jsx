@@ -10,6 +10,7 @@ import { NAV_ITEMS } from './data/navItems'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import {useAuth} from './context/AuthContext.jsx'
 import Loader from './components/common/Loader.jsx'
+import AjouterPartenaire from './pages/AjouterPartenaire.jsx'
 
 
 function App() {
@@ -31,6 +32,7 @@ function App() {
       <Route element={<AppLayout />} >
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/partenaires" element={<Partenaire />} />
+        <Route path="/partenaires/ajouter" element={<AjouterPartenaire />} />
         <Route path="/atelier" element={<Atelier />} />
          {NAV_ITEMS.filter((item) => !item.path.includes(["/dashboard", "/partenaires", "/atelier"])).map(
           (item) => (

@@ -1,16 +1,23 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { CheckCircle2, Clock, ClipboardList, Plus } from "lucide-react";
 import StatCard from "../components/atelier/StatCard";
 import AtelierToolbar from "../components/atelier/AtelierToolbar";
 import AtelierTable from "../components/atelier/AtelierTable";
 import AtelierPagination from "../components/atelier/AtelierPagination";
-import { ATELIERS, getAtelierStats } from "../data/atelierData";
+import { getAtelierStats } from "../data/atelierData";
+
+import { useToast } from "../context/ToastContext";
+import { getAllAteliers } from "../services/atelierService";
+import Loader from "../components/common/Loader";
 
 const PAGE_SIZE = 6;
 
 function parseDate(str) {
-  const [d, m, y] = str.split("/").map(Number);
-  return new Date(y, m - 1, d);
+  if (!str) return null;
+
+  const date = new Date(str);
+
+  return isNaN(date.getTime()) ? null : date;
 }
 
 export default function Atelier() {
@@ -22,32 +29,53 @@ export default function Atelier() {
   const [sortAsc, setSortAsc] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
 
-  const stats = useMemo(() => getAtelierStats(ATELIERS), []);
+  const [ateliers, setAteliers] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const stats = useMemo(() => getAtelierStats(ateliers), [ateliers]);
+  
+  
+  const toast = useToast();
+
+  useEffect(() => {
+      const fetchAteliers = async () => {
+        try {
+          const response = await getAllAteliers();
+          console.log("Données des ateliers récupérées :", response.data);
+          setAteliers(response.data);
+        } catch (error) {
+          toast.error("Impossible de charger la liste des ateliers.");
+        } finally {
+          setIsLoading(false);
+        }
+      };
+  
+      fetchAteliers();
+    }, [toast]);
 
   const filtered = useMemo(() => {
-    let list = ATELIERS.filter((a) => {
-      const atelierDate = parseDate(a.date);
+    let list = ateliers.filter((a) => {
+      const atelierDate = parseDate(a.date_atel);
       const matchesPeriod =
         (!periodStart || atelierDate >= new Date(periodStart)) &&
         (!periodEnd || atelierDate <= new Date(periodEnd));
-      const matchesCampus = campusFilter === "Tous" || a.campus === campusFilter;
-      const matchesStatut = statutFilter === "Tous" || a.statut === statutFilter;
+      const matchesCampus = campusFilter === "Tous" || a.campus_atel === campusFilter;
+      const matchesStatut = statutFilter === "Tous" || a.statut_atel === statutFilter;
       const q = search.trim().toLowerCase();
       const matchesSearch =
         !q ||
-        a.contenu.toLowerCase().includes(q) ||
-        a.filiere.toLowerCase().includes(q) ||
+        a.contenu_atel.toLowerCase().includes(q) ||
+        a.groupe.toLowerCase().includes(q) ||
         a.intervenant.toLowerCase().includes(q);
       return matchesPeriod && matchesCampus && matchesStatut && matchesSearch;
     });
 
     list = [...list].sort((a, b) => {
-      const diff = parseDate(a.date) - parseDate(b.date);
+      const diff = parseDate(a.date_atel) - parseDate(b.date_atel);
       return sortAsc ? diff : -diff;
     });
 
     return list;
-  }, [periodStart, periodEnd, campusFilter, statutFilter, search, sortAsc]);
+  }, [periodStart, periodEnd, campusFilter, statutFilter, search, sortAsc,ateliers]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const page = Math.min(currentPage, totalPages);
@@ -117,21 +145,27 @@ export default function Atelier() {
       </div>
 
       <div className="bg-white rounded-2xl shadow-sm border border-slate-100">
-        <AtelierTable
-          ateliers={paginated}
-          sortAsc={sortAsc}
-          onToggleSort={() => setSortAsc((v) => !v)}
-          onView={(a) => console.log("Voir", a)}
-          onMore={(a) => console.log("Actions", a)}
-        />
-        <AtelierPagination
-          total={filtered.length}
-          rangeStart={filtered.length === 0 ? 0 : (page - 1) * PAGE_SIZE + 1}
-          rangeEnd={Math.min(page * PAGE_SIZE, filtered.length)}
-          currentPage={page}
-          totalPages={totalPages}
-          onPageChange={setCurrentPage}
-        />
+        {isLoading ? (
+          <Loader fullScreen={false} label="Chargement des ateliers..." />
+        ) : (      
+          <>
+            <AtelierTable
+              ateliers={paginated}
+              sortAsc={sortAsc}
+              onToggleSort={() => setSortAsc((v) => !v)}
+              onView={(a) => console.log("Voir", a)}
+              onMore={(a) => console.log("Actions", a)}
+            />
+            <AtelierPagination
+              total={filtered.length}
+              rangeStart={filtered.length === 0 ? 0 : (page - 1) * PAGE_SIZE + 1}
+              rangeEnd={Math.min(page * PAGE_SIZE, filtered.length)}
+              currentPage={page}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+            />
+          </>
+        )}
       </div>
     </div>
   );

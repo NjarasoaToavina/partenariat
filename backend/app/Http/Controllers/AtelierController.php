@@ -13,6 +13,8 @@ class AtelierController extends Controller
     public function index()
     {
         //
+        $ateliers = Atelier::all();
+        return response()->json($ateliers);
     }
 
     /**
@@ -29,6 +31,17 @@ class AtelierController extends Controller
     public function store(Request $request)
     {
         //
+        $validated = $request->validate([
+            'date_atel' => 'required|date',
+            'campus_atel' => 'required|string|max:255',
+            'groupe' => 'required|string|max:255',
+            'contenu_atel' => 'required|string',
+            'intervenant' => 'required|string|max:255',
+            'statut_atel' => 'required|string|max:255',
+        ]);
+
+        $atelier = Atelier::create($validated);
+        return response()->json($atelier, 201);
     }
 
     /**
@@ -37,6 +50,7 @@ class AtelierController extends Controller
     public function show(Atelier $atelier)
     {
         //
+        return response()->json($atelier);
     }
 
     /**
@@ -53,6 +67,17 @@ class AtelierController extends Controller
     public function update(Request $request, Atelier $atelier)
     {
         //
+        $validated = $request->validate([
+            'date_atel' => 'required|date',
+            'campus_atel' => 'required|string|max:255',
+            'groupe' => 'required|string|max:255',
+            'contenu_atel' => 'required|string',
+            'intervenant' => 'required|string|max:255',
+            'statut_atel' => 'required|string|max:255',
+        ]);
+
+        $atelier->update($validated);
+        return response()->json($atelier);
     }
 
     /**
@@ -61,5 +86,7 @@ class AtelierController extends Controller
     public function destroy(Atelier $atelier)
     {
         //
+        $atelier->delete();
+        return response()->json(null, 204);
     }
 }

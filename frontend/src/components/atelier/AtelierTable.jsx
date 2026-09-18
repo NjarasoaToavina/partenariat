@@ -34,56 +34,56 @@ export default function AtelierTable({ ateliers, sortAsc, onToggleSort, onView, 
         </thead>
         <tbody>
           {ateliers.map((a) => (
-            <tr key={a.id} className="border-b border-slate-100 last:border-b-0">
+            <tr key={a.id_atel} className="border-b border-slate-100 last:border-b-0">
               <td className="px-4 py-4 align-top">
                 <span className="flex items-center gap-2 text-sm text-slate-700 whitespace-nowrap">
                   <CalendarDays size={15} className="text-slate-400" />
                   <span>
                     <span className="block font-semibold text-slate-900">
-                      {a.date}
+                      {a.date_atel}
                     </span>
                     <span className="block text-xs text-slate-400">
-                      {a.time}
+                      {a.date_atel}
                     </span>
                   </span>
                 </span>
               </td>
               <td className="px-4 py-4 align-top">
-                <CampusBadge campus={a.campus} />
+                <CampusBadge campus={a.campus_atel} />
               </td>
               <td className="px-4 py-4 align-top text-sm text-slate-700">
                 <span className="block font-semibold text-slate-900">
-                  {a.classe}
+                  {a.groupe}
                 </span>
                 <span className="block text-xs text-slate-400">
-                  {a.filiere}
+                  {a.groupe}
                 </span>
               </td>
               <td className="px-4 py-4 align-top text-sm text-slate-700">
-                {a.groupes} groupes
+                {a.groupe} groupes
               </td>
               <td className="px-4 py-4 align-top text-sm text-slate-700 max-w-[220px]">
-                {a.contenu}
+                {a.contenu_atel}
               </td>
               <td className="px-4 py-4 align-top">
                 <IntervenantAvatar name={a.intervenant} />
               </td>
               <td className="px-4 py-4 align-top">
-                <StatutBadge statut={a.statut} />
+                <StatutBadge statut={a.statut_atel} />
               </td>
               <td className="px-4 py-4 align-top">
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => onView?.(a)}
                     className="w-8 h-8 flex items-center justify-center border border-slate-200 rounded-lg text-slate-500 hover:text-sky-600 hover:border-sky-300 transition-colors"
-                    aria-label={`Voir l'atelier ${a.contenu}`}
+                    aria-label={`Voir l'atelier ${a.contenu_atel}`}
                   >
                     <Eye size={15} />
                   </button>
                   <button
                     onClick={() => onMore?.(a)}
                     className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-slate-600 transition-colors"
-                    aria-label="Plus d'actions"
+                    aria-label={`Plus d'actions pour l'atelier ${a.contenu_atel}`}
                   >
                     <MoreVertical size={16} />
                   </button>

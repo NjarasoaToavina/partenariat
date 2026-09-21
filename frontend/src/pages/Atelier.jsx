@@ -10,6 +10,8 @@ import { useToast } from "../context/ToastContext";
 import { getAllAteliers } from "../services/atelierService";
 import Loader from "../components/common/Loader";
 
+import { useNavigate } from "react-router-dom";
+
 const PAGE_SIZE = 6;
 
 function parseDate(str) {
@@ -32,6 +34,7 @@ export default function Atelier() {
   const [ateliers, setAteliers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const stats = useMemo(() => getAtelierStats(ateliers), [ateliers]);
+  const navigate = useNavigate();
   
   
   const toast = useToast();
@@ -88,7 +91,7 @@ export default function Atelier() {
 
   const handleAddAtelier = () => {
     // Brancher ici l'ouverture d'un formulaire / modale de création
-    console.log("Ajouter un atelier");
+    navigate("/ateliers/ajouter");
   };
 
   return (

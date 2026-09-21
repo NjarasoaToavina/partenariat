@@ -14,7 +14,7 @@ class Partenariat extends Model
         'campus_part',
         'statut_part',
         'type_part',
-        'nbr_intervenant',
+        'nbr_intervention',
         'prochaine_action',
         'contact_part',
         'observation',

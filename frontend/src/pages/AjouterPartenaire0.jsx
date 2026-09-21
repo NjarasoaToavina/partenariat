@@ -2,11 +2,22 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "../context/ToastContext.jsx";
 import { createPartnership } from "../services/partenariatService";
-import Field from "../components/common/Field.jsx";
-import TitleForm from "../components/common/TitleForm.jsx";
 
 const CAMPUS_OPTIONS = ["BEATI", "ESMIA"];
 const STATUT_OPTIONS = ["Prospecté", "En cours", "En attente de validation", "Finalisation", "Signé"];
+
+function Field({ label, required, error, children }) {
+  return (
+    <div className="flex flex-col gap-1">
+      <label className="text-xs font-medium text-slate-600">
+        {label}
+        {required && <span className="text-red-500 ml-0.5">*</span>}
+      </label>
+      {children}
+      {error && <p className="text-xs text-red-500">{error}</p>}
+    </div>
+  );
+}
 
 const inputCls = (error) =>
   `w-full px-3 py-2 text-sm rounded-lg border bg-white text-slate-800 outline-none
@@ -22,7 +33,7 @@ export default function AjouterPartenaire() {
     campus_part: "",
     statut_part: "",
     type_part: "",
-    nbr_intervention: 0,
+    nbr_intervention: "",
     prochaine_action: "",
     contact_part: "",
     observation: "",
@@ -40,18 +51,19 @@ export default function AjouterPartenaire() {
     if (!form.nom_part.trim())  e.nom_part = "Champ requis.";
     if (!form.campus_part)      e.campus_part = "Champ requis.";
     if (!form.statut_part)      e.statut_part = "Champ requis.";
-    if (!form.contact_part)      e.contact_part = "Champ requis.";
     return e;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Partenaire data:", form);
     const errs = validate();
     if (Object.keys(errs).length) { setErrors(errs); return; }
     setSaving(true);
     try {
-      await createPartnership(form);
+      await createPartnership({
+        ...form,
+        nbr_intervenant: form.nbr_intervenant ? Number(form.nbr_intervenant) : null,
+      });
       toast.success("Partenaire ajouté avec succès.");
       navigate("/partenaires");
     } catch {
@@ -64,7 +76,17 @@ export default function AjouterPartenaire() {
   return (
     <div className="space-y-4">
 
-      <TitleForm title="Ajouter un partenaire"/>
+      {/* Fil d'Ariane + titre */}
+      <div>
+        <p className="text-xs text-slate-400">
+          <button className="text-blue-500 hover:underline" onClick={() => navigate("/partenaires")}>
+            Partenaires
+          </button>
+          <span className="mx-1.5 text-slate-300">/</span>
+          <span className="text-slate-500">Ajouter</span>
+        </p>
+        <h1 className="text-xl font-semibold text-slate-800 mt-1">Ajouter un partenaire</h1>
+      </div>
 
       <form onSubmit={handleSubmit} noValidate>
         <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 space-y-5">
@@ -98,20 +120,31 @@ export default function AjouterPartenaire() {
               </select>
             </Field>
 
-            <Field label="Type de partenariat">
+            <Field label="Type de partenariat" required>
               <input
                 className={inputCls()}
                 type="text"
-                placeholder="Ex : Académique"
+                placeholder="Ex : Professionnel"
                 value={form.type_part}
                 onChange={set("type_part")}
               />
             </Field>
           </div>
 
-          {/* Contact + Prochaine action*/}
+          {/* Nb intervenants + Contact */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Field label="Contact" required>
+            <Field label="Nombre d'interventions">
+              <input
+                className={inputCls()}
+                type="number"
+                min="0"
+                placeholder="Ex : 5"
+                value={form.nbr_intervenant}
+                onChange={set("nbr_intervenant")}
+              />
+            </Field>
+
+            <Field label="Contact">
               <input
                 className={inputCls()}
                 type="text"
@@ -120,6 +153,10 @@ export default function AjouterPartenaire() {
                 onChange={set("contact_part")}
               />
             </Field>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Prochaine action + observation */}
             <Field label="Prochaine action">
               <input
                 className={inputCls()}
@@ -129,10 +166,7 @@ export default function AjouterPartenaire() {
                 onChange={set("prochaine_action")}
               />
             </Field>
-          </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {/* Prochaine action + observation */}
             <Field label="Observation">
               <textarea
                 className={`${inputCls()} resize-y min-h-[90px]`}

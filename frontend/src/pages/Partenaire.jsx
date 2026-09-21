@@ -3,9 +3,10 @@ import PartnersToolbar from "../components/partners/PartnersToolbar";
 import PartnersTable from "../components/partners/PartnersTable";
 import Pagination from "../components/partners/Pagination";
 import Loader from "../components/common/Loader";
-import { getAllPartnerships } from "../services/partenariatService";
+import { deletePartnership, getAllPartnerships } from "../services/partenariatService";
 import { useToast } from "../context/ToastContext.jsx";
 import { useNavigate } from "react-router-dom";
+import ConfirmModal from "../components/common/Confirmmodal.jsx";
 
 const PAGE_SIZE = 6;
 
@@ -16,9 +17,13 @@ export default function Partenaire() {
   const [currentPage, setCurrentPage] = useState(1);
   const [partenaires, setPartenaires] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  //pour la suppression
+  const [isLoading2, setIsLoading2] = useState(false);
 
   const toast = useToast();
   const navigate = useNavigate();
+  const [confirmOpen, setConfirmOpen ] = useState(false);
+  const [selectedPart,setSelectedPart] = useState({});
 
   useEffect(() => {
     const fetchPartenaires = async () => {
@@ -51,7 +56,7 @@ export default function Partenaire() {
         .toLowerCase()
         .includes(search.trim().toLowerCase());
       const matchesCampus =
-        campusFilter === "Tous" || p.campus === campusFilter;
+        campusFilter === "Tous" || p.campus_part === campusFilter;
       const matchesStatus =
         statusFilter === "Tous" || p.statut_part === statusFilter;
       return matchesSearch && matchesCampus && matchesStatus;
@@ -78,40 +83,78 @@ export default function Partenaire() {
   const handleEdit = (partner) => {
     // Brancher ici l'ouverture d'un formulaire d'édition
     console.log("Modifier", partner);
+    toast.success(`Partenaire ${partner.id_part} a été mise à jour`);
+  };
+
+  const handleDelete = async () => {
+    setIsLoading2(true)
+    try {
+      await deletePartnership(selectedPart.id_part);
+      setIsLoading2(false)
+      // Retire instantanément la ligne de l'écran
+      setPartenaires((prev) => prev.filter((p) => p.id_part !== selectedPart.id_part));
+      
+      toast.success(`Partenaire n°${selectedPart.id_part} a été supprimé`);
+    } catch (error) {
+      console.error("Erreur lors de la suppression :", error);
+      toast.error("Impossible de supprimer le partenaire.");
+    } finally {
+      setConfirmOpen(false);
+    }
   };
 
 
   return (
-    <div className="space-y-4">
-      <PartnersToolbar
-        search={search}
-        onSearchChange={updateFilter(setSearch)}
-        campusFilter={campusFilter}
-        onCampusFilterChange={updateFilter(setCampusFilter)}
-        statusFilter={statusFilter}
-        onStatusFilterChange={updateFilter(setStatusFilter)}
-        onAddPartner={handleAddPartner}
-        campusOptions={campusOptions}
-        statusOptions={statusOptions}
-      />
+    <>
+      <div className="space-y-4">
+        <PartnersToolbar
+          search={search}
+          onSearchChange={updateFilter(setSearch)}
+          campusFilter={campusFilter}
+          onCampusFilterChange={updateFilter(setCampusFilter)}
+          statusFilter={statusFilter}
+          onStatusFilterChange={updateFilter(setStatusFilter)}
+          onAddPartner={handleAddPartner}
+          campusOptions={campusOptions}
+          statusOptions={statusOptions}
+        />
 
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-100">
-        {isLoading ? (
-          <Loader fullScreen={false} label="Chargement des partenaires..." />
-        ) : (
-          <>
-            <PartnersTable partners={paginated} onEdit={handleEdit} />
-            <Pagination
-              total={filtered.length}
-              shown={paginated.length}
-              currentPage={page}
-              totalPages={totalPages}
-              onPrevious={() => setCurrentPage((p) => Math.max(1, p - 1))}
-              onNext={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-            />
-          </>
-        )}
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-100">
+          {isLoading ? (
+            <Loader fullScreen={false} label="Chargement des partenaires..." />
+          ) : (
+            <>
+              <PartnersTable 
+                partners={paginated} 
+                onEdit={handleEdit} 
+                onDelete={
+                (partner) => {
+                  setConfirmOpen(true);
+                  setSelectedPart(partner);
+                }}/>
+              <Pagination
+                total={filtered.length}
+                shown={paginated.length}
+                currentPage={page}
+                totalPages={totalPages}
+                onPrevious={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                onNext={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              />
+            </>
+          )}
+        </div>
       </div>
-    </div>
+      <ConfirmModal
+          open={confirmOpen}
+          variant="danger"
+          title="Supprimer un partenaire?"
+          message={"Vous allez supprimer le partenaire n°"+selectedPart.id_part+ " ?"}
+          confirmLabel="Confirmer"
+          cancelLabel="Annuler"
+          onConfirm={handleDelete}
+          onCancel={() => setConfirmOpen(false)}
+          isLoading={isLoading2}
+      />
+    </>
   );
 }

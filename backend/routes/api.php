@@ -15,7 +15,7 @@ Route::middleware('auth:sanctum')->group(function () {
         return $request->user()->load('roles');
     });
     Route::post('/logout', [AuthController::class, 'logout']);
-    });
     Route::apiResource('ateliers', AtelierController::class);
-    
     Route::apiResource('partenariats', PartenariatController::class);
+});
+    

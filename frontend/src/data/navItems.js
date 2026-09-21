@@ -13,8 +13,7 @@ export const NAV_ITEMS = [
   { label: "Partenaires", icon: Users, path: "/partenaires" },
   { label: "Propositions", icon: FileText, path: "/propositions" },
   { label: "Activités", icon: MonitorPlay, path: "/activites" },
-  { label: "Atelier", icon: ClipboardCheck, path: "/atelier" },
+  { label: "Ateliers", icon: ClipboardCheck, path: "/ateliers" },
   { label: "Documents", icon: File, path: "/documents" },
   { label: "Relations", icon: Network, path: "/relations" },
 ];
- 

@@ -36,11 +36,11 @@ class PartenariatController extends Controller
             'nom_part' => 'required|string|max:255',
             'campus_part' => 'required|string|max:255',
             'statut_part' => 'required|string|max:255',
-            'type_part' => 'required|string|max:255',
-            'nbr_intervenant' => 'required|integer|min:0',
-            'prochaine_action' => 'required|string|max:255',
+            'type_part' => 'nullable|string|max:255',
+            'nbr_intervention' => 'required|integer|min:0',
+            'prochaine_action' => 'nullable|string|max:255',
             'contact_part' => 'required|string|max:255',
-            'observation' => 'required|string',
+            'observation' => 'nullable|string',
         ]);
 
         $partenariat = Partenariat::create($validated);
@@ -76,7 +76,7 @@ class PartenariatController extends Controller
             'campus_part' => 'sometimes|required|string|max:255',
             'statut_part' => 'sometimes|required|string|max:255',
             'type_part' => 'sometimes|required|string|max:255',
-            'nbr_intervenant' => 'sometimes|required|integer|min:0',
+            'nbr_intervention' => 'sometimes|required|integer|min:0',
             'prochaine_action' => 'sometimes|required|string|max:255',
             'contact_part' => 'sometimes|required|string|max:255',
             'observation' => 'sometimes|required|string',

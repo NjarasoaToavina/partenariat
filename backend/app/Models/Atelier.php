@@ -10,7 +10,8 @@ class Atelier extends Model
     protected $primaryKey = 'id_atel';
 
     protected $fillable = [
-        'date_atel',
+        'date_debut_atel',
+        'date_fin_atel',
         'campus_atel',
         'groupe',
         'contenu_atel',

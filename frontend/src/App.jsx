@@ -12,6 +12,7 @@ import {useAuth} from './context/AuthContext.jsx'
 import Loader from './components/common/Loader.jsx'
 import AjouterPartenaire from './pages/AjouterPartenaire.jsx'
 import AjouterAtelier from './pages/AjouterAtelier.jsx'
+import ModifierPartenaire from './pages/ModifierPartenaire.jsx'
 
 function App() {
   const { loading } = useAuth();
@@ -33,6 +34,7 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/partenaires" element={<Partenaire />} />
         <Route path="/partenaires/ajouter" element={<AjouterPartenaire />} />
+        <Route path="/partenaires/modifier/:id" element={<ModifierPartenaire />} />
         <Route path="/ateliers" element={<Atelier />} />
         <Route path="/ateliers/ajouter" element={<AjouterAtelier />} />
         

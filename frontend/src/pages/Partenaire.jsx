@@ -82,8 +82,7 @@ export default function Partenaire() {
 
   const handleEdit = (partner) => {
     // Brancher ici l'ouverture d'un formulaire d'édition
-    console.log("Modifier", partner);
-    toast.success(`Partenaire ${partner.id_part} a été mise à jour`);
+    navigate(`/partenaires/modifier/${partner.id_part}`)
   };
 
   const handleDelete = async () => {

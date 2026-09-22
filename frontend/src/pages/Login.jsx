@@ -47,6 +47,7 @@ export default function Login() {
 
       // 5. Redirigez enfin l'utilisateur vers son tableau de bord
       navigate("/dashboard");
+      toast.success("Connexion réussie, bienvenue");
     } else {
       toast.error("Erreur : Aucun jeton d'authentification reçu.");
       setIsLoading(false); // Désactive le spinner

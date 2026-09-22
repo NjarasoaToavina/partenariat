@@ -54,12 +54,12 @@ export default function PartnersTable({ partners, onEdit, onDelete }) {
                 <DashIfEmpty value={partner.prochaine_action} />
               </td>
               <td className="px-4 py-4 align-top text-sm">
-                <p className="font-semibold text-slate-900">
+                <p className="font-semibold text-slate-900 text-center">
                   <DashIfEmpty value={partner.contact_part} />
                 </p>
               </td>
-              <td className="px-4 py-4 align-top text-sm text-slate-700 max-w-[160px]">
-                {partner.observation}
+              <td className="px-4 py-4 align-top text-sm text-slate-700 max-w-[160px] text-center">
+                <DashIfEmpty value={partner.observation} />
               </td>
               <td className="px-4 py-4 align-top text-center">
                 <div className="inline-flex items-center gap-2">

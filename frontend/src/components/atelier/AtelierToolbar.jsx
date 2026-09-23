@@ -88,6 +88,7 @@ export default function AtelierToolbar({
           />
           <Search size={16} className="text-slate-400 shrink-0" />
         </div>
+        
       </div>
     </div>
   );

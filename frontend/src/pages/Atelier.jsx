@@ -12,6 +12,9 @@ import Loader from "../components/common/Loader";
 
 import { useNavigate } from "react-router-dom";
 
+import { deleteAtelier } from "../services/atelierService";
+import ConfirmModal from "../components/common/Confirmmodal";
+
 const PAGE_SIZE = 6;
 
 function parseDate(str) {
@@ -33,6 +36,9 @@ export default function Atelier() {
 
   const [ateliers, setAteliers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [selectedAtel, setSelectedAtel] = useState({});
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const stats = useMemo(() => getAtelierStats(ateliers), [ateliers]);
   const navigate = useNavigate();
   
@@ -57,10 +63,13 @@ export default function Atelier() {
 
   const filtered = useMemo(() => {
     let list = ateliers.filter((a) => {
-      const atelierDate = parseDate(a.date_atel);
+      const atelierDateDebut = parseDate(a.date_debut_atel);
+      const atelierDateFin = parseDate(a.date_fin_atel);
       const matchesPeriod =
-        (!periodStart || atelierDate >= new Date(periodStart)) &&
-        (!periodEnd || atelierDate <= new Date(periodEnd));
+        (!periodStart || atelierDateDebut >= new Date(periodStart)) &&
+        (!periodEnd || atelierDateDebut <= new Date(periodEnd)) &&
+        (!periodStart || atelierDateFin >= new Date(periodStart)) &&
+        (!periodEnd || atelierDateFin <= new Date(periodEnd));
       const matchesCampus = campusFilter === "Tous" || a.campus_atel === campusFilter;
       const matchesStatut = statutFilter === "Tous" || a.statut_atel === statutFilter;
       const q = search.trim().toLowerCase();
@@ -73,7 +82,7 @@ export default function Atelier() {
     });
 
     list = [...list].sort((a, b) => {
-      const diff = parseDate(a.date_atel) - parseDate(b.date_atel);
+      const diff = parseDate(a.date_debut_atel) - parseDate(b.date_debut_atel);
       return sortAsc ? diff : -diff;
     });
 
@@ -94,82 +103,116 @@ export default function Atelier() {
     navigate("/ateliers/ajouter");
   };
 
+  const handleEdit = (atelier) => {
+     // Brancher ici l'ouverture d'un formulaire d'édition
+    navigate(`/ateliers/modifier/${atelier.id_atel}`);
+   };
+ 
+   const handleDelete = async () => {
+     setIsDeleting(true)
+     try {
+       await deleteAtelier(selectedAtel.id_atel);
+       setIsDeleting(false)
+       // Retire instantanément la ligne de l'écran
+       setAteliers((prev) => prev.filter((p) => p.id_atel !== selectedAtel.id_atel));
+       
+       toast.success(`Atelier n°${selectedAtel.id_atel} a été supprimé`);
+     } catch (error) {
+       console.error("Erreur lors de la suppression :", error);
+       toast.error("Impossible de supprimer l'atelier.");
+     } finally {
+       setConfirmOpen(false);
+     }
+   };
   return (
-    <div className="space-y-6">
-      {/* Statistiques : uniquement Réalisé, Planifié, Total */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <StatCard
-          icon={CheckCircle2}
-          iconBg="bg-emerald-50"
-          iconColor="text-emerald-600"
-          value={stats.realise}
-          label="Ateliers réalisés"
-        />
-        <StatCard
-          icon={Clock}
-          iconBg="bg-sky-50"
-          iconColor="text-sky-600"
-          value={stats.planifie}
-          label="Ateliers planifiés"
-        />
-        <StatCard
-          icon={ClipboardList}
-          iconBg="bg-violet-50"
-          iconColor="text-violet-600"
-          value={stats.total}
-          label="Total ateliers"
-        />
-      </div>
-
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 space-y-5">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <h2 className="text-sm font-bold text-slate-900">Liste des ateliers</h2>
-          <button
-            onClick={handleAddAtelier}
-            className="flex items-center justify-center gap-2 bg-sky-600 hover:bg-sky-700 text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors whitespace-nowrap"
-          >
-            <Plus size={18} />
-            Ajouter un atelier
-          </button>
+    <>
+      <div className="space-y-6">
+        {/* Statistiques : uniquement Réalisé, Planifié, Total */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <StatCard
+            icon={CheckCircle2}
+            iconBg="bg-emerald-50"
+            iconColor="text-emerald-600"
+            value={stats.realise}
+            label="Ateliers réalisés"
+          />
+          <StatCard
+            icon={Clock}
+            iconBg="bg-sky-50"
+            iconColor="text-sky-600"
+            value={stats.planifie}
+            label="Ateliers planifiés"
+          />
+          <StatCard
+            icon={ClipboardList}
+            iconBg="bg-violet-50"
+            iconColor="text-violet-600"
+            value={stats.total}
+            label="Total ateliers"
+          />
         </div>
 
-        <AtelierToolbar
-          periodStart={periodStart}
-          onPeriodStartChange={updateFilter(setPeriodStart)}
-          periodEnd={periodEnd}
-          onPeriodEndChange={updateFilter(setPeriodEnd)}
-          campusFilter={campusFilter}
-          onCampusFilterChange={updateFilter(setCampusFilter)}
-          statutFilter={statutFilter}
-          onStatutFilterChange={updateFilter(setStatutFilter)}
-          search={search}
-          onSearchChange={updateFilter(setSearch)}
-        />
-      </div>
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 space-y-5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <h2 className="text-sm font-bold text-slate-900">Liste des ateliers</h2>
+            <button
+              onClick={handleAddAtelier}
+              className="flex items-center justify-center gap-2 bg-sky-600 hover:bg-sky-700 text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors whitespace-nowrap"
+            >
+              <Plus size={18} />
+              Ajouter un atelier
+            </button>
+          </div>
 
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-100">
-        {isLoading ? (
-          <Loader fullScreen={false} label="Chargement des ateliers..." />
-        ) : (      
-          <>
-            <AtelierTable
-              ateliers={paginated}
-              sortAsc={sortAsc}
-              onToggleSort={() => setSortAsc((v) => !v)}
-              onView={(a) => console.log("Voir", a)}
-              onMore={(a) => console.log("Actions", a)}
-            />
-            <AtelierPagination
-              total={filtered.length}
-              rangeStart={filtered.length === 0 ? 0 : (page - 1) * PAGE_SIZE + 1}
-              rangeEnd={Math.min(page * PAGE_SIZE, filtered.length)}
-              currentPage={page}
-              totalPages={totalPages}
-              onPageChange={setCurrentPage}
-            />
-          </>
-        )}
+          <AtelierToolbar
+            periodStart={periodStart}
+            onPeriodStartChange={updateFilter(setPeriodStart)}
+            periodEnd={periodEnd}
+            onPeriodEndChange={updateFilter(setPeriodEnd)}
+            campusFilter={campusFilter}
+            onCampusFilterChange={updateFilter(setCampusFilter)}
+            statutFilter={statutFilter}
+            onStatutFilterChange={updateFilter(setStatutFilter)}
+            search={search}
+            onSearchChange={updateFilter(setSearch)}
+          />
+        </div>
+
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-100">
+          {isLoading ? (
+            <Loader fullScreen={false} label="Chargement des ateliers..." />
+          ) : (      
+            <>
+              <AtelierTable
+                ateliers={paginated}
+                sortAsc={sortAsc}
+                onToggleSort={() => setSortAsc((v) => !v)}
+                onEdit={handleEdit}
+                onDelete={(a) => console.log("Actions", a)}
+              />
+              <AtelierPagination
+                total={filtered.length}
+                rangeStart={filtered.length === 0 ? 0 : (page - 1) * PAGE_SIZE + 1}
+                rangeEnd={Math.min(page * PAGE_SIZE, filtered.length)}
+                currentPage={page}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+              />
+            </>
+          )}
+        </div>
       </div>
-    </div>
+      <ConfirmModal
+          open={confirmOpen}
+          variant="danger"
+          title="Supprimer un atelier?"
+          message={"Vous allez supprimer l'atelier n°"+selectedAtel.id_atel+ " ?"}
+          confirmLabel="Confirmer"
+          cancelLabel="Annuler"
+          onConfirm={handleDelete}
+          onCancel={() => setConfirmOpen(false)}
+          isLoading={isDeleting}
+      />
+    </>
   );
 }

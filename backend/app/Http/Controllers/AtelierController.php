@@ -32,7 +32,8 @@ class AtelierController extends Controller
     {
         //
         $validated = $request->validate([
-            'date_atel' => 'required|date',
+            'date_debut_atel' => 'required|date',
+            'date_fin_atel' => 'required|date',
             'campus_atel' => 'required|string|max:255',
             'groupe' => 'required|string|max:255',
             'contenu_atel' => 'required|string',
@@ -68,7 +69,8 @@ class AtelierController extends Controller
     {
         //
         $validated = $request->validate([
-            'date_atel' => 'required|date',
+            'date_debut_atel' => 'required|date',
+            'date_fin_atel' => 'required|date',
             'campus_atel' => 'required|string|max:255',
             'groupe' => 'required|string|max:255',
             'contenu_atel' => 'required|string',

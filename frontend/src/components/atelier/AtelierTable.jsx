@@ -1,8 +1,9 @@
 import { CalendarDays, ChevronsUpDown, Eye, MoreVertical } from "lucide-react";
 import { StatutBadge, CampusBadge } from "./Badges";
 import IntervenantAvatar from "./IntervenantAvatar";
+import { Pencil,Trash2 } from "lucide-react";
 
-export default function AtelierTable({ ateliers, sortAsc, onToggleSort, onView, onMore }) {
+export default function AtelierTable({ ateliers, sortAsc, onToggleSort, onEdit,onDelete }) {
   return (
     <div className="overflow-x-auto">
       <table className="w-full min-w-[1100px] border-separate border-spacing-0">
@@ -40,10 +41,10 @@ export default function AtelierTable({ ateliers, sortAsc, onToggleSort, onView, 
                   <CalendarDays size={15} className="text-slate-400" />
                   <span>
                     <span className="block font-semibold text-slate-900">
-                      {a.date_atel}
+                      {a.date_debut_atel}
                     </span>
                     <span className="block text-xs text-slate-400">
-                      {a.date_atel}
+                      {a.date_fin_atel}
                     </span>
                   </span>
                 </span>
@@ -71,7 +72,7 @@ export default function AtelierTable({ ateliers, sortAsc, onToggleSort, onView, 
               <td className="px-4 py-4 align-top">
                 <StatutBadge statut={a.statut_atel} />
               </td>
-              <td className="px-4 py-4 align-top">
+              {/* <td className="px-4 py-4 align-top">
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => onView?.(a)}
@@ -86,6 +87,24 @@ export default function AtelierTable({ ateliers, sortAsc, onToggleSort, onView, 
                     aria-label={`Plus d'actions pour l'atelier ${a.contenu_atel}`}
                   >
                     <MoreVertical size={16} />
+                  </button>
+                </div>
+              </td> */}
+              <td className="px-4 py-4 align-top text-center">
+                <div className="inline-flex items-center gap-2">
+                  <button
+                    onClick={() => onEdit?.(a)}
+                    className="w-8 h-8 inline-flex items-center justify-center border border-slate-200 rounded-lg text-slate-500 hover:text-sky-600 hover:border-sky-300 transition-colors"
+                    aria-label={`Modifier ${a.nom_part}`}
+                  >
+                    <Pencil size={15} />
+                  </button>
+                  <button
+                    onClick={() => onDelete?.(a)}
+                    className="w-8 h-8 inline-flex items-center justify-center border border-slate-200 rounded-lg text-slate-500 hover:text-[#E53E3E] hover:border-[#E53E3E]/40 hover:bg-[#FDECEC] transition-colors"
+                    aria-label={`Supprimer ${a.nom_part}`}
+                  >
+                    <Trash2 size={15} />
                   </button>
                 </div>
               </td>

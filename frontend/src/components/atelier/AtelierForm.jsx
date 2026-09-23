@@ -15,6 +15,7 @@ export default function AtelierForm({ initialValues, onSubmit, onCancel, saving 
     date_debut_atel: "",
     date_fin_atel:"",
     campus_atel: "",
+    filiere_atel: "",
     groupe: "1",
     contenu_atel: "",
     intervenant: "",
@@ -41,6 +42,7 @@ export default function AtelierForm({ initialValues, onSubmit, onCancel, saving 
     if (!form.date_debut_atel)           e.date_debut_atel = "Champ requis.";
     if (!form.date_fin_atel)             e.date_fin_atel = "Champ requis.";
     if (!form.campus_atel)               e.campus_atel = "Champ requis.";
+    if (!form.filiere_atel)               e.filiere_atel = "Champ requis.";
     if (!form.groupe || form.groupe < 1) e.groupe = "Champ requis.";
     if (!form.contenu_atel.trim())       e.contenu_atel = "Champ requis.";
     if (!form.intervenant.trim())        e.intervenant = "Champ requis.";
@@ -92,7 +94,7 @@ export default function AtelierForm({ initialValues, onSubmit, onCancel, saving 
           </div>
 
           {/* Nombre de groupe + Intervenant */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <Field label="Campus" required error={errors.campus_atel}>
               <select className={inputCls(errors.campus_atel)} value={form.campus_atel} onChange={set("campus_atel")}>
                 <option value="">Sélectionner un campus</option>
@@ -107,6 +109,16 @@ export default function AtelierForm({ initialValues, onSubmit, onCancel, saving 
                 min="1"
                 value={form.groupe}
                 onChange={set("groupe")}
+              />
+            </Field>
+
+            <Field label="Filiere/Classe" required error={errors.groupe}>
+              <input
+                className={inputCls(errors.groupe)}
+                type="text"
+                placeholder="Ex: L2 BF"
+                value={form.filiere_atel}
+                onChange={set("filiere_atel")}
               />
             </Field>
           </div>

@@ -53,15 +53,10 @@ export default function AtelierTable({ ateliers, sortAsc, onToggleSort, onEdit,o
                 <CampusBadge campus={a.campus_atel} />
               </td>
               <td className="px-4 py-4 align-top text-sm text-slate-700">
-                <span className="block font-semibold text-slate-900">
-                  {a.groupe}
-                </span>
-                <span className="block text-xs text-slate-400">
-                  {a.groupe}
-                </span>
+                  {a.filiere_atel}
               </td>
               <td className="px-4 py-4 align-top text-sm text-slate-700">
-                {a.groupe} groupes
+                {a.groupe}
               </td>
               <td className="px-4 py-4 align-top text-sm text-slate-700 max-w-[220px]">
                 {a.contenu_atel}

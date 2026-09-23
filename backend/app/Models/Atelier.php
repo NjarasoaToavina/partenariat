@@ -13,6 +13,7 @@ class Atelier extends Model
         'date_debut_atel',
         'date_fin_atel',
         'campus_atel',
+        'atelier_atel',
         'groupe',
         'contenu_atel',
         'intervenant',

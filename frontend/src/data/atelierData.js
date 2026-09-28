@@ -1,7 +1,18 @@
 export const STATUT_STYLES = {
-  Réalisé: "bg-emerald-50 text-emerald-600",
-  Planifié: "bg-sky-50 text-sky-600",
+  realise: "bg-emerald-50 text-emerald-600",
+  planifie: "bg-sky-50 text-sky-600",
 };
+
+export const STATUT_LABEL = {
+  realise: "Réalisé",
+  planifie: "Planifié"
+}
+
+export const STATUT_OPTIONS = Object.entries(STATUT_LABEL).map(([value, label]) => ({
+  label,
+  value
+}));
+
 
 export const CAMPUS_STYLES = {
   ESMIA: "bg-sky-50 text-sky-700",

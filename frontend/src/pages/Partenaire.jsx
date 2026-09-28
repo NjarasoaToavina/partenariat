@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import PartnersToolbar from "../components/partners/PartnersToolbar";
 import PartnersTable from "../components/partners/PartnersTable";
-import Pagination from "../components/partners/Pagination";
 import Loader from "../components/common/Loader";
 import { deletePartnership, getAllPartnerships } from "../services/partenariatService";
 import { useToast } from "../context/ToastContext.jsx";
 import { useNavigate } from "react-router-dom";
 import ConfirmModal from "../components/common/Confirmmodal.jsx";
+import Pagination from "../components/common/Pagination.jsx";
 
 const PAGE_SIZE = 6;
 
@@ -131,14 +131,22 @@ export default function Partenaire() {
                   setConfirmOpen(true);
                   setSelectedPart(partner);
                 }}/>
-              <Pagination
+              {/* <Pagination
                 total={filtered.length}
                 shown={paginated.length}
                 currentPage={page}
                 totalPages={totalPages}
                 onPrevious={() => setCurrentPage((p) => Math.max(1, p - 1))}
                 onNext={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-              />
+              /> */}
+              <Pagination
+                 total={filtered.length}
+                 rangeStart={filtered.length === 0 ? 0 : (page - 1) * PAGE_SIZE + 1}
+                 rangeEnd={Math.min(page * PAGE_SIZE, filtered.length)}
+                 currentPage={page}
+                 totalPages={totalPages}
+                 onPageChange={setCurrentPage}
+               />
             </>
           )}
         </div>

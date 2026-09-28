@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import Field from "../common/Field.jsx";
+import { STATUT_OPTIONS } from "../../data/atelierData";
 
 const CAMPUS_OPTIONS = ["ESMIA", "BEATI"];
-const STATUT_OPTIONS = ["Planifié", "Réalisé"];
 
 const inputCls = (error) =>
   `w-full px-3 py-2 text-sm rounded-lg border bg-white text-slate-800 outline-none
@@ -19,7 +19,7 @@ export default function AtelierForm({ initialValues, onSubmit, onCancel, saving 
     groupe: "1",
     contenu_atel: "",
     intervenant: "",
-    statut_atel: "Planifié",
+    statut_atel: "planifie",
     ...initialValues,
   });
 
@@ -54,6 +54,7 @@ export default function AtelierForm({ initialValues, onSubmit, onCancel, saving 
     // console.log("Atelier data:", form);
     const errs = validate();
     if (Object.keys(errs).length) { setErrors(errs); return; }
+    console.log("les forms:",form)
     onSubmit(form);
     
     // setSaving(true);
@@ -112,9 +113,9 @@ export default function AtelierForm({ initialValues, onSubmit, onCancel, saving 
               />
             </Field>
 
-            <Field label="Filiere/Classe" required error={errors.groupe}>
+            <Field label="Filiere/Classe" required error={errors.filiere_atel}>
               <input
-                className={inputCls(errors.groupe)}
+                className={inputCls(errors.filiere_atel)}
                 type="text"
                 placeholder="Ex: L2 BF"
                 value={form.filiere_atel}
@@ -137,7 +138,7 @@ export default function AtelierForm({ initialValues, onSubmit, onCancel, saving 
 
             <Field label="Statut" required error={errors.statut_atel}>
               <select className={inputCls(errors.statut_atel)} value={form.statut_atel} onChange={set("statut_atel")}>
-                {STATUT_OPTIONS.map((s) => <option key={s}>{s}</option>)}
+                {STATUT_OPTIONS.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
               </select>
             </Field>
           

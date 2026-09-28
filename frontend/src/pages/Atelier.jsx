@@ -3,7 +3,7 @@ import { CheckCircle2, Clock, ClipboardList, Plus } from "lucide-react";
 import StatCard from "../components/atelier/StatCard";
 import AtelierToolbar from "../components/atelier/AtelierToolbar";
 import AtelierTable from "../components/atelier/AtelierTable";
-import AtelierPagination from "../components/atelier/AtelierPagination";
+import Pagination from "../components/common/Pagination";
 import { getAtelierStats } from "../data/atelierData";
 
 import { useToast } from "../context/ToastContext";
@@ -41,7 +41,6 @@ export default function Atelier() {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const stats = useMemo(() => getAtelierStats(ateliers), [ateliers]);
   const navigate = useNavigate();
-  
   
   const toast = useToast();
 
@@ -190,7 +189,7 @@ export default function Atelier() {
                 onEdit={handleEdit}
                 onDelete={(a) => console.log("Actions", a)}
               />
-              <AtelierPagination
+              <Pagination
                 total={filtered.length}
                 rangeStart={filtered.length === 0 ? 0 : (page - 1) * PAGE_SIZE + 1}
                 rangeEnd={Math.min(page * PAGE_SIZE, filtered.length)}

@@ -14,6 +14,7 @@ import AjouterPartenaire from './pages/AjouterPartenaire.jsx'
 import AjouterAtelier from './pages/AjouterAtelier.jsx'
 import ModifierPartenaire from './pages/ModifierPartenaire.jsx'
 import ModifierAtelier from './pages/ModifierAtelier.jsx'
+import Document from './pages/Document.jsx'
 
 function App() {
   const { loading } = useAuth();
@@ -39,8 +40,9 @@ function App() {
         <Route path="/ateliers" element={<Atelier />} />
         <Route path="/ateliers/ajouter" element={<AjouterAtelier />} />
         <Route path="/ateliers/modifier/:id" element={<ModifierAtelier />} />
+        <Route path="/documents" element={<Document/>} />
         
-         {NAV_ITEMS.filter((item) => !item.path.includes(["/dashboard", "/partenaires", "/ateliers"])).map(
+         {NAV_ITEMS.filter((item) => !item.path.includes(["/dashboard", "/partenaires", "/ateliers", "/documents"])).map(
           (item) => (
             <Route
               key={item.path}

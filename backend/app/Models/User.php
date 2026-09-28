@@ -28,7 +28,7 @@ class User extends Authenticatable
         'nom_service',
         'filiere',
         'niveau',
-        'fonction'
+        'fonction'  
     ];
 
     /**

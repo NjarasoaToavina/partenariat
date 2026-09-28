@@ -1,4 +1,4 @@
-import { STATUT_STYLES, CAMPUS_STYLES } from "../../data/atelierData";
+import { STATUT_STYLES, STATUT_LABEL, CAMPUS_STYLES } from "../../data/atelierData";
 
 export function StatutBadge({ statut }) {
   return (
@@ -7,7 +7,7 @@ export function StatutBadge({ statut }) {
         STATUT_STYLES[statut] || "bg-slate-100 text-slate-600"
       }`}
     >
-      {statut}
+      {STATUT_LABEL[statut]}
     </span>
   );
 }

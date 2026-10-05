@@ -7,13 +7,14 @@ export default function Pagination({
   currentPage,
   totalPages,
   onPageChange,
+  label = ""
 }) {
   const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
 
   return (
     <div className="flex items-center justify-between px-4 py-4 border-t border-slate-100">
       <p className="text-sm text-slate-500">
-        Affichage de {rangeStart} à {rangeEnd} sur {total} ateliers
+        Affichage de {rangeStart} à {rangeEnd} sur {total} {label}
       </p>
 
       <div className="flex items-center gap-1.5">

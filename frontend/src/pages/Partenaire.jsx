@@ -146,6 +146,7 @@ export default function Partenaire() {
                  currentPage={page}
                  totalPages={totalPages}
                  onPageChange={setCurrentPage}
+                 label="partenaires"
                />
             </>
           )}

@@ -196,6 +196,7 @@ export default function Atelier() {
                 currentPage={page}
                 totalPages={totalPages}
                 onPageChange={setCurrentPage}
+                label = "ateliers"
               />
             </>
           )}

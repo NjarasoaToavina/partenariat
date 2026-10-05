@@ -6,7 +6,7 @@ import StatCard from "../components/atelier/StatCard";
 import { CheckCircle2, Clock, ClipboardList, Plus } from "lucide-react";
 import DocumentToolbar from "../components/document/DocumentToolbar";
 import { useToast } from "../context/ToastContext";
-import AtelierPagination from "../components/atelier/AtelierPagination";
+import Pagination from "../components/common/Pagination";
 
 const PAGE_SIZE = 6;
 
@@ -130,13 +130,14 @@ export default function Document() {
           onDownload={(doc) => {/* à brancher */}}
           onMore={(doc) => {/* à brancher, ex. menu contextuel */}}
         />
-        <AtelierPagination
+        <Pagination
           total={filtered.length}
           rangeStart={filtered.length === 0 ? 0 : (page - 1) * PAGE_SIZE + 1}
           rangeEnd={Math.min(page * PAGE_SIZE, filtered.length)}
           currentPage={page}
           totalPages={totalPages}
           onPageChange={setPage}
+          label = "documents"
         />
       </div>
 

@@ -1,4 +1,4 @@
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2, Plus } from "lucide-react";
 import StatusBadge from "./StatusBadge";
 
 function DashIfEmpty({ value }) {
@@ -8,7 +8,7 @@ function DashIfEmpty({ value }) {
     : <>{value}</>;
 }
 
-export default function PartnersTable({ partners, onEdit, onDelete }) {
+export default function PartnersTable({ partners, onEdit, onDelete, onConventionClick }) {
   return (
     <div className="overflow-x-auto">
       <table className="w-full min-w-[1000px] border-separate border-spacing-0">
@@ -23,6 +23,7 @@ export default function PartnersTable({ partners, onEdit, onDelete }) {
               <br />
               d'intervenants
             </th>
+            <th className="px-4 py-3">Convention</th>
             <th className="px-4 py-3">Prochaine action</th>
             <th className="px-4 py-3">Contact</th>
             <th className="px-4 py-3">Observation</th>
@@ -49,6 +50,16 @@ export default function PartnersTable({ partners, onEdit, onDelete }) {
               </td>
               <td className="px-4 py-4 align-top text-sm text-slate-700 text-center">
                 {partner.nbr_intervention }
+              </td>
+              <td className="px-4 py-4 align-top text-sm text-slate-700 text-center">
+                <button
+                    // onClick={() => onDelete?.(partner)}
+                    onClick={() => onConventionClick?.(partner)}
+                    className="w-8 h-8 inline-flex items-center justify-center border border-slate-200 rounded-lg text-slate-500 hover:text-[#E53E3E] hover:border-[#E53E3E]/40 hover:bg-[#FDECEC] transition-colors"
+                    aria-label={`Voir les conventions de ${partner.nom_part}`}
+                  >
+                    <Plus size={15} />
+                </button>
               </td>
               <td className="px-4 py-4 align-top text-sm text-slate-700 whitespace-nowrap text-center">
                 <DashIfEmpty value={partner.prochaine_action} />

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Convention;
 
 class Partenariat extends Model
 {
@@ -18,5 +19,11 @@ class Partenariat extends Model
         'prochaine_action',
         'contact_part',
         'observation',
-    ];
+        ];
+
+    public function conventions()
+    {
+        return $this->hasMany(Convention::class, 'id_part', 'id_part');
+    }
 }
+        

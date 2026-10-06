@@ -16,7 +16,10 @@ import ModifierPartenaire from './pages/ModifierPartenaire.jsx'
 import ModifierAtelier from './pages/ModifierAtelier.jsx'
 import Document from './pages/Document.jsx'
 import Proposition from './pages/Proposition.jsx'
-
+import Convention from './pages/Convention.jsx'
+import ConventionDetail from './pages/ConventionDetail.jsx'
+import ModifierConvention from './pages/ModifierConvention.jsx'
+import AjouterConvention from './pages/AjouterConvention.jsx'
 function App() {
   const { loading } = useAuth();
 
@@ -43,6 +46,10 @@ function App() {
         <Route path="/ateliers/modifier/:id" element={<ModifierAtelier />} />
         <Route path="/documents" element={<Document/>} />
         <Route path="/propositions" element={<Proposition/>} />
+        <Route path="/partenaires/:id/conventions" element={<Convention/>} />
+        <Route path="/partenaires/:id/conventions/:convId" element={<ConventionDetail />} />
+         <Route path="/partenaires/:id/conventions/ajouter" element={<AjouterConvention />} />
+        <Route path="/partenaires/:id/conventions/:convId/modifier" element={<ModifierConvention />} />
         
          {NAV_ITEMS.filter((item) => !item.path.includes(["/dashboard", "/partenaires", "/ateliers", "/documents","/propositions"])).map(
           (item) => (

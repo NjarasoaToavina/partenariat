@@ -85,6 +85,11 @@ export default function Partenaire() {
     navigate(`/partenaires/modifier/${partner.id_part}`)
   };
 
+  const handleOnConventionClick = (partner) => {
+    // Brancher ici l'ouverture d'un formulaire d'édition
+    navigate(`/partenaires/${partner.id_part}/conventions`)
+  }
+
   const handleDelete = async () => {
     setIsLoading2(true)
     try {
@@ -130,7 +135,9 @@ export default function Partenaire() {
                 (partner) => {
                   setConfirmOpen(true);
                   setSelectedPart(partner);
-                }}/>
+                }}
+                onConventionClick={handleOnConventionClick}
+              />
               {/* <Pagination
                 total={filtered.length}
                 shown={paginated.length}

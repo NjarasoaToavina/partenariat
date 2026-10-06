@@ -47,16 +47,20 @@ export default function Convention() {
 
   return (
     <div className="space-y-4">
-      <TitleForm
-        title="Conventions du partenaire"
-        description="Historique des conventions signées avec ce partenaire."
-        onBack={() => navigate("/partenaires")}
-      />
-
+        <TitleForm
+            title={
+                conventions.length > 0
+                ? `Conventions du partenaire ${conventions[0].partenariat?.nom_part}`
+                : "Conventions du partenaire"
+            }
+            description="Historique des conventions signées avec ce partenaire."
+            onBack={() => navigate("/partenaires")}
+        />
       <ConventionToolbar
         search={search}
         onSearchChange={setSearch}
         onAddConvention={() => navigate(`/partenaires/${id}/conventions/ajouter`)}
+        id_part={conventions.length > 0 ? conventions[0].partenariat?.id_part : ""}
       />
 
       {isLoading ? (

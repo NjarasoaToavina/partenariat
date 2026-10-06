@@ -34,7 +34,7 @@ export default function AjouterConvention() {
   return (
     <div className="space-y-4">
       <TitleForm
-        title="Ajouter une convention"
+        title={"Ajouter une convention au partenaire n°" + id}
         onBack={() => navigate(`/partenaires/${id}/conventions`)}
       />
       <ConventionForm

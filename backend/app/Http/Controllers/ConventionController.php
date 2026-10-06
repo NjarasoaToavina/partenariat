@@ -12,6 +12,7 @@ class ConventionController extends Controller
     /**
      * Afficher toutes les conventions
      */
+
     public function index()
     {
         $conventions = Convention::with('partenariat')->get();
@@ -19,6 +20,14 @@ class ConventionController extends Controller
         return response()->json($conventions, 200);
     }
 
+    public function getByPartenariat($id_part)
+    {
+        $conventions = Convention::with('partenariat')
+            ->where('id_part', $id_part)
+            ->get();
+
+        return response()->json($conventions, 200);
+    }
     /**
      * Afficher une convention
      */

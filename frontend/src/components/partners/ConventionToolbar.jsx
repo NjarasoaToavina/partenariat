@@ -4,6 +4,7 @@ export default function ConventionToolbar({
   search,
   onSearchChange,
   onAddConvention,
+  id_part
 }) {
     return (
         <div className="flex flex-col lg:flex-row lg:items-center gap-3">

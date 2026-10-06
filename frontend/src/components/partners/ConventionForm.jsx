@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import FileUploadField from "../common/FileUploadField";
 import Spinner from "../common/Spinner";
+import {URL} from "../../services/api";
 
 const EMPTY_FORM = {
   num_conv: "",
@@ -108,6 +109,15 @@ export default function ConventionForm({ initialValues, onSubmit, onCancel, savi
     e.preventDefault();
     onSubmit({ ...form, photo_conv: photoConv, scan });
   };
+
+  const cleanBackendUrl = URL.replace(/\/api$/, "");
+
+    const photoConvUrl = initialValues?.photo_conv
+    ? `${cleanBackendUrl}/storage/${initialValues.photo_conv}`
+    : null; 
+    const scanUrl = initialValues?.scan
+    ? `${cleanBackendUrl}/storage/${initialValues.scan}`
+    : null;
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -314,7 +324,7 @@ export default function ConventionForm({ initialValues, onSubmit, onCancel, savi
             hint="JPG, PNG (max 5 Mo)"
             accept="image/jpeg,image/png"
             file={photoConv}
-            existingUrl={initialValues?.photo_conv}
+            existingUrl={photoConvUrl}
             onChange={setPhotoConv}
             disabled={saving}
           />
@@ -323,7 +333,7 @@ export default function ConventionForm({ initialValues, onSubmit, onCancel, savi
             hint="PDF, JPG, PNG (max 10 Mo)"
             accept="application/pdf,image/jpeg,image/png"
             file={scan}
-            existingUrl={initialValues?.scan}
+            existingUrl={scanUrl}
             onChange={setScan}
             disabled={saving}
           />

@@ -8,8 +8,8 @@ export const getConvention = (id) => {
   return api.get(`/conventions/${id}`);
 }
 
-export const createConvention = (convention) => {
-  return api.post("/conventions", convention);
+export const createConvention = (id_part, convention) => {
+  return api.post(`/partenariats/${id_part}/conventions`, convention);
 }
 
 export const updateConvention = (id, conventionData) => {

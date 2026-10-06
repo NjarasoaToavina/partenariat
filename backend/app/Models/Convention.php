@@ -33,8 +33,8 @@ class Convention extends Model
     ];
 
     protected $casts = [
-        'date_debut_conv' => 'date',
-        'date_fin_conv' => 'date',
+        'date_debut_conv' => 'date:Y-m-d',
+        'date_fin_conv' => 'date:Y-m-d',
     ];
 
     public function partenariat()

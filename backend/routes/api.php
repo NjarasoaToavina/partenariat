@@ -23,8 +23,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/conventions/{id}', [ConventionController::class, 'show']);
     Route::put('/conventions/{id}', [ConventionController::class, 'update']);
     Route::delete('/conventions/{id}', [ConventionController::class, 'destroy']);
-    });
     Route::get('/conventions', [ConventionController::class, 'index']);
     Route::post('/partenariats/{id_part}/conventions', [ConventionController::class, 'store']);
     Route::get('/partenariats/{id_part}/conventions', [ConventionController::class, 'getByPartenariat']);
     
+});

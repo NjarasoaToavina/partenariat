@@ -13,8 +13,9 @@ export const createConvention = (id_part, convention) => {
 }
 
 export const updateConvention = (id, conventionData) => {
-  return api.put(`/conventions/${id}`, conventionData);
+  return api.post(`/conventions/${id}`, conventionData);
 };
+
 export const deleteConvention = (id) => {
   return api.delete(`/conventions/${id}`);
 }

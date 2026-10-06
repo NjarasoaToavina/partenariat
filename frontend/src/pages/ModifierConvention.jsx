@@ -38,6 +38,7 @@ export default function ModifierConvention() {
         if (value !== null && value !== undefined) formData.append(key, value);
       });
 
+      formData.append("_method", "PUT");
       await updateConvention(convId, formData);
 
       toast.success("Convention modifiée avec succès.");
@@ -64,6 +65,7 @@ export default function ModifierConvention() {
         onSubmit={handleSubmit}
         onCancel={() => navigate(`/partenaires/${id}/conventions/${convId}`)}
         saving={saving}
+        
       />
     </div>
   );

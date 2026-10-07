@@ -13,7 +13,12 @@ Route::post('/login', [AuthController::class, 'login']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (Request $request) {
-        return $request->user()->load('roles');
+        $user = $request->user();
+        return response()->json([
+            'user' => $user,
+            'roles' => $user->getRoleNames(),
+            'permissions' => $user->getAllPermissions()->pluck('name')->values(),
+        ]);
     });
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::apiResource('ateliers', AtelierController::class);

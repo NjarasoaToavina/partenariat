@@ -100,7 +100,7 @@ export default function SignUp() {
         // 2. On stocke le token dans le localStorage
         localStorage.setItem("ACCESS_TOKEN", token);
 
-        loginUser(response.data.user); // Met à jour le contexte AuthContext avec les informations de l'utilisateur
+        loginUser(response.data); // Met à jour le contexte AuthContext avec les informations de l'utilisateur
 
         // 3. On redirige DIRECTEMENT vers le dashboard sans passer par le login
         navigate("/dashboard");

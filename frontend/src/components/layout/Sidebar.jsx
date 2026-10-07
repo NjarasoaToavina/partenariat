@@ -10,7 +10,7 @@ import { useState } from "react";
 
 export default function Sidebar({ open = false, onClose = () => {} }) {
   const navigate = useNavigate();
-  const { logoutUser } = useAuth();
+  const { logoutUser, hasPermission } = useAuth();
   const toast = useToast();
   const [confirmOpen, setConfirmOpen] = useState(false);
   const handleLogoutConfirmed = async () => {
@@ -73,7 +73,9 @@ export default function Sidebar({ open = false, onClose = () => {} }) {
         </div>
 
         <nav className="flex-1 overflow-y-auto px-3 mt-2 space-y-1">
-          {NAV_ITEMS.map(({ label, icon: Icon, path }) => (
+        {NAV_ITEMS
+          .filter(({ permission }) => hasPermission(permission))
+          .map(({ label, icon: Icon, path }) => (
             <NavLink
               key={path}
               to={path}
@@ -90,7 +92,7 @@ export default function Sidebar({ open = false, onClose = () => {} }) {
               {label}
             </NavLink>
           ))}
-        </nav>
+      </nav>
 
         <div className="px-3 pb-6">
           <button

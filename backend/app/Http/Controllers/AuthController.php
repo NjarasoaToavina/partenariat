@@ -12,15 +12,6 @@ class AuthController extends Controller
     public function register(Request $request)
     {
 
-    // 1. Initialiser le chemin de l'image à null
-    $imagePath = null;
-
-    // 2. Vérifier si une image a bien été envoyée dans la requête
-    if ($request->hasFile('image')) {
-        // Sauvegarde le fichier dans storage/app/public/profiles et récupère le chemin abrégé
-        $imagePath = $request->file('image')->store('profiles', 'public');
-    }
-
         $validated = $request->validate([
             'userType' => ['required', 'string'],
             'name' => ['required', 'string', 'max:255'],
@@ -33,10 +24,12 @@ class AuthController extends Controller
             'niveau' => ['nullable', 'string', 'max:255'],
         ]);
 
-        // 1. GESTION ET SAUVEGARDE DU FICHIER PHOTO
+        // 1. Initialiser le chemin de l'image à null
         $imagePath = null;
+
+        // 2. Vérifier si une image a bien été envoyée dans la requête
         if ($request->hasFile('image')) {
-            // Cette ligne prend le fichier et le copie physiquement dans storage/app/public/profiles
+            // Sauvegarde le fichier dans storage/app/public/profiles et récupère le chemin abrégé
             $imagePath = $request->file('image')->store('profiles', 'public');
         }
 
@@ -51,17 +44,21 @@ class AuthController extends Controller
             'niveau' => $validated['niveau'] ?? null,
         ]);
 
-        $role = $this->resolveRole($validated['userType']);
+        $roles = $this->resolveRole($validated['userType']);
 
-        $user->assignRole($role);
+        $user->assignRole($roles);
 
         $token = $user->createToken('auth_token')->plainTextToken;
+
+        $permissions = $user->getAllPermissions() ->pluck('name') ->values();
 
         return response()->json([
             'message' => 'Compte créé avec succès.',
             'user' => $user,
             'token' => $token,
-        ], 201);
+            'roles' => $roles,
+            'permissions' => $permissions,
+        ], 201); 
     }
 
     public function login(Request $request)
@@ -81,6 +78,10 @@ class AuthController extends Controller
             ]);
         }
 
+        $roles = $user->getRoleNames(); // Récupère les rôles de l'utilisateur
+
+        $permissions = $user->getAllPermissions()->pluck('name')->values(); // Récupère les permissions de l'utilisateur
+
         // Générer un nouveau jeton d'accès Sanctum
         $token = $user->createToken('auth_token')->plainTextToken;
 
@@ -88,6 +89,8 @@ class AuthController extends Controller
             'message' => 'Connexion réussie.',
             'user' => $user,
             'token' => $token,
+            'roles' => $roles,
+            'permissions' => $permissions,
         ], 200);
     }
 

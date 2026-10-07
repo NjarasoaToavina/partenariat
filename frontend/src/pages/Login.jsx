@@ -38,7 +38,7 @@ export default function Login() {
       // 4. Stockez le token dans le localStorage pour maintenir la session
       localStorage.setItem("ACCESS_TOKEN", token);
 
-      loginUser(response.data.user);
+      loginUser(response.data);
       
       // Optionnel : Vous pouvez aussi stocker les infos de l'utilisateur si besoin
       // localStorage.setItem("USER", JSON.stringify(response.data.user));

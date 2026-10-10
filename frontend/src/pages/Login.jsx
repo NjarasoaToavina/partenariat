@@ -8,6 +8,7 @@ import { Link } from "react-router-dom";
 
 import { useToast } from "../context/ToastContext.jsx"; // Importez le hook useToast
 import { useAuth } from "../context/AuthContext.jsx"; // Importez le hook useAuth
+import { getDefaultRoute } from "../data/navItems.js"; // Importez la fonction getDefaultRoute
 
 
 export default function Login() {
@@ -25,10 +26,7 @@ export default function Login() {
   setIsLoading(true); // Active le spinner
 
   try {
-    // 2. Appelez votre service de connexion (assurez-vous de l'importer en haut du fichier)
-    // Nous passons un objet avec l'email et le mot de passe
     const response = await login({ email, password }); 
-    
     console.log("Connexion réussie :", response.data);
 
     // 3. Récupérez le jeton (token) renvoyé par Laravel
@@ -38,15 +36,11 @@ export default function Login() {
       // 4. Stockez le token dans le localStorage pour maintenir la session
       localStorage.setItem("ACCESS_TOKEN", token);
 
-      loginUser(response.data);
+      await loginUser(response.data);
       
-      // Optionnel : Vous pouvez aussi stocker les infos de l'utilisateur si besoin
-      // localStorage.setItem("USER", JSON.stringify(response.data.user));
+      // /dashboard est affiché
+      navigate(getDefaultRoute(response.data.permissions));
 
-      // toast.success("Connexion réussie, bienvenue !"); // Affiche un toast de succès
-
-      // 5. Redirigez enfin l'utilisateur vers son tableau de bord
-      navigate("/dashboard");
       toast.success("Connexion réussie, bienvenue");
     } else {
       toast.error("Erreur : Aucun jeton d'authentification reçu.");

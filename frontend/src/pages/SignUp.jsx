@@ -20,6 +20,7 @@ import Spinner from "../components/common/Spinner";
 import { useToast } from "../context/ToastContext.jsx"; 
 
 import { useAuth } from "../context/AuthContext.jsx";
+import { getDefaultRoute } from "../data/navItems.js";
 
 export default function SignUp() {
   const navigate = useNavigate();
@@ -103,7 +104,8 @@ export default function SignUp() {
         loginUser(response.data); // Met à jour le contexte AuthContext avec les informations de l'utilisateur
 
         // 3. On redirige DIRECTEMENT vers le dashboard sans passer par le login
-        navigate("/dashboard");
+        console.log("Redirection vers le dashboard avec les permissions :", getDefaultRoute(response.data.permissions));
+        navigate(getDefaultRoute(response.data.permissions));
       } else {
         // Sécurité au cas où le token serait absent
         console.warn("Jeton manquant dans la réponse, redirection login.");

@@ -10,7 +10,7 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const toast = useToast();
   const [roles, setRoles] = useState([]);
-  const [permissions, setPermissions] = useState();
+  const [permissions, setPermissions] = useState([]);
 
     const fetchUser = useCallback(async () => {
         const token = localStorage.getItem("ACCESS_TOKEN");
@@ -40,6 +40,7 @@ export const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         fetchUser();
+        console.log("les permissions de l'utilisateur sont :", permissions);
     }, [fetchUser]);
 
     const loginUser = (userData) => {
@@ -56,11 +57,12 @@ export const AuthProvider = ({ children }) => {
     }
 
     const hasPermission = (permission) => { 
+        console.log("Test de la permission :", permissions);
         return permissions.includes(permission); 
     };
 
     return (
-        <AuthContext.Provider value={{ user, loading, fetchUser, loginUser, logoutUser, hasPermission }}>
+        <AuthContext.Provider value={{ user, loading, roles, permissions, fetchUser, loginUser, logoutUser, hasPermission }}>
             {children}
         </AuthContext.Provider>
     );

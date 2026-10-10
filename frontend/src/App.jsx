@@ -1,68 +1,99 @@
-import './App.css'
-import Login from './pages/Login'
-import SignUp from './pages/SignUp'
-import Partenaire from './pages/Partenaire'
-import Dashboard from './pages/Dashboard'
-import Atelier from './pages/Atelier'
-import AppLayout from './components/layout/AppLayout'
-import PlaceholderPage from './pages/Placeholderpage'
-import { NAV_ITEMS } from './data/navItems'
-import { Routes, Route, Navigate } from 'react-router-dom'
-import {useAuth} from './context/AuthContext.jsx'
-import Loader from './components/common/Loader.jsx'
-import AjouterPartenaire from './pages/AjouterPartenaire.jsx'
-import AjouterAtelier from './pages/AjouterAtelier.jsx'
-import ModifierPartenaire from './pages/ModifierPartenaire.jsx'
-import ModifierAtelier from './pages/ModifierAtelier.jsx'
-import Document from './pages/Document.jsx'
-import Proposition from './pages/Proposition.jsx'
-import Convention from './pages/Convention.jsx'
-import ConventionDetail from './pages/ConventionDetail.jsx'
-import ModifierConvention from './pages/ModifierConvention.jsx'
-import AjouterConvention from './pages/AjouterConvention.jsx'
-function App() {
-  const { loading } = useAuth();
+  import './App.css'
+  import Login from './pages/Login'
+  import SignUp from './pages/SignUp'
+  import Partenaire from './pages/Partenaire'
+  import Dashboard from './pages/Dashboard'
+  import Atelier from './pages/Atelier'
+  import AppLayout from './components/layout/AppLayout'
+  import PlaceholderPage from './pages/Placeholderpage'
+  import { NAV_ITEMS } from './data/navItems'
+  import { Routes, Route, Navigate } from 'react-router-dom'
+  import {useAuth} from './context/AuthContext.jsx'
+  import Loader from './components/common/Loader.jsx'
+  import AjouterPartenaire from './pages/AjouterPartenaire.jsx'
+  import AjouterAtelier from './pages/AjouterAtelier.jsx'
+  import ModifierPartenaire from './pages/ModifierPartenaire.jsx'
+  import ModifierAtelier from './pages/ModifierAtelier.jsx'
+  import Document from './pages/Document.jsx'
+  import Proposition from './pages/Proposition.jsx'
+  import Convention from './pages/Convention.jsx'
+  import ConventionDetail from './pages/ConventionDetail.jsx'
+  import ModifierConvention from './pages/ModifierConvention.jsx'
+  import AjouterConvention from './pages/AjouterConvention.jsx'
+  import ProtectedRoute from './components/auth/ProtectedRoute.jsx'
+  import Unauthorized from './pages/Unauthorized.jsx'
+  import GuestRoute from './components/auth/GuestRoute.jsx'
+  function App() {
+    const { loading } = useAuth();
 
-  if (loading) {
-    return <Loader label="Vérification de la session..." />; // Affiche un loader pendant le chargement de l'utilisateur
-  } 
-  return (
-    <Routes>
+    if (loading) {
+      return <Loader label="Vérification de la session..." />; // Affiche un loader pendant le chargement de l'utilisateur
+    } 
+    return (
+      <Routes>
 
-      {/* Routes publiques */}
-      <Route path="/" element={<Navigate to="/login" replace />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/signup" element={<SignUp />} />
-      <Route path="/signup/:role" element={<SignUp />} />
+        {/* Routes publiques */}
+        <Route element={<GuestRoute />} >
+          <Route path="/" element={<Navigate to="/login" replace />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="/signup/:role" element={<SignUp />} />
+        </Route>
 
-      {/* Routes privées */}
-      <Route element={<AppLayout />} >
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/partenaires" element={<Partenaire />} />
-        <Route path="/partenaires/ajouter" element={<AjouterPartenaire />} />
-        <Route path="/partenaires/modifier/:id" element={<ModifierPartenaire />} />
-        <Route path="/ateliers" element={<Atelier />} />
-        <Route path="/ateliers/ajouter" element={<AjouterAtelier />} />
-        <Route path="/ateliers/modifier/:id" element={<ModifierAtelier />} />
-        <Route path="/documents" element={<Document/>} />
-        <Route path="/propositions" element={<Proposition/>} />
-        <Route path="/partenaires/:id/conventions" element={<Convention/>} />
-        <Route path="/partenaires/:id/conventions/:convId" element={<ConventionDetail />} />
-         <Route path="/partenaires/:id/conventions/ajouter" element={<AjouterConvention />} />
-        <Route path="/partenaires/:id/conventions/:convId/modifier" element={<ModifierConvention />} />
-        
-         {NAV_ITEMS.filter((item) => !item.path.includes(["/dashboard", "/partenaires", "/ateliers", "/documents","/propositions"])).map(
-          (item) => (
-            <Route
-              key={item.path}
-              path={item.path}
-              element={<PlaceholderPage title={item.label} />}
-            />
-          )
-        )}
-      </Route>
-    </Routes>
-  )
-}
+        <Route path="/403" element={<Unauthorized />} />
 
-export default App
+        {/* Routes privées */}
+        <Route element={<AppLayout />} >
+          <Route element={<ProtectedRoute permission="dashboard.view" />} >
+            <Route path="/dashboard" element={<Dashboard />} />
+          </Route>
+
+          <Route element={<ProtectedRoute permission="partenariats.view" />} >
+            <Route path="/partenaires" element={<Partenaire />} />
+            <Route path="/partenaires/ajouter" element={<AjouterPartenaire />} />
+            <Route path="/partenaires/modifier/:id" element={<ModifierPartenaire />} />
+            <Route path="/partenaires/:id/conventions" element={<Convention/>} />
+            <Route path="/partenaires/:id/conventions/:convId" element={<ConventionDetail />} />
+            <Route path="/partenaires/:id/conventions/ajouter" element={<AjouterConvention />} />
+            <Route path="/partenaires/:id/conventions/:convId/modifier" element={<ModifierConvention />} />
+          </Route>
+          
+          <Route element={<ProtectedRoute permission="ateliers.view" />} >
+            <Route path="/ateliers" element={<Atelier />} />
+            <Route path="/ateliers/ajouter" element={<AjouterAtelier />} />
+            <Route path="/ateliers/modifier/:id" element={<ModifierAtelier />} />
+          </Route>
+
+          <Route element={<ProtectedRoute permission="documents.view" />} >
+            <Route path="/documents" element={<Document/>} />
+          </Route>
+          
+          <Route element={<ProtectedRoute permission="propositions.view" />} >
+            <Route path="/propositions" element={<Proposition/>} />
+          </Route>
+          
+          {NAV_ITEMS
+              .filter(
+                  (item) =>
+                      ![
+                          "/dashboard",
+                          "/partenaires",
+                          "/ateliers",
+                          "/documents",
+                          "/propositions",
+                      ].includes(item.path)
+              )
+              .map((item) => (
+                  <Route
+                      key={item.path}
+                      path={item.path}
+                      element={<PlaceholderPage title={item.label} />}
+                  />
+              ))
+          }
+        </Route>
+      </Routes>
+    )
+  }
+
+  export default App

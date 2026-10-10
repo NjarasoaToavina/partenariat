@@ -17,3 +17,11 @@ export const NAV_ITEMS = [
   { label: "Documents", icon: File, path: "/documents", permission:"documents.view" },
   { label: "Relations", icon: Network, path: "/relations", permission:"publications.view" },
 ];
+
+export const getDefaultRoute = (permissions = []) => {
+    const accessibleItem = NAV_ITEMS.find(
+        (item) => permissions.includes(item.permission)
+    );
+
+    return accessibleItem?.path || "/403";
+};

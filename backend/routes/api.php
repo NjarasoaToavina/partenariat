@@ -24,7 +24,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('ateliers', AtelierController::class);
     Route::apiResource('partenariats', PartenariatController::class);
 
-  
     Route::get('/conventions/{id}', [ConventionController::class, 'show']);
     Route::put('/conventions/{id}', [ConventionController::class, 'update']);
     Route::delete('/conventions/{id}', [ConventionController::class, 'destroy']);

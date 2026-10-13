@@ -6,6 +6,7 @@ use App\Http\Controllers\PartenariatController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AtelierController;
 use App\Http\Controllers\ConventionController;
+use App\Http\Controllers\PropositionController;
 
 Route::post('/register', [AuthController::class, 'register']);
 
@@ -31,4 +32,16 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/partenariats/{id_part}/conventions', [ConventionController::class, 'store']);
     Route::get('/partenariats/{id_part}/conventions', [ConventionController::class, 'getByPartenariat']);
     
+
+    Route::apiResource('propositions', PropositionController::class);
+    Route::get(
+    '/users/{id}/propositions',
+    [PropositionController::class, 'getByUser']
+);
+
+    Route::patch(
+    '/propositions/{id}/statut',
+    [PropositionController::class, 'updateStatut']
+);
+
 });

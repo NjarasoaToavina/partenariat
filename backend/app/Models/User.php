@@ -53,4 +53,9 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function propositions()
+    {
+        return $this->hasMany(Proposition::class, 'user_id', 'id');
+    }
 }

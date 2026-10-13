@@ -11,7 +11,7 @@ class Proposition extends Model
     protected $table = 'propositions';
     protected $primaryKey = 'id_propos';
     protected $fillable = [
-        'id',
+        'user_id',
         'part_propos',
         'campus_propos',
         'contact_propos',

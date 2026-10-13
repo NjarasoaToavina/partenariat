@@ -7,6 +7,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AtelierController;
 use App\Http\Controllers\ConventionController;
 use App\Http\Controllers\PropositionController;
+use App\Http\Controllers\DocumentController;
 
 Route::post('/register', [AuthController::class, 'register']);
 
@@ -43,5 +44,18 @@ Route::middleware('auth:sanctum')->group(function () {
     '/propositions/{id}/statut',
     [PropositionController::class, 'updateStatut']
 );
+
+
+    Route::patch(
+        '/documents/{id}/statut',
+        [DocumentController::class, 'updateStatut']
+    );
+
+    Route::get(
+        '/documents/{id}/download',
+        [DocumentController::class, 'download']
+    );
+
+    Route::apiResource('documents', DocumentController::class);
 
 });

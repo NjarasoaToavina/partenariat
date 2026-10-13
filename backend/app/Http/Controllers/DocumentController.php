@@ -4,62 +4,307 @@ namespace App\Http\Controllers;
 
 use App\Models\Document;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class DocumentController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Afficher les documents
+     * Responsable : tous les documents
+     * Étudiant : uniquement ses documents
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $user = $request->user();
+
+        if ($user->hasRole('responsable')) {
+            $documents = Document::with('user')->get();
+        }
+        elseif ($user->hasRole('etudiant')) {
+            $documents = $user->documents()
+                ->with('user')
+                ->get();
+        }
+        else {
+            return response()->json([
+                'message' => 'Accès non autorisé'
+            ], 403);
+        }
+
+        return response()->json($documents, 200);
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Afficher un document
      */
-    public function create()
+    public function show(Request $request, $id)
     {
-        //
+        $user = $request->user();
+
+        $document = Document::with('user')->findOrFail($id);
+
+        if (
+            !$user->hasRole('responsable') &&
+            !(
+                $user->hasRole('etudiant') &&
+                $document->user_id == $user->id
+            )
+        ) {
+            return response()->json([
+                'message' => 'Accès non autorisé'
+            ], 403);
+        }
+
+        return response()->json($document, 200);
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Envoyer un document
+     * Étudiant uniquement
      */
     public function store(Request $request)
     {
-        //
+        $user = $request->user();
+
+        if (!$user->hasRole('etudiant')) {
+            return response()->json([
+                'message' => 'Accès non autorisé'
+            ], 403);
+        }
+
+        $validated = $request->validate([
+            'type_doc' => [
+                'required',
+                'in:CV,LM'
+            ],
+            'fichier_doc' => [
+                'required',
+                'file',
+                'mimes:pdf,doc,docx,jpg,jpeg,png',
+                'max:5120'
+            ],
+        ]);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Stockage du fichier
+        |--------------------------------------------------------------------------
+        */
+
+        $fichierPath = $request
+            ->file('fichier_doc')
+            ->store('documents', 'local');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Création du document
+        |--------------------------------------------------------------------------
+        */
+
+        try {
+            $document = $user->documents()->create([
+                'type_doc' => $validated['type_doc'],
+                'fichier_doc' => $fichierPath,
+                'statut_doc' => 'collecte',
+                'date_envoi' => now(),
+            ]);
+        } catch (\Throwable $e) {
+            Storage::disk('local')->delete($fichierPath);
+            throw $e;
+        }
+
+        return response()->json([
+            'message' => 'Document envoyé avec succès',
+            'document' => $document->load('user'),
+        ], 201);
     }
 
     /**
-     * Display the specified resource.
+     * Modifier un document
+     * Étudiant propriétaire uniquement
      */
-    public function show(Document $document)
+    public function update(Request $request, $id)
     {
-        //
+        $user = $request->user();
+
+        $document = Document::findOrFail($id);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Vérification du propriétaire
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            !$user->hasRole('etudiant') ||
+            $document->user_id != $user->id
+        ) {
+            return response()->json([
+                'message' => 'Vous ne pouvez pas modifier ce document'
+            ], 403);
+        }
+
+        $validated = $request->validate([
+            'type_doc' => [
+                'required',
+                'in:CV,LM'
+            ],
+            'fichier_doc' => [
+                'nullable',
+                'file',
+                'mimes:pdf,doc,docx,jpg,jpeg,png',
+                'max:5120'
+            ],
+        ]);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Mise à jour du fichier
+        |--------------------------------------------------------------------------
+        */
+
+        $ancienPath = $document->fichier_doc;
+        $nouveauPath = null;
+
+        if ($request->hasFile('fichier_doc')) {
+            $nouveauPath = $request
+                ->file('fichier_doc')
+                ->store('documents', 'local');
+
+            $document->fichier_doc = $nouveauPath;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Mise à jour des informations
+        |--------------------------------------------------------------------------
+        */
+
+        $document->type_doc = $validated['type_doc'];
+
+        try {
+            $document->save();
+        } catch (\Throwable $e) {
+            if ($nouveauPath) {
+                Storage::disk('local')->delete($nouveauPath);
+            }
+
+            throw $e;
+        }
+
+        // Supprimer l'ancien fichier après sauvegarde
+        if ($nouveauPath && $ancienPath) {
+            Storage::disk('local')->delete($ancienPath);
+        }
+
+        return response()->json([
+            'message' => 'Document modifié avec succès',
+            'document' => $document->load('user'),
+        ], 200);
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Modifier le statut et la remarque
+     * Responsable uniquement
      */
-    public function edit(Document $document)
+    public function updateStatut(Request $request, $id)
     {
-        //
+        $user = $request->user();
+
+        if (!$user->hasRole('responsable')) {
+            return response()->json([
+                'message' => 'Seul le Responsable peut modifier le statut'
+            ], 403);
+        }
+
+        $document = Document::findOrFail($id);
+
+        $validated = $request->validate([
+            'statut_doc' => [
+                'required',
+                'in:collecte,correction,vivier'
+            ],
+            'remarque' => [
+                'nullable',
+                'string'
+            ],
+        ]);
+
+        $document->update($validated);
+
+        return response()->json([
+            'message' => 'Statut du document mis à jour',
+            'document' => $document->load('user'),
+        ], 200);
     }
 
     /**
-     * Update the specified resource in storage.
+     * Télécharger un document
+     * Responsable ou étudiant propriétaire
      */
-    public function update(Request $request, Document $document)
+    public function download(Request $request, $id)
     {
-        //
+        $user = $request->user();
+
+        $document = Document::findOrFail($id);
+
+        if (
+            !$user->hasRole('responsable') &&
+            !(
+                $user->hasRole('etudiant') &&
+                $document->user_id == $user->id
+            )
+        ) {
+            return response()->json([
+                'message' => 'Accès non autorisé'
+            ], 403);
+        }
+
+        if (
+            !$document->fichier_doc ||
+            !Storage::disk('local')->exists($document->fichier_doc)
+        ) {
+            return response()->json([
+                'message' => 'Fichier introuvable'
+            ], 404);
+        }
+
+        return Storage::disk('local')->download(
+            $document->fichier_doc
+        );
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Supprimer un document
+     * Étudiant propriétaire uniquement
      */
-    public function destroy(Document $document)
+    public function destroy(Request $request, $id)
     {
-        //
+        $user = $request->user();
+
+        $document = Document::findOrFail($id);
+
+        if (
+            !$user->hasRole('etudiant') ||
+            $document->user_id != $user->id
+        ) {
+            return response()->json([
+                'message' => 'Vous ne pouvez pas supprimer ce document'
+            ], 403);
+        }
+
+        $fichierPath = $document->fichier_doc;
+
+        // Supprimer l'enregistrement
+        $document->delete();
+
+        // Supprimer le fichier associé
+        if ($fichierPath) {
+            Storage::disk('local')->delete($fichierPath);
+        }
+
+        return response()->json([
+            'message' => 'Document supprimé avec succès'
+        ], 200);
     }
 }

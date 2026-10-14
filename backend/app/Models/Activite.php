@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class Activite extends Model
 {
@@ -13,12 +15,9 @@ class Activite extends Model
     protected $fillable = [
         'id',
         'sujet',
+        'etat_activ',
         'date_debut_activ',
         'date_fin_activ',
-        'contact_propos',
-        'commentaire',
-        'date_propos',
-        'etat_propos',
     ];
 
     protected $casts = [
@@ -34,4 +33,19 @@ class Activite extends Model
             'id'
         );
     }
+
+    protected function etatActiv(): Attribute
+    {
+        return Attribute::make(
+            get: function (string $value, array $attributes) {
+                // Si la date de fin est passée, on retourne 'realise' dynamiquement
+                if ($attributes['date_fin_activ'] && Carbon::parse($attributes['date_fin_activ'])->isPast()) {
+                    return 'realise';
+                }
+                return $value; // Sinon on retourne l'état stocké ('planifie', etc.)
+            }
+        );
+    }
+    
 }
+

@@ -63,4 +63,10 @@ class User extends Authenticatable
     {
         return $this->hasMany(Document::class, 'user_id', 'id');
     }
+
+    public function activites()
+    {
+        return $this->hasMany(Activite::class, 'user_id', 'id');
+    }
+    
 }

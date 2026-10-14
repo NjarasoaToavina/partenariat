@@ -145,7 +145,7 @@ class PropositionController extends Controller
         $proposition = Proposition::findOrFail($id);
 
         $validated = $request->validate([
-            'etat_propos' => ['required', 'in:validee,refusee'],
+            'etat_propos' => ['required', 'in:valide,refuse'],
             'commentaire' => ['nullable', 'string', 'max:255'],
         ]);
 

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Notifications\NouvellePropositionNotification;
 use App\Models\Proposition;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -60,6 +61,12 @@ class PropositionController extends Controller
                 'etat_propos' => 'attente',
         ]);
 
+        $responsables = User::role('responsable')->get();
+
+        Notification::send(
+            $responsables,
+            new NouvellePropositionNotification($proposition)
+        );
 
         return response()->json([
             'message' => 'Proposition créée avec succès',

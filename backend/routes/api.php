@@ -67,4 +67,20 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::apiResource('documents', DocumentController::class);
 
+    //route notification
+    Route::get(
+        '/notifications',
+        [NotificationController::class, 'index']
+    );
+
+    Route::patch(
+        '/notifications/{id}/read',
+        [NotificationController::class, 'markAsRead']
+    );
+
+    Route::patch(
+        '/notifications/read-all',
+        [NotificationController::class, 'markAllAsRead']
+    );
+
 });

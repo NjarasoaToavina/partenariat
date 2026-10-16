@@ -1,6 +1,7 @@
 import { FileText as PdfIcon, Eye, Download, MoreVertical, ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { StatusPill, TypePill } from "./DocumentBadges";
 import { initialsOf } from "../../data/documentData";
+import { useAuth } from "../../context/AuthContext";
 
 function Avatar({ name }) {
   return (
@@ -57,49 +58,71 @@ function Pagination({ page, totalPages, totalItems, pageSize, onPageChange }) {
   );
 }
 
+function formaterDate(dateISO) {
+    if (!dateISO) return "Date inconnue";
+    try {
+        const date = new Date(dateISO);
+        // Vérifie si la date est valide
+        if (isNaN(date.getTime())) return "Format invalide";
+        
+        // Configuration explicite pour éviter les conflits d'options de style
+        return new Intl.DateTimeFormat('fr-FR', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        }).format(date).replace('à', 'à '); // Aligne proprement l'espace
+    } catch (error) {
+        return "Erreur date";
+    }
+}
+
 export default function DocumentTable({ documents, page, totalPages, totalItems, pageSize, onPageChange, onImport, onView, onDownload, onMore }) {
+  const {hasRoles} = useAuth();
+  const isEtudiant = hasRoles('etudiant');
   return (
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[1100px] border-separate border-spacing-0">
+        <table className={`w-full border-separate border-spacing-0 ${isEtudiant ? 'min-w-[600px]' : 'min-w-[1100px]'}`}>
           <thead>
             <tr className="bg-[#0065CD] text-white text-xs ">
               <th className="text-left font-semibold px-4 py-3 whitespace-nowrap rounded-l-xl">ID</th>
+            {!isEtudiant && (
+            <>
               <th className="text-left font-semibold px-4 py-3 whitespace-nowrap">Etudiant</th>
-              <th className="text-left font-semibold px-4 py-3 whitespace-nowrap">Matricule</th>
+              <th className="text-left font-semibold px-4 py-3 whitespace-nowrap">NIE</th>
               <th className="text-left font-semibold px-4 py-3 whitespace-nowrap">Classe/Filière</th>
               <th className="text-left font-semibold px-4 py-3 whitespace-nowrap">Niveau</th>
+            </>
+          )}
               <th className="text-left font-semibold px-4 py-3 whitespace-nowrap">Type de document</th>
-              <th className="text-left font-semibold px-4 py-3 whitespace-nowrap">Nom du fichier</th>
               <th className="text-left font-semibold px-4 py-3 whitespace-nowrap">Date d'envoi</th>
               <th className="text-left font-semibold px-4 py-3 whitespace-nowrap">Statut</th>
-              <th className="text-center font-semibold px-4 py-3 whitespace-nowrap rounded-r-xr">Actions</th>
+              <th className="text-center font-semibold px-4 py-3 whitespace-nowrap rounded-r-xl">Actions</th>
             </tr>
           </thead>
           <tbody>
             {documents.map((doc) => (
               <tr key={doc.id} className="border-b border-slate-100 last:border-b-0 hover:bg-[#F7FAFC] transition-colors">
-                <td className="px-4 py-3.5 text-sm font-medium text-slate-500 whitespace-nowrap">{doc.id}</td>
-                <td className="px-4 py-3.5">
-                  <span className="flex items-center gap-2.5 whitespace-nowrap">
-                    <Avatar name={doc.nom_complet} />
-                    <span className="text-sm font-semibold text-slate-900">{doc.nom_complet}</span>
-                  </span>
-                </td>
-                <td className="px-4 py-3.5 text-sm text-[#0F2942] font-medium whitespace-nowrap">{doc.matricule}</td>
-                <td className="px-4 py-3.5 text-sm text-slate-600 whitespace-nowrap">{doc.filiere}</td>
-                <td className="px-4 py-3.5 text-sm text-slate-600 whitespace-nowrap">{doc.niveau}</td>
-                <td className="px-4 py-3.5"><TypePill type={doc.type}/></td>
-                <td className="px-4 py-3.5">
-                  <span className="flex items-center gap-2 whitespace-nowrap">
-                    <PdfIcon size={16} className="text-red-500 shrink-0" />
-                    <span>
-                      <span className="block text-sm text-slate-800">{doc.fileName}</span>
-                      <span className="block text-xs text-slate-400">{doc.fileSize}</span>
-                    </span>
-                  </span>
-                </td>
-                <td className="px-4 py-3.5 text-sm text-slate-600 whitespace-nowrap">{doc.sentAt}</td>
-                <td className="px-4 py-3.5"><StatusPill status={doc.status} /></td>
+                <td className="px-4 py-3.5 text-sm font-medium text-slate-500 whitespace-nowrap">{doc.id_doc}</td>
+                
+                {!isEtudiant && (
+                  <>
+                    <td className="px-4 py-3.5">
+                      <span className="flex items-center gap-2.5 whitespace-nowrap">
+                        <Avatar name={doc.user.name} />
+                        <span className="text-sm font-semibold text-slate-900">{doc.user.name}</span>
+                      </span>
+                    </td>
+                    <td className="px-4 py-3.5 text-sm text-[#0F2942] font-medium whitespace-nowrap">{doc.user.matricule}</td>
+                    <td className="px-4 py-3.5 text-sm text-slate-600 whitespace-nowrap">{doc.user.filiere}</td>
+                    <td className="px-4 py-3.5 text-sm text-slate-600 whitespace-nowrap">{doc.user.niveau}</td>
+                  </>
+                )}
+                
+                <td className="px-4 py-3.5"><TypePill type={doc.type_doc}/></td>
+                <td className="px-4 py-3.5 text-sm text-slate-600 whitespace-nowrap">{formaterDate(doc.created_at)}</td>
+                <td className="px-4 py-3.5"><StatusPill status={doc.statut_doc} /></td>
                 <td className="px-4 py-3.5">
                   <div className="flex items-center justify-center gap-1.5">
                     <button onClick={() => onView?.(doc)} aria-label={`Voir ${doc.fileName}`}
@@ -123,3 +146,4 @@ export default function DocumentTable({ documents, page, totalPages, totalItems,
       </div>
   );
 }
+

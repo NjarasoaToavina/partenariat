@@ -57,12 +57,17 @@ export const AuthProvider = ({ children }) => {
     }
 
     const hasPermission = (permission) => { 
-        console.log("Test de la permission :", permissions);
+        
         return permissions.includes(permission); 
     };
 
+    const hasRoles = (role) => {
+        console.log("Test du role :", roles);
+        return roles.includes(role);
+    }
+
     return (
-        <AuthContext.Provider value={{ user, loading, roles, permissions, fetchUser, loginUser, logoutUser, hasPermission }}>
+        <AuthContext.Provider value={{ user, loading, roles, permissions, fetchUser, loginUser, logoutUser, hasPermission, hasRoles }}>
             {children}
         </AuthContext.Provider>
     );

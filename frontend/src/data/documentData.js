@@ -1,17 +1,17 @@
 export const DOC_STATUS_LABELS = {
-  en_vivier: "En vivier",
+  vivier: "En vivier",
   collecte: "Collecté",
   correction: "En correction",
 };
 
 export const DOC_STATUS_STYLES = {
-  en_vivier: "bg-sky-50 text-sky-600",
+  vivier: "bg-sky-50 text-sky-600",
   collecte: "bg-emerald-50 text-emerald-600",
   correction: "bg-amber-50 text-amber-600",
 };
 
 export const DOC_STATUS_HEX = {
-  en_vivier: "#2563EB",
+  vivier: "#2563EB",
   collecte: "#16A34A",
   correction: "#F59E0B",
 };

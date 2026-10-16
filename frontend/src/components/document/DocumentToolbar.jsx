@@ -35,7 +35,7 @@ export default function DocumentToolbar({
           <input
             type="text"
             value={filiereFilter}
-            onChange={(e) => onPeriodChange("filiere",e.target.value)}
+            onChange={(e) => onFiliereFilterChange("filiere",e.target.value)}
             className="border border-slate-200 rounded-xl px-3 py-2.5 bg-white text-sm text-slate-700 outline-none w-[150px]"
           />
         </div>
@@ -48,7 +48,7 @@ export default function DocumentToolbar({
         <div className="relative">
           <select
             value={niveauFilter}
-            onChange={(e) => onFiliereFilterChange("niveau",e.target.value)}
+            onChange={(e) => onNiveauFilterChange("niveau",e.target.value)}
             className="appearance-none border border-slate-200 rounded-xl bg-white pl-3.5 pr-9 py-2.5 text-sm text-slate-700 outline-none cursor-pointer w-44"
           >
             <option value="Tous">Tous les niveaux</option>

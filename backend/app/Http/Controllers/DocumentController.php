@@ -73,10 +73,11 @@ class DocumentController extends Controller
         }
 
         $validated = $request->validate([
-            'type_doc' => [
+         'type_doc' => [
                 'required',
-                'in:CV,LM'
-            ],
+                'string',     // 👈 Permet d'accepter n'importe quel texte / caractère
+                'max:255'     // Sécurité pour éviter les textes trop longs en base de données
+         ],
             'fichier_doc' => [
                 'required',
                 'file',
@@ -93,7 +94,7 @@ class DocumentController extends Controller
 
         $fichierPath = $request
             ->file('fichier_doc')
-            ->store('documents', 'local');
+            ->store('documents', 'public');
 
         /*
         |--------------------------------------------------------------------------
@@ -109,7 +110,7 @@ class DocumentController extends Controller
                 'date_envoi' => now(),
             ]);
         } catch (\Throwable $e) {
-            Storage::disk('local')->delete($fichierPath);
+            Storage::disk('public')->delete($fichierPath);
             throw $e;
         }
 
@@ -146,8 +147,9 @@ class DocumentController extends Controller
 
         $validated = $request->validate([
             'type_doc' => [
-                'required',
-                'in:CV,LM'
+            'required',
+            'string',     // 👈 Permet d'accepter n'importe quel texte / caractère
+            'max:255'     // Sécurité pour éviter les textes trop longs en base de données
             ],
             'fichier_doc' => [
                 'nullable',
@@ -169,9 +171,16 @@ class DocumentController extends Controller
         if ($request->hasFile('fichier_doc')) {
             $nouveauPath = $request
                 ->file('fichier_doc')
-                ->store('documents', 'local');
+                ->store('documents', 'public');
 
             $document->fichier_doc = $nouveauPath;
+
+            // Actualiser la date de modification
+            $document->date_envoi = now();
+            // Si une correction était demandée
+            if ($document->statut_doc === 'correction') {
+                $document->statut_doc = 'validation';
+            }
         }
 
         /*
@@ -186,7 +195,7 @@ class DocumentController extends Controller
             $document->save();
         } catch (\Throwable $e) {
             if ($nouveauPath) {
-                Storage::disk('local')->delete($nouveauPath);
+                Storage::disk('public')->delete($nouveauPath);
             }
 
             throw $e;
@@ -194,7 +203,7 @@ class DocumentController extends Controller
 
         // Supprimer l'ancien fichier après sauvegarde
         if ($nouveauPath && $ancienPath) {
-            Storage::disk('local')->delete($ancienPath);
+            Storage::disk('public')->delete($ancienPath);
         }
 
         return response()->json([
@@ -222,7 +231,7 @@ class DocumentController extends Controller
         $validated = $request->validate([
             'statut_doc' => [
                 'required',
-                'in:collecte,correction,vivier'
+                'in:collecte,correction,vivier,validation'
             ],
             'remarque' => [
                 'nullable',
@@ -262,14 +271,14 @@ class DocumentController extends Controller
 
         if (
             !$document->fichier_doc ||
-            !Storage::disk('local')->exists($document->fichier_doc)
+            !Storage::disk('public')->exists($document->fichier_doc)
         ) {
             return response()->json([
                 'message' => 'Fichier introuvable'
             ], 404);
         }
 
-        return Storage::disk('local')->download(
+        return Storage::disk('public')->download(
             $document->fichier_doc
         );
     }
@@ -300,7 +309,7 @@ class DocumentController extends Controller
 
         // Supprimer le fichier associé
         if ($fichierPath) {
-            Storage::disk('local')->delete($fichierPath);
+            Storage::disk('public')->delete($fichierPath);
         }
 
         return response()->json([

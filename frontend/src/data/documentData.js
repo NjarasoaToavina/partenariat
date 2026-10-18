@@ -2,20 +2,22 @@ export const DOC_STATUS_LABELS = {
   vivier: "En vivier",
   collecte: "Collecté",
   correction: "En correction",
+  validation: "En validation",
 };
 
 export const DOC_STATUS_STYLES = {
   vivier: "bg-sky-50 text-sky-600",
   collecte: "bg-emerald-50 text-emerald-600",
   correction: "bg-amber-50 text-amber-600",
+  validation: "bg-violet-50 text-violet-600",
 };
 
 export const DOC_STATUS_HEX = {
   vivier: "#2563EB",
   collecte: "#16A34A",
   correction: "#F59E0B",
+  validation: "#7C3AED",
 };
-
 export const DOC_TYPE_LABELS = {
   cv: "CV",
   lettre: "Lettre de motivation",

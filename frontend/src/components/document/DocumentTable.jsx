@@ -121,7 +121,7 @@ export default function DocumentTable({ documents, page, totalPages, totalItems,
                 )}
                 
                 <td className="px-4 py-3.5"><TypePill type={doc.type_doc}/></td>
-                <td className="px-4 py-3.5 text-sm text-slate-600 whitespace-nowrap">{formaterDate(doc.created_at)}</td>
+                <td className="px-4 py-3.5 text-sm text-slate-600 whitespace-nowrap">{formaterDate(doc.date_envoi)}</td>
                 <td className="px-4 py-3.5"><StatusPill status={doc.statut_doc} /></td>
                 <td className="px-4 py-3.5">
                   <div className="flex items-center justify-center gap-1.5">

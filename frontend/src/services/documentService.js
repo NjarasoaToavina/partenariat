@@ -9,11 +9,11 @@ export const updateStatutDocument = (data) => {
 }
 
 export const createDocument = (data) => {
-    return api.get("/documents");
+    return api.post("/documents");
 }
 
 export const updateDocument = (id,data) => {
-    return api.post(`/documents/${id}`,data);
+    return api.put(`/documents/${id}`,data);
 }
 
 export const deleteDocument = (id) => {
@@ -21,5 +21,9 @@ export const deleteDocument = (id) => {
 }
 
 export const downloadDocument = (id) => {
-    return api.get(`/documents/${id}`)
+    return api.get(`/documents/${id}/download`, { responseType: 'blob' }); // 👈 Ajout ici
+}
+
+export const getDocumentById = (id) =>  {
+    return api.get(`/documents/${id}`);
 }

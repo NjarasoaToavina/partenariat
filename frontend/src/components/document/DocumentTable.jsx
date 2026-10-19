@@ -1,4 +1,4 @@
-import { FileText as PdfIcon, Eye, Download, MoreVertical, ChevronLeft, ChevronRight, Plus, CheckCircle2, XCircle } from "lucide-react";
+import { FileText as PdfIcon, Eye, Download, MoreVertical, ChevronLeft, ChevronRight, Plus, CheckCircle2, XCircle, Edit, Pencil, Trash2 } from "lucide-react";
 import { StatusPill, TypePill } from "./DocumentBadges";
 import { initialsOf } from "../../data/documentData";
 import { useAuth } from "../../context/AuthContext";
@@ -34,7 +34,7 @@ function formaterDate(dateISO) {
 }
 
 export default function DocumentTable({ documents, onView, onDownload, onStatusChange }) {
-  const {hasRoles} = useAuth();
+  const {hasRoles, hasPermission} = useAuth();
   const isEtudiant = hasRoles('etudiant');
   const [documentRefuse, setDocumentRefuse] = useState(null);
   const [isSubmitting,setIsSubmitting] = useState(false);
@@ -90,6 +90,9 @@ export default function DocumentTable({ documents, onView, onDownload, onStatusC
             </>
           )}
               <th className="text-left font-semibold px-4 py-3 whitespace-nowrap">Type de document</th>
+              { isEtudiant && (
+                <th className="text-left font-semibold px-4 py-3 whitespace-nowrap">Remarque</th>
+              )}
               <th className="text-left font-semibold px-4 py-3 whitespace-nowrap">Date d'envoi</th>
               <th className="text-left font-semibold px-4 py-3 whitespace-nowrap">Statut</th>
               <th className="text-center font-semibold px-4 py-3 whitespace-nowrap rounded-r-xl">Actions</th>
@@ -115,6 +118,9 @@ export default function DocumentTable({ documents, onView, onDownload, onStatusC
                 )}
                 
                 <td className="px-4 py-3.5"><TypePill type={doc.type_doc}/></td>
+                { isEtudiant && (
+                 <td className="px-4 py-3.5 text-sm text-slate-600 whitespace-nowrap">{doc.remarque?.trim() || "Aucune remarque"}</td>
+                )}
                 <td className="px-4 py-3.5 text-sm text-slate-600 whitespace-nowrap">{formaterDate(doc.date_envoi)}</td>
                 <td className="px-4 py-3.5"><StatusPill status={doc.statut_doc} /></td>
                 <td className="px-4 py-3.5">
@@ -127,33 +133,56 @@ export default function DocumentTable({ documents, onView, onDownload, onStatusC
                       className="w-8 h-8 inline-flex items-center justify-center rounded-lg text-slate-500 hover:text-[#0F2942] hover:bg-slate-100 transition-colors">
                       <Download size={15} />
                     </button>
-                      {hasRoles("responsable") &&
-                      ["collecte", "validation"].includes(doc.statut_doc?.toLowerCase()) && (
-                        <>
-                          {/* Valider */}
-                          <button
-                            onClick={() => handleValider(doc)}
-                            disabled={isSubmitting}
-                            title="Valider le document"
-                            className="w-8 h-8 inline-flex items-center justify-center rounded-lg text-green-600 hover:bg-green-50 transition-colors disabled:opacity-50"
-                          >
-                            <CheckCircle2 size={18} />
-                          </button>
+                      {hasPermission("documents.validate") &&
+                        ["collecte", "validation"].includes(doc.statut_doc?.toLowerCase()) && (
+                          
+                            <button
+                              onClick={() => handleValider(doc)}
+                              disabled={isSubmitting}
+                              title="Valider le document"
+                              className="w-8 h-8 inline-flex items-center justify-center rounded-lg text-green-600 hover:bg-green-50 transition-colors disabled:opacity-50"
+                            >
+                              <CheckCircle2 size={18} />
+                            </button>
+                          
+                        )
+                      }
+                      {hasPermission("documents.reject") &&
+                        ["collecte", "validation"].includes(doc.statut_doc?.toLowerCase()) && (
+                         
+                            <button
+                              onClick={() => {
+                                setDocumentRefuse(doc);
+                                setRemarque("");
+                  
+                              }}
+                              disabled={isSubmitting}
+                              title="Refuser le document"
+                              className="w-8 h-8 inline-flex items-center justify-center rounded-lg text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50"
+                            >
+                              <XCircle size={18} />
+                            </button>
+                         
+                      )}
 
-                          {/* Refuser */}
+                      { hasPermission("documents.update") && !["vivier"].includes(doc.statut_doc?.toLowerCase()) && (
                           <button
-                            onClick={() => {
-                              setDocumentRefuse(doc);
-                              setRemarque("");
-                 
-                            }}
-                            disabled={isSubmitting}
-                            title="Refuser le document"
-                            className="w-8 h-8 inline-flex items-center justify-center rounded-lg text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50"
+                            className="w-8 h-8 inline-flex items-center justify-center rounded-lg text-slate-500 hover:text-[#0F2942] hover:bg-slate-100 transition-colors"
+                            aria-label=""
                           >
-                            <XCircle size={18} />
+                            <Pencil size={15} />
                           </button>
-                        </>
+                         
+                        )}
+                      
+                      { hasPermission("documents.delete") && !["vivier"].includes(doc.statut_doc?.toLowerCase()) && (
+                         <button
+                          
+                          className="w-8 h-8 inline-flex items-center justify-center border border-slate-200 rounded-lg text-slate-500 hover:text-[#E53E3E] hover:border-[#E53E3E]/40 hover:bg-[#FDECEC] transition-colors"
+                          aria-label=""
+                        >
+                          <Trash2 size={15} />
+                        </button>
                       )}
                   </div>
                 </td>

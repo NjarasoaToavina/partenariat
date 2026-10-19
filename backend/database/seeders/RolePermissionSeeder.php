@@ -27,6 +27,8 @@ class RolePermissionSeeder extends Seeder
             'activites.view',
             'ateliers.view',
             'documents.view',
+            'documents.validate',//ajouter
+            'documents.reject', //ajouter
             'publications.view'
         );
 
@@ -48,6 +50,9 @@ class RolePermissionSeeder extends Seeder
 
         $etudiant->syncPermissions(
             'documents.view',
+            'documents.create', //ajouter
+            'documents.update', //ajouter
+            'documents.delete',
             'ateliers.view',
             'publications.view'
         );

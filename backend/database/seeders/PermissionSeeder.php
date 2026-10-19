@@ -49,6 +49,7 @@ class PermissionSeeder extends Seeder
             'documents.view',
             'documents.create',
             'documents.update',
+            'documents.delete',
             'documents.download',
             'documents.correct',
             'documents.validate',

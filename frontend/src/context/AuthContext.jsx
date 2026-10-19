@@ -40,7 +40,6 @@ export const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         fetchUser();
-        console.log("les permissions de l'utilisateur sont :", permissions);
     }, [fetchUser]);
 
     const loginUser = (userData) => {
@@ -62,7 +61,6 @@ export const AuthProvider = ({ children }) => {
     };
 
     const hasRoles = (role) => {
-        console.log("Test du role :", roles);
         return roles.includes(role);
     }
 

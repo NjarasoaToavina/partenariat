@@ -1,60 +1,15 @@
-import { FileText as PdfIcon, Eye, Download, MoreVertical, ChevronLeft, ChevronRight, Plus } from "lucide-react";
+import { FileText as PdfIcon, Eye, Download, MoreVertical, ChevronLeft, ChevronRight, Plus, CheckCircle2, XCircle } from "lucide-react";
 import { StatusPill, TypePill } from "./DocumentBadges";
 import { initialsOf } from "../../data/documentData";
 import { useAuth } from "../../context/AuthContext";
+import { useState } from "react";
+import RefusModal from "../common/RefusModal";
 
 function Avatar({ name }) {
   return (
     <span className="w-8 h-8 rounded-full bg-[#0F2942] text-white text-[11px] font-bold flex items-center justify-center shrink-0">
       {initialsOf(name)}
     </span>
-  );
-}
-
-function Pagination({ page, totalPages, totalItems, pageSize, onPageChange }) {
-  const start = (page - 1) * pageSize + 1;
-  const end = Math.min(page * pageSize, totalItems);
-  const pages = [1, 2, 3, "...", totalPages].filter(
-    (p, i, arr) => arr.indexOf(p) === i
-  );
-
-  return (
-    <div className="flex items-center justify-between px-5 py-4 border-t border-slate-100">
-      <p className="text-xs text-slate-400">
-        Affichage de {start} à {end} sur {totalItems} documents
-      </p>
-      <div className="flex items-center gap-1.5">
-        <button
-          onClick={() => onPageChange(Math.max(1, page - 1))}
-          disabled={page === 1}
-          className="w-8 h-8 inline-flex items-center justify-center rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-        >
-          <ChevronLeft size={15} />
-        </button>
-        {pages.map((p, i) =>
-          p === "..." ? (
-            <span key={`dots-${i}`} className="w-8 h-8 inline-flex items-center justify-center text-slate-400 text-sm">…</span>
-          ) : (
-            <button
-              key={p}
-              onClick={() => onPageChange(p)}
-              className={`w-8 h-8 inline-flex items-center justify-center rounded-lg text-sm font-semibold transition-colors ${
-                p === page ? "bg-[#0F2942] text-white" : "border border-slate-200 text-slate-600 hover:bg-slate-50"
-              }`}
-            >
-              {p}
-            </button>
-          )
-        )}
-        <button
-          onClick={() => onPageChange(Math.min(totalPages, page + 1))}
-          disabled={page === totalPages}
-          className="w-8 h-8 inline-flex items-center justify-center rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-        >
-          <ChevronRight size={15} />
-        </button>
-      </div>
-    </div>
   );
 }
 
@@ -78,10 +33,49 @@ function formaterDate(dateISO) {
     }
 }
 
-export default function DocumentTable({ documents, page, totalPages, totalItems, pageSize, onPageChange, onImport, onView, onDownload, onMore }) {
+export default function DocumentTable({ documents, onView, onDownload, onStatusChange }) {
   const {hasRoles} = useAuth();
   const isEtudiant = hasRoles('etudiant');
+  const [documentRefuse, setDocumentRefuse] = useState(null);
+  const [isSubmitting,setIsSubmitting] = useState(false);
+
+  const handleValider = async (doc) => {
+    setIsSubmitting(true);
+  
+    try {
+      await onStatusChange(doc.id_doc, {
+        statut_doc: "vivier",
+        remarque: null,
+      });
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleRefuser = async (remarque) => {
+    console.log(documentRefuse.id_doc)
+    if (!documentRefuse || !remarque.trim() || isSubmitting) return;
+    setIsSubmitting(true);
+
+    try {
+      await onStatusChange(documentRefuse.id_doc, {
+        statut_doc: "correction",
+        remarque: remarque.trim(),
+      });
+
+      setDocumentRefuse(null);
+      setRemarque("");
+    } catch (error) {
+      console.error(error);
+   
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
   return (
+    <>    
       <div className="overflow-x-auto">
         <table className={`w-full border-separate border-spacing-0 ${isEtudiant ? 'min-w-[600px]' : 'min-w-[1100px]'}`}>
           <thead>
@@ -133,10 +127,34 @@ export default function DocumentTable({ documents, page, totalPages, totalItems,
                       className="w-8 h-8 inline-flex items-center justify-center rounded-lg text-slate-500 hover:text-[#0F2942] hover:bg-slate-100 transition-colors">
                       <Download size={15} />
                     </button>
-                    <button onClick={() => onMore?.(doc)} aria-label={`Plus d'actions pour ${doc.fileName}`}
-                      className="w-8 h-8 inline-flex items-center justify-center rounded-lg text-slate-500 hover:text-[#0F2942] hover:bg-slate-100 transition-colors">
-                      <MoreVertical size={15} />
-                    </button>
+                      {hasRoles("responsable") &&
+                      ["collecte", "validation"].includes(doc.statut_doc?.toLowerCase()) && (
+                        <>
+                          {/* Valider */}
+                          <button
+                            onClick={() => handleValider(doc)}
+                            disabled={isSubmitting}
+                            title="Valider le document"
+                            className="w-8 h-8 inline-flex items-center justify-center rounded-lg text-green-600 hover:bg-green-50 transition-colors disabled:opacity-50"
+                          >
+                            <CheckCircle2 size={18} />
+                          </button>
+
+                          {/* Refuser */}
+                          <button
+                            onClick={() => {
+                              setDocumentRefuse(doc);
+                              setRemarque("");
+                 
+                            }}
+                            disabled={isSubmitting}
+                            title="Refuser le document"
+                            className="w-8 h-8 inline-flex items-center justify-center rounded-lg text-red-600 hover:bg-red-50 transition-colors disabled:opacity-50"
+                          >
+                            <XCircle size={18} />
+                          </button>
+                        </>
+                      )}
                   </div>
                 </td>
               </tr>
@@ -144,6 +162,13 @@ export default function DocumentTable({ documents, page, totalPages, totalItems,
           </tbody>
         </table>
       </div>
+      <RefusModal
+        open={!!documentRefuse}
+        isLoading={isSubmitting}
+        onConfirm={handleRefuser}
+        onCancel={() => setDocumentRefuse(null)}
+      />
+    </>
   );
 }
 

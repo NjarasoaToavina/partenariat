@@ -4,8 +4,8 @@ export const getAllDocuments = () => {
     return api.get("/documents");
 }
 
-export const updateStatutDocument = (data) => {
-    return api.patch("/documents",data);
+export const updateStatutDocument = (id,data) => {
+    return api.patch(`/documents/${id}/statut`,data);
 }
 
 export const createDocument = (data) => {

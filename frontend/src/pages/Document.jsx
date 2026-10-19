@@ -7,7 +7,7 @@ import { CheckCircle2, Clock, ClipboardList, Plus, ClipboardCheck   } from "luci
 import DocumentToolbar from "../components/document/DocumentToolbar";
 import { useToast } from "../context/ToastContext";
 import Pagination from "../components/common/Pagination";
-import { getAllDocuments, downloadDocument, getDocumentById } from "../services/documentService";
+import { getAllDocuments, downloadDocument, getDocumentById, updateStatutDocument } from "../services/documentService";
 import Loader from "../components/common/Loader";
 import { useAuth } from "../context/AuthContext";
 import {URL} from "../services/api";
@@ -162,6 +162,39 @@ export default function Document() {
     } 
   };
 
+  
+  const handleStatusChange = async (id, data) => {
+    try {
+      const response = await updateStatutDocument(id, data);
+
+      setDocuments((prev) =>
+        prev.map((doc) =>
+          doc.id_doc === id
+            ? {
+                ...doc,
+                statut_doc: response.data.document.statut_doc,
+                remarque: response.data.document.remarque,
+              }
+            : doc
+        )
+      );
+
+      toast.success(
+        data.statut_doc === "vivier"
+          ? `Document n°${id} validé avec succès.`
+          : `Document n°${id} refusé avec succès.`
+      );
+
+      return response.data;
+
+    } catch (error) {
+      console.error("Erreur lors du changement de statut :", error);
+
+      toast.error("Impossible de changer le statut du document.");
+
+      throw error;
+    }
+  };
 
 
   return (
@@ -247,16 +280,13 @@ export default function Document() {
         ) : (
           <>
             <DocumentTable
+              isLoading={isLoading}
+              setIsLoading={setIsLoading}
               documents={pageItems}
-              page={page}
-              totalPages={totalPages}
-              totalItems={filtered.length}
-              pageSize={PAGE_SIZE}
               onPageChange={setPage}
-              onImport={() => {/* à brancher sur ton flux d'import */}}
               onView={(doc) => {handleOnView(doc)}}
               onDownload={(doc) => {handleOnDownload(doc)}}
-              onMore={(doc) => {/* à brancher, ex. menu contextuel */}}
+              onStatusChange={handleStatusChange}
             />
             <Pagination
               total={filtered.length}

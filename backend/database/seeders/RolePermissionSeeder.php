@@ -26,6 +26,9 @@ class RolePermissionSeeder extends Seeder
             'propositions.view',
             'activites.view',
             'ateliers.view',
+            'ateliers.create',
+            'ateliers.update',
+            'ateliers.delete',
             'documents.view',
             'documents.validate',//ajouter
             'documents.reject', //ajouter

@@ -14,6 +14,7 @@ import { useNavigate } from "react-router-dom";
 
 import { deleteAtelier } from "../services/atelierService";
 import ConfirmModal from "../components/common/Confirmmodal";
+import { useAuth } from "../context/AuthContext";
 
 const PAGE_SIZE = 6;
 
@@ -41,8 +42,8 @@ export default function Atelier() {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const stats = useMemo(() => getAtelierStats(ateliers), [ateliers]);
   const navigate = useNavigate();
-  
   const toast = useToast();
+  const { hasPermission } = useAuth();
 
   useEffect(() => {
       const fetchAteliers = async () => {
@@ -154,13 +155,16 @@ export default function Atelier() {
         <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 space-y-5">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <h2 className="text-sm font-bold text-slate-900">Liste des ateliers</h2>
-            <button
-              onClick={handleAddAtelier}
-              className="flex items-center justify-center gap-2 bg-sky-600 hover:bg-sky-700 text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors whitespace-nowrap"
-            >
-              <Plus size={18} />
-              Ajouter un atelier
-            </button>
+            { hasPermission("ateliers.create") && (
+                <button
+                  onClick={handleAddAtelier}
+                  className="flex items-center justify-center gap-2 bg-sky-600 hover:bg-sky-700 text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors whitespace-nowrap"
+                >
+                  <Plus size={18} />
+                  Ajouter un atelier
+                </button>
+              )
+            }
           </div>
 
           <AtelierToolbar

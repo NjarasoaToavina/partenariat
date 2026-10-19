@@ -2,8 +2,10 @@ import { CalendarDays, ChevronsUpDown, Eye, MoreVertical } from "lucide-react";
 import { StatutBadge, CampusBadge } from "./Badges";
 import IntervenantAvatar from "./IntervenantAvatar";
 import { Pencil,Trash2 } from "lucide-react";
+import { useAuth } from "../../context/AuthContext";
 
 export default function AtelierTable({ ateliers, sortAsc, onToggleSort, onEdit,onDelete }) {
+  const { hasPermission } = useAuth();
   return (
     <div className="overflow-x-auto">
       <table className="w-full min-w-[1100px] border-separate border-spacing-0">
@@ -28,9 +30,11 @@ export default function AtelierTable({ ateliers, sortAsc, onToggleSort, onEdit,o
             </th>
             <th className="text-left font-semibold px-4 py-3">Intervenant</th>
             <th className="text-left font-semibold px-4 py-3">Statut</th>
-            <th className="text-left font-semibold px-4 py-3 rounded-r-xl">
-              Actions
-            </th>
+            { hasPermission("ateliers.update") && hasPermission("ateliers.delete") && (
+              <th className="text-left font-semibold px-4 py-3 rounded-r-xl">
+                Actions
+              </th>
+            )}
           </tr>
         </thead>
         <tbody>
@@ -85,24 +89,26 @@ export default function AtelierTable({ ateliers, sortAsc, onToggleSort, onEdit,o
                   </button>
                 </div>
               </td> */}
-              <td className="px-4 py-4 align-top text-center">
-                <div className="inline-flex items-center gap-2">
-                  <button
-                    onClick={() => onEdit?.(a)}
-                    className="w-8 h-8 inline-flex items-center justify-center border border-slate-200 rounded-lg text-slate-500 hover:text-sky-600 hover:border-sky-300 transition-colors"
-                    aria-label={`Modifier ${a.nom_part}`}
-                  >
-                    <Pencil size={15} />
-                  </button>
-                  <button
-                    onClick={() => onDelete?.(a)}
-                    className="w-8 h-8 inline-flex items-center justify-center border border-slate-200 rounded-lg text-slate-500 hover:text-[#E53E3E] hover:border-[#E53E3E]/40 hover:bg-[#FDECEC] transition-colors"
-                    aria-label={`Supprimer ${a.nom_part}`}
-                  >
-                    <Trash2 size={15} />
-                  </button>
-                </div>
-              </td>
+              { hasPermission("ateliers.update") && hasPermission("ateliers.delete") && (
+                <td className="px-4 py-4 align-top text-center">
+                  <div className="inline-flex items-center gap-2">
+                    <button
+                      onClick={() => onEdit?.(a)}
+                      className="w-8 h-8 inline-flex items-center justify-center border border-slate-200 rounded-lg text-slate-500 hover:text-sky-600 hover:border-sky-300 transition-colors"
+                      aria-label={`Modifier ${a.nom_part}`}
+                    >
+                      <Pencil size={15} />
+                    </button>
+                    <button
+                      onClick={() => onDelete?.(a)}
+                      className="w-8 h-8 inline-flex items-center justify-center border border-slate-200 rounded-lg text-slate-500 hover:text-[#E53E3E] hover:border-[#E53E3E]/40 hover:bg-[#FDECEC] transition-colors"
+                      aria-label={`Supprimer ${a.nom_part}`}
+                    >
+                      <Trash2 size={15} />
+                    </button>
+                  </div>
+                </td>
+              )}
             </tr>
           ))}
         </tbody>

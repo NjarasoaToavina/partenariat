@@ -7,10 +7,12 @@ import { CheckCircle2, Clock, ClipboardList, Plus, ClipboardCheck   } from "luci
 import DocumentToolbar from "../components/document/DocumentToolbar";
 import { useToast } from "../context/ToastContext";
 import Pagination from "../components/common/Pagination";
-import { getAllDocuments, downloadDocument, getDocumentById, updateStatutDocument } from "../services/documentService";
+import { getAllDocuments, downloadDocument, getDocumentById, updateStatutDocument, createDocument, updateDocument } from "../services/documentService";
 import Loader from "../components/common/Loader";
 import { useAuth } from "../context/AuthContext";
 import {URL} from "../services/api";
+import ImportDocumentModal from "../components/document/ImportDocumentModal";
+
 
 const PAGE_SIZE = 6;
 
@@ -32,9 +34,11 @@ export default function Document() {
   const [page, setPage] = useState(1);
   const [documents,setDocuments] = useState([]);
   const [isLoading,setIsLoading] = useState(false);
-  const [selectedDoc,setSelectedDoc]  = useState({})
   const toast = useToast();
   const { hasPermission } = useAuth();
+  const [isImportOpen, setIsImportOpen] = useState(false);
+  const [isImporting, setIsImporting] = useState(false);
+  const [documentToEdit, setDocumentToEdit] = useState(null);
 
   useEffect(()=>{
     setIsLoading(true);
@@ -61,7 +65,6 @@ export default function Document() {
   };
   const resetFilters = () => { setFilters(EMPTY_FILTERS); setPage(1); };
 
-  console.log("mes documents",documents);
   const filtered = useMemo(() => {
     return documents.filter((d) => {
       if (filters.search && !d.user.name.toLowerCase().includes(filters.search.toLowerCase())) return false;
@@ -76,12 +79,58 @@ export default function Document() {
   const { total, counts, percent } = computeDocKpis(documents); // KPIs sur l'ensemble, pas juste la page filtrée
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-  console.log("total pages "+ totalPages)
   const pageItems = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   const handleAddDocument = () => {
-    toast.success("Document ajouté avec succès");
+    setDocumentToEdit(null);
+    setIsImportOpen(true);
   }
+  const handleEditDocument = (doc) => {
+    setDocumentToEdit(doc);
+    setIsImportOpen(true);
+  }
+
+  const handleSaveDocument = async (formData) => {
+    setIsImporting(true);
+
+    try {
+      let response;
+
+      if (documentToEdit) {
+        // Modification
+        response = await updateDocument(documentToEdit.id_doc, formData);
+
+        setDocuments((prev) =>
+          prev.map((doc) =>
+            doc.id_doc === documentToEdit.id_doc
+              ? { ...doc, ...response.data.document }
+              : doc
+          )
+        );
+
+        toast.success("Document modifié avec succès.");
+      } else {
+        // Ajout
+        response = await createDocument(formData);
+
+        setDocuments((prev) => [
+          response.data.document,
+          ...prev,
+        ]);
+
+        toast.success("Document importé avec succès.");
+      }
+
+      setIsImportOpen(false);
+      setDocumentToEdit(null);
+
+    } catch (error) {
+      console.error("Erreur lors de l'enregistrement :", error);
+      toast.error("Impossible d'enregistrer le document.");
+    } finally {
+      setIsImporting(false);
+    }
+  };
 
   // Fonction de calcul des statistiques par statut
   const dynamicStats = useMemo(() => {
@@ -198,6 +247,7 @@ export default function Document() {
 
 
   return (
+    <>
     <div className="space-y-4">
 
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
@@ -287,6 +337,7 @@ export default function Document() {
               onView={(doc) => {handleOnView(doc)}}
               onDownload={(doc) => {handleOnDownload(doc)}}
               onStatusChange={handleStatusChange}
+              onEdit={handleEditDocument}
             />
             <Pagination
               total={filtered.length}
@@ -302,5 +353,17 @@ export default function Document() {
       </div>
 
     </div>
+    <ImportDocumentModal
+      open={isImportOpen}
+      isLoading={isImporting}
+      onConfirm={handleSaveDocument}
+      onCancel={() => 
+        {
+          setIsImportOpen(false);
+          setDocumentToEdit(null);
+        }}
+      documentToEdit={documentToEdit}
+    />
+    </>
   );
 }

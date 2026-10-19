@@ -33,7 +33,7 @@ function formaterDate(dateISO) {
     }
 }
 
-export default function DocumentTable({ documents, onView, onDownload, onStatusChange }) {
+export default function DocumentTable({ documents, onView, onDownload, onEdit, onStatusChange }) {
   const {hasRoles, hasPermission} = useAuth();
   const isEtudiant = hasRoles('etudiant');
   const [documentRefuse, setDocumentRefuse] = useState(null);
@@ -167,8 +167,9 @@ export default function DocumentTable({ documents, onView, onDownload, onStatusC
 
                       { hasPermission("documents.update") && !["vivier"].includes(doc.statut_doc?.toLowerCase()) && (
                           <button
+                            onClick={() => onEdit(doc)}
                             className="w-8 h-8 inline-flex items-center justify-center rounded-lg text-slate-500 hover:text-[#0F2942] hover:bg-slate-100 transition-colors"
-                            aria-label=""
+                            aria-label={`Modifier document n°${doc.id_doc}`}
                           >
                             <Pencil size={15} />
                           </button>
@@ -177,9 +178,8 @@ export default function DocumentTable({ documents, onView, onDownload, onStatusC
                       
                       { hasPermission("documents.delete") && !["vivier"].includes(doc.statut_doc?.toLowerCase()) && (
                          <button
-                          
                           className="w-8 h-8 inline-flex items-center justify-center border border-slate-200 rounded-lg text-slate-500 hover:text-[#E53E3E] hover:border-[#E53E3E]/40 hover:bg-[#FDECEC] transition-colors"
-                          aria-label=""
+                          aria-label={`Supprimer document n°${doc.id_doc}`}
                         >
                           <Trash2 size={15} />
                         </button>

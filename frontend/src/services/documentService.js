@@ -9,11 +9,12 @@ export const updateStatutDocument = (id,data) => {
 }
 
 export const createDocument = (data) => {
-    return api.post("/documents");
+    return api.post("/documents",data);
 }
 
 export const updateDocument = (id,data) => {
-    return api.put(`/documents/${id}`,data);
+    data.append("_method", "PUT");
+    return api.post(`/documents/${id}`,data);
 }
 
 export const deleteDocument = (id) => {

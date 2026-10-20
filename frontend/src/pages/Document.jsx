@@ -7,11 +7,12 @@ import { CheckCircle2, Clock, ClipboardList, Plus, ClipboardCheck   } from "luci
 import DocumentToolbar from "../components/document/DocumentToolbar";
 import { useToast } from "../context/ToastContext";
 import Pagination from "../components/common/Pagination";
-import { getAllDocuments, downloadDocument, getDocumentById, updateStatutDocument, createDocument, updateDocument } from "../services/documentService";
+import { getAllDocuments, downloadDocument, getDocumentById, updateStatutDocument, createDocument, updateDocument, deleteDocument } from "../services/documentService";
 import Loader from "../components/common/Loader";
 import { useAuth } from "../context/AuthContext";
 import {URL} from "../services/api";
 import ImportDocumentModal from "../components/document/ImportDocumentModal";
+import ConfirmModal from "../components/common/Confirmmodal";
 
 
 const PAGE_SIZE = 6;
@@ -39,6 +40,9 @@ export default function Document() {
   const [isImportOpen, setIsImportOpen] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   const [documentToEdit, setDocumentToEdit] = useState(null);
+  const [isDeleting,setIsDeleting] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [selectedDoc,setSelectedDoc] = useState({});
 
   useEffect(()=>{
     setIsLoading(true);
@@ -129,6 +133,34 @@ export default function Document() {
       toast.error("Impossible d'enregistrer le document.");
     } finally {
       setIsImporting(false);
+    }
+  };
+
+   const handleDelete = async () => {
+    if (!selectedDoc || isDeleting) return;
+
+    setIsDeleting(true);
+    console.log("le document supprimé est ",selectedDoc)
+
+    try {
+      await deleteDocument(selectedDoc.id_doc);
+
+      // Retirer instantanément la ligne du tableau
+      setDocuments((prev) =>
+        prev.filter((d) => d.id_doc !== selectedDoc.id_doc)
+      );
+
+      toast.success(`Document n°${selectedDoc.id_doc} a été supprimé`);
+
+      setConfirmOpen(false);
+      setSelectedDoc(null);
+
+    } catch (error) {
+      console.error("Erreur lors de la suppression :", error);
+      toast.error("Impossible de supprimer le document.");
+
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -338,7 +370,11 @@ export default function Document() {
               onDownload={(doc) => {handleOnDownload(doc)}}
               onStatusChange={handleStatusChange}
               onEdit={handleEditDocument}
-            />
+              onDelete={(d)=> {
+                setSelectedDoc(d);
+                setConfirmOpen(true);
+              }}
+              />
             <Pagination
               total={filtered.length}
               rangeStart={filtered.length === 0 ? 0 : (page - 1) * PAGE_SIZE + 1}
@@ -363,6 +399,17 @@ export default function Document() {
           setDocumentToEdit(null);
         }}
       documentToEdit={documentToEdit}
+    />
+    <ConfirmModal
+        open={confirmOpen}
+        variant="danger"
+        title="Supprimer un document?"
+        message={`Voulez-vous vraiment supprimer le document n°${selectedDoc?.id_doc} ?`}
+        confirmLabel="Confirmer"
+        cancelLabel="Annuler"
+        onConfirm={handleDelete}
+        onCancel={() => setConfirmOpen(false)}
+        isLoading={isDeleting}
     />
     </>
   );

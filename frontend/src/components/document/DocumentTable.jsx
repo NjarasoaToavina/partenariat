@@ -33,7 +33,7 @@ function formaterDate(dateISO) {
     }
 }
 
-export default function DocumentTable({ documents, onView, onDownload, onEdit, onStatusChange }) {
+export default function DocumentTable({ documents, onView, onDownload, onEdit, onDelete, onStatusChange }) {
   const {hasRoles, hasPermission} = useAuth();
   const isEtudiant = hasRoles('etudiant');
   const [documentRefuse, setDocumentRefuse] = useState(null);
@@ -178,6 +178,8 @@ export default function DocumentTable({ documents, onView, onDownload, onEdit, o
                       
                       { hasPermission("documents.delete") && !["vivier"].includes(doc.statut_doc?.toLowerCase()) && (
                          <button
+                          onClick={()=>{
+                            onDelete(doc)}}
                           className="w-8 h-8 inline-flex items-center justify-center border border-slate-200 rounded-lg text-slate-500 hover:text-[#E53E3E] hover:border-[#E53E3E]/40 hover:bg-[#FDECEC] transition-colors"
                           aria-label={`Supprimer document n°${doc.id_doc}`}
                         >

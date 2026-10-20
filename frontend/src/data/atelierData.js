@@ -35,7 +35,7 @@ export const ATELIERS = [
 ];
 
 export function getAtelierStats(ateliers) {
-  const realise = ateliers.filter((a) => a.statut_atel === "Réalisé").length;
-  const planifie = ateliers.filter((a) => a.statut_atel === "Planifié").length;
+  const realise = ateliers.filter((a) => a.statut_atel === "realise").length;
+  const planifie = ateliers.filter((a) => a.statut_atel === "planifie").length;
   return { realise, planifie, total: ateliers.length };
 }

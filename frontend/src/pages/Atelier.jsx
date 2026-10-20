@@ -191,7 +191,11 @@ export default function Atelier() {
                 sortAsc={sortAsc}
                 onToggleSort={() => setSortAsc((v) => !v)}
                 onEdit={handleEdit}
-                onDelete={(a) => console.log("Actions", a)}
+                onDelete={(a) => {
+                  console.log("Actions", a)
+                  setSelectedAtel(a);
+                  setConfirmOpen(true);
+                }}
               />
               <Pagination
                 total={filtered.length}
@@ -210,7 +214,7 @@ export default function Atelier() {
           open={confirmOpen}
           variant="danger"
           title="Supprimer un atelier?"
-          message={"Vous allez supprimer l'atelier n°"+selectedAtel.id_atel+ " ?"}
+          message={`Vous allez supprimer l'atelier n°${selectedAtel?.id_atel} ?`}
           confirmLabel="Confirmer"
           cancelLabel="Annuler"
           onConfirm={handleDelete}

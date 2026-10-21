@@ -1,6 +1,7 @@
 import { Building2, CalendarDays, Clock, Info, UserRound, Check, X, Trash2, Pencil,MapPin, Phone } from "lucide-react";
 import PropositionStatusBadge from "./PropositionStatusBadge";
 import { useAuth } from "../../context/AuthContext";
+import Spinner from "../common/Spinner";
 
 export default function ProposalCard({
   icon: Icon = Building2,

@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Pencil, Trash2, FileSignature, Image as ImageIcon } from "lucide-react";
+import { Pencil, Trash2, FileSignature, Image as ImageIcon, Cpu } from "lucide-react";
 import { useToast } from "../context/ToastContext";
 import { getConvention, deleteConvention } from "../services/conventionService";
 import Loader from "../components/common/Loader.jsx";
 import TitleForm from "../components/common/TitleForm";
 import ConfirmModal from "../components/common/Confirmmodal.jsx";
 import {URL} from "../services/api";
+import { useAuth } from "../context/AuthContext.jsx";
 
 function formatDate(value) {
   if (!value) return "—";
@@ -50,6 +51,9 @@ export default function ConventionDetail() {
   const [isLoading, setIsLoading] = useState(true);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const {hasPermission}= useAuth();
+  const canEdit = hasPermission("conventions.update");
+  const canDelete = hasPermission("conventions.delete");
 
   useEffect(() => {
     const fetchConvention = async () => {
@@ -112,22 +116,24 @@ export default function ConventionDetail() {
           onBack={() => navigate(`/partenaires/${id}/conventions`)}
         />
 
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => navigate(`/partenaires/${id}/conventions/${convId}/modifier`)}
-            className="flex items-center gap-2 border border-slate-200 bg-white text-slate-700 font-semibold text-sm px-4 py-2.5 rounded-xl hover:bg-slate-50 transition-colors"
-          >
-            <Pencil size={16} />
-            Modifier
-          </button>
-          <button
-            onClick={() => setConfirmOpen(true)}
-            className="flex items-center gap-2 border border-rose-200 bg-rose-50 text-rose-600 font-semibold text-sm px-4 py-2.5 rounded-xl hover:bg-rose-100 transition-colors"
-          >
-            <Trash2 size={16} />
-            Supprimer
-          </button>
-        </div>
+        { canEdit && canDelete && (
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => navigate(`/partenaires/${id}/conventions/${convId}/modifier`)}
+              className="flex items-center gap-2 border border-slate-200 bg-white text-slate-700 font-semibold text-sm px-4 py-2.5 rounded-xl hover:bg-slate-50 transition-colors"
+            >
+              <Pencil size={16} />
+              Modifier
+            </button>
+            <button
+              onClick={() => setConfirmOpen(true)}
+              className="flex items-center gap-2 border border-rose-200 bg-rose-50 text-rose-600 font-semibold text-sm px-4 py-2.5 rounded-xl hover:bg-rose-100 transition-colors"
+            >
+              <Trash2 size={16} />
+              Supprimer
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">

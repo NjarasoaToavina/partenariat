@@ -1,5 +1,6 @@
 import { Pencil, Trash2, Plus } from "lucide-react";
 import StatusBadge from "./StatusBadge";
+import { useAuth } from "../../context/AuthContext";
 
 function DashIfEmpty({ value }) {
   const isEmpty = value === null || value === undefined || value === "";
@@ -9,6 +10,10 @@ function DashIfEmpty({ value }) {
 }
 
 export default function PartnersTable({ partners, onEdit, onDelete, onConventionClick }) {
+  const {hasPermission} = useAuth();
+  const canEdit = hasPermission("partenariats.update");
+  const canDelete = hasPermission("partenariats.delete");
+  const canPerformAction = canDelete && canEdit;
   return (
     <div className="overflow-x-auto">
       <table className="w-full min-w-[1000px] border-separate border-spacing-0">
@@ -27,7 +32,7 @@ export default function PartnersTable({ partners, onEdit, onDelete, onConvention
             <th className="px-4 py-3">Prochaine action</th>
             <th className="px-4 py-3">Contact</th>
             <th className="px-4 py-3">Observation</th>
-            <th className="px-4 py-3">Actions</th>
+            {canPerformAction && <th className="px-4 py-3">Actions</th>}
           </tr>
         </thead>
         <tbody>
@@ -72,24 +77,26 @@ export default function PartnersTable({ partners, onEdit, onDelete, onConvention
               <td className="px-4 py-4 align-top text-sm text-slate-700 max-w-[160px] text-center">
                 <DashIfEmpty value={partner.observation} />
               </td>
-              <td className="px-4 py-4 align-top text-center">
-                <div className="inline-flex items-center gap-2">
-                  <button
-                    onClick={() => onEdit?.(partner)}
-                    className="w-8 h-8 inline-flex items-center justify-center border border-slate-200 rounded-lg text-slate-500 hover:text-sky-600 hover:border-sky-300 transition-colors"
-                    aria-label={`Modifier ${partner.nom_part}`}
-                  >
-                    <Pencil size={15} />
-                  </button>
-                  <button
-                    onClick={() => onDelete?.(partner)}
-                    className="w-8 h-8 inline-flex items-center justify-center border border-slate-200 rounded-lg text-slate-500 hover:text-[#E53E3E] hover:border-[#E53E3E]/40 hover:bg-[#FDECEC] transition-colors"
-                    aria-label={`Supprimer ${partner.nom_part}`}
-                  >
-                    <Trash2 size={15} />
-                  </button>
-                </div>
-              </td>
+              {canPerformAction && (
+                <td className="px-4 py-4 align-top text-center">
+                  <div className="inline-flex items-center gap-2">
+                    <button
+                      onClick={() => onEdit?.(partner)}
+                      className="w-8 h-8 inline-flex items-center justify-center border border-slate-200 rounded-lg text-slate-500 hover:text-sky-600 hover:border-sky-300 transition-colors"
+                      aria-label={`Modifier ${partner.nom_part}`}
+                    >
+                      <Pencil size={15} />
+                    </button>
+                    <button
+                      onClick={() => onDelete?.(partner)}
+                      className="w-8 h-8 inline-flex items-center justify-center border border-slate-200 rounded-lg text-slate-500 hover:text-[#E53E3E] hover:border-[#E53E3E]/40 hover:bg-[#FDECEC] transition-colors"
+                      aria-label={`Supprimer ${partner.nom_part}`}
+                    >
+                      <Trash2 size={15} />
+                    </button>
+                  </div>
+                </td>
+              )}
             </tr>
           ))}
         </tbody>

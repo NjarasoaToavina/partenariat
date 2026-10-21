@@ -23,6 +23,11 @@ class RolePermissionSeeder extends Seeder
         $responsable->syncPermissions(
             'dashboard.view',
             'partenariats.view',
+            'partenariats.update',
+            'partenariats.delete',
+            'conventions.create',
+            'conventions.update',
+            'conventions.delete',
             'propositions.view',
             'propositions.validate',
             'propositions.reject',

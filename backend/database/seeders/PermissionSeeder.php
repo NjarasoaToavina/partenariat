@@ -36,6 +36,7 @@ class PermissionSeeder extends Seeder
             'conventions.view',
             'conventions.create',
             'conventions.update',
+            'conventions.delete',
             'conventions.download',
             'conventions.associate',
             'conventions.renew',

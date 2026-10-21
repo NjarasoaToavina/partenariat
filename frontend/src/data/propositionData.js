@@ -2,21 +2,21 @@ import { ShieldCheck, Database, TrendingUp, Lightbulb, Building2, Settings, Grad
 
 export const PROPOSITION_STATUS_LABELS = {
   attente: "En attente",
-  validee: "Validée",
-  refusee: "Refusée",
+  valide: "Validé",
+  refuse: "Refusé",
 };
 
 // "En attente" en plein (comme sur la capture), les deux autres en pastel
 export const PROPOSITION_STATUS_STYLES = {
   attente: "bg-amber-500 text-white",
-  validee: "bg-emerald-50 text-emerald-600",
-  refusee: "bg-rose-50 text-rose-500",
+  valide: "bg-emerald-50 text-emerald-600",
+  refuse: "bg-rose-50 text-rose-500",
 };
 
 export const PROPOSITION_STATUS_DOT = {
   attente: "bg-amber-500",
-  validee: "bg-emerald-500",
-  refusee: "bg-rose-500",
+  valide: "bg-emerald-500",
+  refuse: "bg-rose-500",
 };
 
 // Propositions d'activités faites par les partenaires
@@ -39,7 +39,7 @@ export const ACTIVITY_PROPOSALS = [
     iconBg: "bg-emerald-600",
     titre: "Workshop Data Science",
     source: "Partenaire DEF",
-    statut: "validee",
+    statut: "valide",
     date: "27/05/2025",
     heure: "10:00 - 12:00",
     description: "Atelier pratique sur l'analyse de données.",
@@ -51,7 +51,7 @@ export const ACTIVITY_PROPOSALS = [
     iconBg: "bg-red-500",
     titre: "Visite Industrielle",
     source: "Entreprise XYZ",
-    statut: "refusee",
+    statut: "refuse",
     date: "22/05/2025",
     heure: "14:00 - 16:00",
     description: "Visite du site de production et échanges avec les équipes.",
@@ -103,10 +103,45 @@ export const PARTNER_PROPOSALS = [
     iconBg: "bg-red-500",
     titre: "EduTech Partners",
     source: "Service Formation Continue",
-    statut: "refusee",
+    statut: "refuse",
     date: "08/05/2025",
     heure: null,
     description: "Ne correspond pas à notre stratégie actuelle.",
     proposeLe: "08/05/2025",
   },
 ];
+
+export const mapProposition = (proposition) => {
+  const date = new Date(proposition.date_propos);
+
+  return {
+    id: proposition.id_propos,
+
+    icon: Building2,
+    iconBg: "bg-sky-600",
+
+    titre: proposition.part_propos,
+
+    source: proposition.user?.nom_service
+      ? `Service ${proposition.user.nom_service}`
+      : proposition.user?.name ?? "Non renseigné",
+
+    statut: proposition.etat_propos,
+
+    date: date.toLocaleDateString("fr-FR"),
+
+    heure: date.toLocaleTimeString("fr-FR", {
+      hour: "2-digit",
+      minute: "2-digit",
+    }),
+
+    description: proposition.commentaire ?? "Aucun commentaire",
+
+    proposeLe: date.toLocaleDateString("fr-FR"),
+
+    // Informations supplémentaires
+    campus: proposition.campus_propos,
+    contact: proposition.contact_propos,
+    proposePar: proposition.user?.name ?? null,
+  };
+};

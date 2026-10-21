@@ -24,7 +24,10 @@ class RolePermissionSeeder extends Seeder
             'dashboard.view',
             'partenariats.view',
             'propositions.view',
+            'propositions.validate',
+            'propositions.reject',
             'activites.view',
+            'activites.create',
             'ateliers.view',
             'ateliers.create',
             'ateliers.update',
@@ -39,6 +42,9 @@ class RolePermissionSeeder extends Seeder
             'dashboard.view',
             'partenariats.view',
             'propositions.view',
+            'propositions.create',
+            'propositions.update',
+            'propositions.delete',
             'activites.view',
             'publications.view'
         );
@@ -47,6 +53,7 @@ class RolePermissionSeeder extends Seeder
             'partenariats.view',
             'propositions.view',
             'activites.view',
+            'activites.create',
             'ateliers.view',
             'publications.view'
         );

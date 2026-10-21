@@ -27,6 +27,7 @@ class PermissionSeeder extends Seeder
             'propositions.view',
             'propositions.create',
             'propositions.update',
+            'propositions.delete',
             'propositions.validate',
             'propositions.reject',
             'propositions.comment',

@@ -49,11 +49,8 @@ export default function Document() {
     const fetchDocuments = async () => {
         try {
           const response = await getAllDocuments();
-          console.log("Données des documents récupérées :", response.data);
-          setIsLoading(false);
           setDocuments(response.data);
         } catch (error) {
-          setIsLoading(false);
           toast.error("Impossible de charger la liste des documents.");
         } finally {
           setIsLoading(false);

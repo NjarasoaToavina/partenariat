@@ -6,6 +6,7 @@ use App\Notifications\NouvellePropositionNotification;
 use App\Models\Proposition;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Notification;
 
 class PropositionController extends Controller
 {

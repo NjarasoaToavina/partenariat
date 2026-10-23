@@ -49,6 +49,7 @@ export default function Document() {
     const fetchDocuments = async () => {
         try {
           const response = await getAllDocuments();
+          console.log("les documents récupéreés",response.data)
           setDocuments(response.data);
         } catch (error) {
           toast.error("Impossible de charger la liste des documents.");

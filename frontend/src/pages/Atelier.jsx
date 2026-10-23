@@ -13,7 +13,7 @@ import Loader from "../components/common/Loader";
 import { useNavigate } from "react-router-dom";
 
 import { deleteAtelier } from "../services/atelierService";
-import ConfirmModal from "../components/common/Confirmmodal";
+import ConfirmModal from "../components/common/ConfirmModal";
 import { useAuth } from "../context/AuthContext";
 
 const PAGE_SIZE = 6;

@@ -23,6 +23,8 @@
   import ProtectedRoute from './components/auth/ProtectedRoute.jsx'
   import Unauthorized from './pages/Unauthorized.jsx'
   import GuestRoute from './components/auth/GuestRoute.jsx'
+  import Activity from './pages/Activity.jsx'
+import { ACTIVITY_PROPOSALS } from './data/propositionData.js'
   function App() {
     const { loading } = useAuth();
 
@@ -71,6 +73,10 @@
           <Route element={<ProtectedRoute permission="propositions.view" />} >
             <Route path="/propositions" element={<Proposition/>} />
           </Route>
+
+          <Route element={<ProtectedRoute permission="propositions.view" />} >
+            <Route path="/activites" element={<Activity/>} />
+          </Route>
           
           {NAV_ITEMS
               .filter(
@@ -81,6 +87,7 @@
                           "/ateliers",
                           "/documents",
                           "/propositions",
+                          "/activites",
                       ].includes(item.path)
               )
               .map((item) => (

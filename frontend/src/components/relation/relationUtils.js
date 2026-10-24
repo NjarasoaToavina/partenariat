@@ -1,5 +1,6 @@
 import { STORAGE_URL } from "../../data/relationData";
 
+
 // "publications/abc.jpg" -> "http://.../storage/publications/abc.jpg"
 export const storageUrl = (path) => {
   if (!path) return null;

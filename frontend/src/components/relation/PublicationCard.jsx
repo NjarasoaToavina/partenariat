@@ -24,6 +24,8 @@ export default function PublicationCard({
   const commentaires = publication.commentaires ?? [];
   const isOwner = currentUser?.id === publication.user_id;
   const photo = storageUrl(publication.photo_pub);
+  console.log("Photo depuis Laravel :", publication.photo_pub);
+    console.log("URL générée :", photo);
 
   return (
     <article className="overflow-hidden rounded-xl border border-slate-200 bg-white">

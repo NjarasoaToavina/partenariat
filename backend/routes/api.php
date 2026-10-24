@@ -73,6 +73,9 @@ Route::middleware('auth:sanctum')->group(function () {
     //route Publication
     Route::apiResource('publications', PublicationController::class);
     
+    // Réagir à une publication
+    Route::post('/publications/{id}/react', [PublicationController::class, 'react']);
+    
     //route commentaire
     Route::apiResource('commentaires', CommentaireController::class);
 

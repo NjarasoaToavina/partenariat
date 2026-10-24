@@ -9,6 +9,23 @@ use Illuminate\Support\Facades\Storage;
 class PublicationController extends Controller
 {
     /**
+     * Ajouter une réaction à une publication
+     */
+    public function react($id)
+    {
+        $publication = Publication::findOrFail($id);
+
+        // Incrémenter le nombre de réactions
+        $publication->increment('reaction');
+
+        return response()->json([
+            'message' => 'Réaction ajoutée avec succès.',
+            'reaction' => $publication->reaction
+        ]);
+    }
+
+
+    /**
      * Display a listing of the resource.
      */
     public function index()

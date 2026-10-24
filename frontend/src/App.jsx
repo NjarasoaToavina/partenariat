@@ -24,7 +24,7 @@
   import Unauthorized from './pages/Unauthorized.jsx'
   import GuestRoute from './components/auth/GuestRoute.jsx'
   import Activity from './pages/Activity.jsx'
-import { ACTIVITY_PROPOSALS } from './data/propositionData.js'
+  import Relation from './pages/Relation.jsx'
   function App() {
     const { loading } = useAuth();
 
@@ -74,8 +74,12 @@ import { ACTIVITY_PROPOSALS } from './data/propositionData.js'
             <Route path="/propositions" element={<Proposition/>} />
           </Route>
 
-          <Route element={<ProtectedRoute permission="propositions.view" />} >
+          <Route element={<ProtectedRoute permission="activites.view" />} >
             <Route path="/activites" element={<Activity/>} />
+          </Route>
+
+          <Route element={<ProtectedRoute permission="publications.view" />} >
+            <Route path="/relations" element={<Relation/>} />
           </Route>
           
           {NAV_ITEMS
@@ -88,6 +92,7 @@ import { ACTIVITY_PROPOSALS } from './data/propositionData.js'
                           "/documents",
                           "/propositions",
                           "/activites",
+                          "/relations",
                       ].includes(item.path)
               )
               .map((item) => (

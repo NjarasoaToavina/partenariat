@@ -9,6 +9,8 @@ use App\Http\Controllers\ConventionController;
 use App\Http\Controllers\PropositionController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\ActiviteController;
+use App\Http\Controllers\PublicationController;
+use App\Http\Controllers\CommentaireController;
 
 Route::post('/register', [AuthController::class, 'register']);
 
@@ -66,6 +68,13 @@ Route::middleware('auth:sanctum')->group(function () {
     );
 
     Route::apiResource('documents', DocumentController::class);
+
+
+    //route Publication
+    Route::apiResource('publications', PublicationController::class);
+    
+    //route commentaire
+    Route::apiResource('commentaires', CommentaireController::class);
 
     //route notification
     Route::get(

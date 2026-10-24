@@ -11,32 +11,61 @@ class PublicationController extends Controller
     /**
      * Ajouter une réaction à une publication
      */
-    public function react($id)
+    public function react(Request $request, $id)
     {
         $publication = Publication::findOrFail($id);
+        $userId = $request->user()->id;
 
-        // Incrémenter le nombre de réactions
-        $publication->increment('reaction');
+        // Vérifier si l'utilisateur a déjà réagi
+        $reaction = $publication->reactions()
+            ->where('user_id', $userId)
+            ->first();
+
+        if ($reaction) {
+            // Retirer la réaction
+            $reaction->delete();
+            $hasReacted = false;
+        } else {
+            // Ajouter une réaction
+            $publication->reactions()->create([
+                'user_id' => $userId,
+            ]);
+            $hasReacted = true;
+        }
 
         return response()->json([
-            'message' => 'Réaction ajoutée avec succès.',
-            'reaction' => $publication->reaction
+            'message' => $hasReacted
+                ? 'Réaction ajoutée avec succès.'
+                : 'Réaction retirée avec succès.',
+            'reaction' => $publication->reactions()->count(),
+            'has_reacted' => $hasReacted,
         ]);
     }
-
 
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
-       $publications = Publication::with([
-        'user:id,name,image',
-        'commentaires.user:id,name,image'
+        $userId = $request->user()->id;
+
+        $publications = Publication::with([
+            'user:id,name,image',
+            'commentaires.user:id,name,image'
+        ])
+        ->withCount('reactions')
+        ->withExists([
+            'reactions as has_reacted' => function ($query) use ($userId) {
+                $query->where('user_id', $userId);
+            }
         ])
         ->orderBy('date_pub', 'desc')
         ->get();
+
+        // Utiliser le nombre réel de réactions
+        $publications->each(function ($publication) {
+            $publication->reaction = $publication->reactions_count;
+        });
 
         return response()->json($publications);
     }

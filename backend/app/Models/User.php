@@ -68,5 +68,10 @@ class User extends Authenticatable
     {
         return $this->hasMany(Activite::class, 'user_id', 'id');
     }
+
+    public function reactions()
+    {
+        return $this->hasMany(Reaction::class, 'user_id', 'id');
+    }
     
 }

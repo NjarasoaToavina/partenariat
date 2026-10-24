@@ -61,41 +61,56 @@ export default function Relation() {
   const closeModal = useCallback(() => setModal(null), []);
 
   const handleSave = async (values) => {
-    const editing = modal?.publication;
-    setSaving(true);
-    try {
-      if (editing) {
-        await updatePublication(editing.id_pub, values);
-        toast.success("Publication modifiée.");
-      } else {
-        await createPublication(values);
-        toast.success("Publication ajoutée.");
+      const editing = modal?.publication;
+      setSaving(true);
+      try {
+        if (editing) {
+          await updatePublication(editing.id_pub, values);
+          toast.success("Publication modifiée.");
+        } else {
+          await createPublication(values);
+          toast.success("Publication ajoutée.");
+        }
+        setModal(null);
+        await load(false);
+      } catch (err) {
+        console.error("Erreur enregistrement publication :", err);
+        toast.error(
+          apiError(err, "Erreur lors de l'enregistrement. Veuillez réessayer.")
+        );
+      } finally {
+        setSaving(false);
       }
-      setModal(null);
-      await load(false);
-    } catch (err) {
-      console.error("Erreur enregistrement publication :", err);
-      toast.error(
-        apiError(err, "Erreur lors de l'enregistrement. Veuillez réessayer.")
-      );
-    } finally {
-      setSaving(false);
-    }
-  };
+    };
 
-  // Réaction : mise à jour immédiate, annulée si l'API échoue
-  const handleReact = async (publication) => {
+    const handleReact = async (publication) => {
     const previous = publication.reaction ?? 0;
-    patchPublication(publication.id_pub, () => ({ reaction: previous + 1 }));
+    const wasReacted = Boolean(publication.has_reacted);
+
+    // Mise à jour immédiate selon l'état actuel
+    patchPublication(publication.id_pub, () => ({
+      reaction: previous + (wasReacted ? -1 : 1),
+      has_reacted: !wasReacted,
+    }));
+
     try {
       const res = await reactToPublication(publication.id_pub);
-      const total = typeof res === "number" ? res : res?.reaction;
-      if (typeof total === "number") {
-        patchPublication(publication.id_pub, () => ({ reaction: total }));
-      }
+
+      // Synchroniser avec la réponse Laravel
+      patchPublication(publication.id_pub, () => ({
+        reaction: res.reaction,
+        has_reacted: res.has_reacted,
+      }));
+
     } catch (err) {
       console.error("Erreur réaction :", err);
-      patchPublication(publication.id_pub, () => ({ reaction: previous }));
+
+      // Restaurer les anciennes valeurs
+      patchPublication(publication.id_pub, () => ({
+        reaction: previous,
+        has_reacted: wasReacted,
+      }));
+
       toast.error("Impossible d'enregistrer votre réaction.");
     }
   };

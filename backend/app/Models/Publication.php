@@ -39,6 +39,10 @@ class Publication extends Model
         return $this->hasMany(Commentaire::class, 'id_pub', 'id_pub');
     }
 
+    public function reactions()
+    {
+        return $this->hasMany(Reaction::class, 'id_pub', 'id_pub');
+    }
 
 }
 

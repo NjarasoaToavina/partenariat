@@ -23,7 +23,8 @@ class NouvellePropositionNotification extends Notification
     {
         return [
             'titre' => 'Nouvelle proposition',
-            'message' => 'Une nouvelle proposition a été créée.',
+            'message' => 'Une nouvelle proposition de partenariat avec '
+                . $this->proposition->part_propos . ' a été créée.',
             'id_propos' => $this->proposition->id_propos,
             'url' => '/propositions',
         ];

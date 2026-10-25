@@ -2,6 +2,7 @@ import { createContext, useState, useEffect, useCallback } from "react";
 import { getCurrentUser } from "../services/authService";
 import {useToast} from "./ToastContext";
 import { useContext } from "react";
+import { createEcho } from "../echo";
 
 const AuthContext = createContext();
 
@@ -41,6 +42,47 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
         fetchUser();
     }, [fetchUser]);
+
+    useEffect(() => {
+        if (!user?.id) return;
+
+        const echo = createEcho();
+        const pusher = echo.connector.pusher;
+
+        const onConnected = () => {
+            console.log("Connecté à Laravel Reverb !");
+        };
+
+        const onError = (error) => {
+            console.error("Erreur Reverb :", error);
+        };
+
+        pusher.connection.bind("connected", onConnected);
+        pusher.connection.bind("error", onError);
+
+        // Écouter les notifications de l'utilisateur connecté
+        const channel = echo.private(`App.Models.User.${user.id}`);
+
+        channel.notification((notification) => {
+            console.log("🔔 Nouvelle notification reçue :", notification);
+        });
+
+        // Vérifier l'authentification au canal privé
+        channel.subscribed(() => {
+            console.log("Abonnement au canal privé réussi !");
+        });
+
+        channel.error((error) => {
+            console.error("Erreur du canal privé :", error);
+        });
+
+        return () => {
+            echo.leave(`App.Models.User.${user.id}`);
+            pusher.connection.unbind("connected", onConnected);
+            pusher.connection.unbind("error", onError);
+            echo.disconnect();
+        };
+    }, [user?.id]);
 
     const loginUser = (userData) => {
         setUser(userData.user);

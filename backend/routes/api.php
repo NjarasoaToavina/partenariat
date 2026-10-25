@@ -11,10 +11,16 @@ use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\ActiviteController;
 use App\Http\Controllers\PublicationController;
 use App\Http\Controllers\CommentaireController;
+use App\Http\Controllers\NotificationController;
+use Illuminate\Support\Facades\Broadcast;
 
 Route::post('/register', [AuthController::class, 'register']);
 
 Route::post('/login', [AuthController::class, 'login']);
+
+Broadcast::routes([
+    'middleware' => ['api', 'auth:sanctum'],
+]);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (Request $request) {

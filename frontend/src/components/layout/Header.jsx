@@ -1,4 +1,5 @@
-import { Menu, Bell, UserCircle } from "lucide-react";
+import { Menu, UserCircle } from "lucide-react";
+import NotificationBell from "../notification/NotificationBell";
 import LogoEsmia from "../../assets/logo.png";
 
 import { URL } from "../../services/api";
@@ -61,9 +62,7 @@ export default function Header({
               </div>
          ) : (
               <div className="flex items-center gap-3 shrink-0 min-w-0 max-w-[50%]">
-                <button className="text-white/90 hover:text-white shrink-0">
-                  <Bell size={20} />
-                </button>
+                <NotificationBell mobile />
                 
                 <div className="w-9 h-9 rounded-full bg-white/10 text-white flex items-center justify-center overflow-hidden border border-white/20 shrink-0">
                   {photoUrl ? (
@@ -98,9 +97,7 @@ export default function Header({
           </div>
         ) : (
           <div className="flex items-center gap-4 shrink-0 min-w-0">
-            <button className="text-slate-500 hover:text-slate-700 shrink-0">
-              <Bell size={20} />
-            </button>
+            <NotificationBell/>
             
             <div className="w-9 h-9 rounded-full bg-[#03334E] text-white flex items-center justify-center overflow-hidden border border-slate-200 shrink-0">
               {photoUrl ? (

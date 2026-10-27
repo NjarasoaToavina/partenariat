@@ -25,6 +25,8 @@
   import GuestRoute from './components/auth/GuestRoute.jsx'
   import Activity from './pages/Activity.jsx'
   import Relation from './pages/Relation.jsx'
+  import Profil from './pages/Profil.jsx'
+
   function App() {
     const { loading } = useAuth();
 
@@ -46,6 +48,11 @@
 
         {/* Routes privées */}
         <Route element={<AppLayout />} >
+          {/* Profil de l'utilisateur connecté */}
+          <Route element={<ProtectedRoute />}>
+            <Route path="/profil" element={<Profil />} />
+          </Route>
+
           <Route element={<ProtectedRoute permission="dashboard.view" />} >
             <Route path="/dashboard" element={<Dashboard />} />
           </Route>

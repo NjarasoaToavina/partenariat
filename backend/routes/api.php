@@ -13,6 +13,7 @@ use App\Http\Controllers\PublicationController;
 use App\Http\Controllers\CommentaireController;
 use App\Http\Controllers\NotificationController;
 use Illuminate\Support\Facades\Broadcast;
+use App\Http\Controllers\ProfileController;
 
 Route::post('/register', [AuthController::class, 'register']);
 
@@ -31,6 +32,8 @@ Route::middleware('auth:sanctum')->group(function () {
             'permissions' => $user->getAllPermissions()->pluck('name')->values(),
         ]);
     });
+
+    Route::post('/profile', [ProfileController::class, 'update']);
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::apiResource('ateliers', AtelierController::class);
     Route::apiResource('partenariats', PartenariatController::class);

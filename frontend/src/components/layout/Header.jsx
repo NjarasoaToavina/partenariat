@@ -5,6 +5,7 @@ import LogoEsmia from "../../assets/logo.png";
 import { URL } from "../../services/api";
 import {useAuth} from "../../context/AuthContext.jsx";
 import Loader from "../common/Loader.jsx";
+import { useNavigate } from "react-router-dom";
 
 export default function Header({
   section = "Visualisation des informations",
@@ -13,6 +14,8 @@ export default function Header({
   userRole = "Responsable",
   onMenuClick = () => {},
 }) {
+
+  const navigate = useNavigate();
 
   const {user,loading} = useAuth();
 
@@ -64,13 +67,23 @@ export default function Header({
               <div className="flex items-center gap-3 shrink-0 min-w-0 max-w-[50%]">
                 <NotificationBell mobile />
                 
-                <div className="w-9 h-9 rounded-full bg-white/10 text-white flex items-center justify-center overflow-hidden border border-white/20 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => navigate("/profil")}
+                  title="Modifier mon profil"
+                  aria-label="Modifier mon profil"
+                  className="w-9 h-9 rounded-full bg-white/10 text-white flex items-center justify-center overflow-hidden border border-white/20 shrink-0 cursor-pointer hover:ring-2 hover:ring-sky-400 transition-all"
+                >
                   {photoUrl ? (
-                    <img src={photoUrl} alt="Profil" className="w-full h-full object-cover" />
+                    <img
+                      src={photoUrl}
+                      alt="Profil"
+                      className="w-full h-full object-cover"
+                    />
                   ) : (
                     <UserCircle size={20} />
                   )}
-                </div>
+                </button>
                 
                 <div className="min-w-0">
                   <p className="text-sm font-bold text-white leading-tight truncate max-w-[100px]">
@@ -99,13 +112,23 @@ export default function Header({
           <div className="flex items-center gap-4 shrink-0 min-w-0">
             <NotificationBell/>
             
-            <div className="w-9 h-9 rounded-full bg-[#03334E] text-white flex items-center justify-center overflow-hidden border border-slate-200 shrink-0">
+            <button
+              type="button"
+              onClick={() => navigate("/profil")}
+              title="Modifier mon profil"
+              aria-label="Modifier mon profil"
+              className="w-9 h-9 rounded-full bg-[#03334E] text-white flex items-center justify-center overflow-hidden border border-slate-200 shrink-0 cursor-pointer hover:ring-2 hover:ring-[#0065CD] transition-all"
+            >
               {photoUrl ? (
-                <img src={photoUrl} alt="Profil" className="w-full h-full object-cover" />
+                <img
+                  src={photoUrl}
+                  alt="Profil"
+                  className="w-full h-full object-cover"
+                />
               ) : (
                 <UserCircle size={20} />
               )}
-            </div>
+            </button>
             
             <div className="min-w-0">
               <p className="text-sm font-bold text-slate-900 leading-tight truncate max-w-[160px]">

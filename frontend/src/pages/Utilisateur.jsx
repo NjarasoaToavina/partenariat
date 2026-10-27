@@ -16,8 +16,8 @@ import { useToast } from "../context/ToastContext";
 import { URL } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import Pagination from "../components/common/Pagination";
-import Spinner from "../components/common/Spinner";
 import Loader from "../components/common/Loader";
+import ConfirmModal from "../components/common/ConfirmModal";
 
 export default function Utilisateur() {
   const navigate = useNavigate();
@@ -27,6 +27,9 @@ export default function Utilisateur() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState(null);
+  const [confirmOpen,setConfirmOpen] = useState(false);
+  const [selectedUser,setSelectedUser] = useState({});
+  const [isLoading,setIsLoading] = useState(false);
 
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("tous");
@@ -67,25 +70,21 @@ export default function Utilisateur() {
     loadUsers();
   }, []);
 
-  const handleDelete = async (user) => {
-    if (user.id === currentUser?.id) {
+  const handleDelete = async () => {
+    if (!selectedUser) return;
+
+    if (selectedUser.id === currentUser?.id) {
       toast.error("Vous ne pouvez pas supprimer votre propre compte.");
       return;
     }
 
-    const confirmed = window.confirm(
-      `Voulez-vous vraiment supprimer ${user.name} ?`
-    );
-
-    if (!confirmed) return;
+    setIsLoading(true);
 
     try {
-      setDeletingId(user.id);
-
-      await deleteUser(user.id);
+      await deleteUser(selectedUser.id);
 
       setUsers((prev) =>
-        prev.filter((u) => u.id !== user.id)
+        prev.filter((u) => u.id !== selectedUser.id)
       );
 
       toast.success("Utilisateur supprimé avec succès.");
@@ -95,7 +94,9 @@ export default function Utilisateur() {
         "Erreur lors de la suppression."
       );
     } finally {
-      setDeletingId(null);
+      setSelectedUser(null);
+      setIsLoading(false);
+      setConfirmOpen(false);
     }
   };
 
@@ -138,6 +139,7 @@ export default function Utilisateur() {
     rangeStart === 0 ? 0 : rangeStart - 1,
     rangeEnd
     );
+
   return (
     <div className="p-4 md:p-8 space-y-6">
 
@@ -295,9 +297,7 @@ export default function Utilisateur() {
 
                           <button
                             title="Modifier"
-                            onClick={() =>
-                              navigate(`/utilisateurs/modifier/${user.id}`)
-                            }
+                            onClick={() => navigate(`/utilisateurs/modifier/${user.id}`)}
                             className="p-2 rounded-lg text-blue-600 hover:bg-blue-50"
                           >
                             <Pencil size={18} />
@@ -309,7 +309,7 @@ export default function Utilisateur() {
                               deletingId === user.id ||
                               user.id === currentUser?.id
                             }
-                            onClick={() => handleDelete(user)}
+                            onClick={() => {setSelectedUser(user);setConfirmOpen(true)}}
                             className="p-2 rounded-lg text-red-600 hover:bg-red-50 disabled:opacity-40 disabled:cursor-not-allowed"
                           >
                             <Trash2 size={18} />
@@ -342,6 +342,17 @@ export default function Utilisateur() {
 )}
 
       </div>
+        <ConfirmModal
+            open={confirmOpen}
+            variant="danger"
+            title="Supprimer un utilisateur?"
+            message={"Vous allez supprimer l'utilisateur ?"}
+            confirmLabel="Confirmer"
+            cancelLabel="Annuler"
+            onConfirm={handleDelete}
+            onCancel={() => setConfirmOpen(false)}
+            isLoading={isLoading}
+        />
     </div>
   );
 }

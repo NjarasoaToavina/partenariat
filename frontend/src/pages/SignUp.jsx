@@ -273,7 +273,7 @@ export default function SignUp() {
                 icon={BookOpen}
                 value={filiere}
                 onChange={setFiliere}
-                placeholder="Entrez votre filière"
+                placeholder="Ex: SIO, BF, CMD, MEGP, MIAGE, IMP, QADD"
               />
             )}
 

@@ -27,6 +27,7 @@
   import Relation from './pages/Relation.jsx'
   import Profil from './pages/Profil.jsx'
   import Utilisateur from './pages/Utilisateur.jsx';
+  import UserFormPage from "./pages/UserFormPage.jsx";
 
   function App() {
     const { loading } = useAuth();
@@ -60,17 +61,36 @@
 
           <Route element={<ProtectedRoute permission="partenariats.view" />} >
             <Route path="/partenaires" element={<Partenaire />} />
+          </Route>
+          
+          <Route element={<ProtectedRoute permission="partenariats.create" />} >
             <Route path="/partenaires/ajouter" element={<AjouterPartenaire />} />
+          </Route>
+
+          <Route element={<ProtectedRoute permission="partenariats.update" />} >
             <Route path="/partenaires/modifier/:id" element={<ModifierPartenaire />} />
+          </Route>
+
+          <Route element={<ProtectedRoute permission="conventions.view" />} >
             <Route path="/partenaires/:id/conventions" element={<Convention/>} />
             <Route path="/partenaires/:id/conventions/:convId" element={<ConventionDetail />} />
-            <Route path="/partenaires/:id/conventions/ajouter" element={<AjouterConvention />} />
-            <Route path="/partenaires/:id/conventions/:convId/modifier" element={<ModifierConvention />} />
           </Route>
+            
+          <Route element={<ProtectedRoute permission="conventions.create" />} > 
+            <Route path="/partenaires/:id/conventions/ajouter" element={<AjouterConvention />} />
+          </Route> 
+            
+          <Route element={<ProtectedRoute permission="conventions.update" />} >   
+            <Route path="/partenaires/:id/conventions/:convId/modifier" element={<ModifierConvention />} />
+          </Route> 
           
           <Route element={<ProtectedRoute permission="ateliers.view" />} >
             <Route path="/ateliers" element={<Atelier />} />
+          </Route>
+          <Route element={<ProtectedRoute permission="ateliers.create" />} >
             <Route path="/ateliers/ajouter" element={<AjouterAtelier />} />
+          </Route>
+          <Route element={<ProtectedRoute permission="ateliers.update" />} >
             <Route path="/ateliers/modifier/:id" element={<ModifierAtelier />} />
           </Route>
 
@@ -92,6 +112,13 @@
 
           <Route element={<ProtectedRoute permission="users.view" />}>
             <Route path="/utilisateurs" element={<Utilisateur />} />
+          </Route>  
+          <Route element={<ProtectedRoute permission="users.create" />}>
+            <Route path="/utilisateurs/ajouter" element={<UserFormPage />} />
+          </Route>
+
+          <Route element={<ProtectedRoute permission="users.update" />}>
+            <Route path="/utilisateurs/modifier/:id" element={<UserFormPage />} />
           </Route>
           
           {NAV_ITEMS

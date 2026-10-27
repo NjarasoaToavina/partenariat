@@ -20,6 +20,7 @@ class AuthController extends Controller
             'image' => ['nullable', 'image', 'max:2048'],
             'fonction' => ['nullable', 'string', 'max:255'],
             'nom_service' => ['nullable', 'string', 'max:255'],
+            'nie' => ['nullable', 'string', 'max:255'],
             'filiere' => ['nullable', 'string', 'max:255'],
             'niveau' => ['nullable', 'string', 'max:255'],
         ]);
@@ -40,6 +41,7 @@ class AuthController extends Controller
             'image' => $imagePath,
             'fonction' => $validated['fonction'] ?? null,
             'nom_service' => $validated['nom_service'] ?? null,
+            'nie' => $validated['nie'] ?? null,
             'filiere' => $validated['filiere'] ?? null,
             'niveau' => $validated['niveau'] ?? null,
         ]);

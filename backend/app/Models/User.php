@@ -26,6 +26,7 @@ class User extends Authenticatable
         'password',
         'image',
         'nom_service',
+        'nie',
         'filiere',
         'niveau',
         'fonction'  

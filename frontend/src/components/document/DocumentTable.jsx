@@ -111,7 +111,7 @@ export default function DocumentTable({ documents, onView, onDownload, onEdit, o
                         <span className="text-sm font-semibold text-slate-900">{doc.user.name}</span>
                       </span>
                     </td>
-                    <td className="px-4 py-3.5 text-sm text-[#0F2942] font-medium whitespace-nowrap">{doc.user.matricule}SE00000001</td>
+                    <td className="px-4 py-3.5 text-sm text-[#0F2942] font-medium whitespace-nowrap">{doc.user.nie}</td>
                     <td className="px-4 py-3.5 text-sm text-slate-600 whitespace-nowrap">{doc.user.filiere}</td>
                     <td className="px-4 py-3.5 text-sm text-slate-600 whitespace-nowrap">{doc.user.niveau}</td>
                   </>

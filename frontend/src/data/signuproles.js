@@ -11,7 +11,7 @@ export const ROLE_EXTRA_FIELDS = {
   responsable: [],
   service: ["nom_service"],
   partenaire: ["fonction"],
-  etudiant: ["filiere", "niveau"],
+  etudiant: ["filiere", "niveau","nie"],
 };
 
 export function roleHasField(role, field) {

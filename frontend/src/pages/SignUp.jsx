@@ -43,6 +43,7 @@ export default function SignUp() {
   const [fonction, setFonction] = useState("");
   const [nomService, setNomService] = useState("");
   const [filiere, setFiliere] = useState("");
+  const [nie, setNie] = useState("");
   const [niveau, setNiveau] = useState("");
   const [photo, setPhoto] = useState(null);
 
@@ -81,6 +82,9 @@ export default function SignUp() {
       formData.append("nom_service", nomService);
     }
 
+    if (roleHasField(userType, "nie")) {
+      formData.append("nie", nie);
+    }
     if (roleHasField(userType, "filiere")) {
       formData.append("filiere", filiere);
     }
@@ -248,6 +252,19 @@ export default function SignUp() {
             />
 
             {/* Uniquement pour Étudiant */}
+            {roleHasField(userType, "nie") && (
+              <FormField
+                disabled={isLoading}
+                id="nie"
+                label="NIE"
+                icon={BookOpen}
+                value={nie}
+                onChange={setNie}
+                placeholder="SE, SI, BE ou BI suivi de 8 chiffres"
+              />
+            )}
+
+            {/* Uniquement pour Étudiant */}
             {roleHasField(userType, "filiere") && (
               <FormField
                 disabled={isLoading}
@@ -268,7 +285,7 @@ export default function SignUp() {
                 icon={GraduationCap}
                 value={niveau}
                 onChange={setNiveau}
-                placeholder="Ex: Licence 3, Master 1..."
+                placeholder="Ex: L3, M1..."
               />
             )}
 

@@ -14,6 +14,7 @@ use App\Http\Controllers\CommentaireController;
 use App\Http\Controllers\NotificationController;
 use Illuminate\Support\Facades\Broadcast;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\UserController;
 
 Route::post('/register', [AuthController::class, 'register']);
 
@@ -33,9 +34,23 @@ Route::middleware('auth:sanctum')->group(function () {
         ]);
     });
 
+    
+    // Gestion des utilisateurs
+    Route::apiResource('users', UserController::class)
+        ->except(['update']);
+
+    Route::post('/users/{id}/update', [UserController::class, 'update']);
+
+    // Gestion du profil
     Route::post('/profile', [ProfileController::class, 'update']);
+
+    //Déconnexion
     Route::post('/logout', [AuthController::class, 'logout']);
+
+    //route atelier
     Route::apiResource('ateliers', AtelierController::class);
+
+    //route partenariat
     Route::apiResource('partenariats', PartenariatController::class);
 
     //route convention

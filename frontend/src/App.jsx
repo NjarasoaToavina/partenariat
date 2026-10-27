@@ -26,6 +26,7 @@
   import Activity from './pages/Activity.jsx'
   import Relation from './pages/Relation.jsx'
   import Profil from './pages/Profil.jsx'
+  import Utilisateur from './pages/Utilisateur.jsx';
 
   function App() {
     const { loading } = useAuth();
@@ -88,6 +89,10 @@
           <Route element={<ProtectedRoute permission="publications.view" />} >
             <Route path="/relations" element={<Relation/>} />
           </Route>
+
+          <Route element={<ProtectedRoute permission="users.view" />}>
+            <Route path="/utilisateurs" element={<Utilisateur />} />
+          </Route>
           
           {NAV_ITEMS
               .filter(
@@ -100,6 +105,7 @@
                           "/propositions",
                           "/activites",
                           "/relations",
+                          "/utilisateurs,"
                       ].includes(item.path)
               )
               .map((item) => (

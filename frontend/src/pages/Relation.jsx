@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Loader2, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
+import Loader from "../components/common/Loader.jsx";
 import { useToast } from "../context/ToastContext.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 import ConfirmModal from "../components/common/ConfirmModal.jsx";
@@ -197,9 +198,7 @@ export default function Relation() {
       )}
 
       {loading ? (
-        <div className="flex justify-center py-16">
-          <Loader2 size={28} className="animate-spin text-[#0065CD]" />
-        </div>
+        <Loader fullScreen={false} label="Chargement des publications..." />
       ) : sorted.length === 0 && !error ? (
         <p className="rounded-xl border border-dashed border-slate-300 bg-white px-4 py-12 text-center text-sm text-slate-500">
           Aucune publication pour le moment. Soyez le premier à en publier une.

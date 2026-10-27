@@ -90,6 +90,12 @@ class PermissionSeeder extends Seeder
             // Profil
             'profil.view',
             'profil.update',
+
+            // Utilisateurs
+            'users.view',
+            'users.create',
+            'users.update',
+            'users.delete',
         ];
 
         foreach ($permissions as $permission) {

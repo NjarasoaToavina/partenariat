@@ -41,6 +41,10 @@ class RolePermissionSeeder extends Seeder
             'documents.validate',//ajouter
             'documents.reject', //ajouter
             'publications.view',
+            'users.view',
+            'users.create',
+            'users.update',
+            'users.delete',
         );
 
         $service->syncPermissions(

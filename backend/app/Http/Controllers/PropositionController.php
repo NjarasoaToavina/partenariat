@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Notification;
 use App\Models\Partenariat;
 use Illuminate\Support\Facades\DB;
+use App\Services\HistoriqueService;
 
 class PropositionController extends Controller
 {
@@ -58,11 +59,23 @@ class PropositionController extends Controller
         ]);
 
 
-        $proposition = $user->propositions()->create([
+        $proposition = DB::transaction(function () use ($user, $validated) {
+
+            $proposition = $user->propositions()->create([
                 ...$validated,
                 'date_propos' => now(),
                 'etat_propos' => 'attente',
-        ]);
+            ]);
+
+            HistoriqueService::enregistrer(
+                action: 'creation',
+                module: 'propositions',
+                description: "A créé une proposition de partenariat avec {$proposition->part_propos}",
+                elementId: $proposition->id_propos
+            );
+
+            return $proposition;
+        });
 
         $responsables = User::role('responsable')->get();
 
@@ -132,7 +145,17 @@ class PropositionController extends Controller
             'contact_propos' => ['required', 'string', 'max:255'],            
         ]);
 
-        $proposition->update($validated);
+        DB::transaction(function () use ($proposition, $validated) {
+
+            $proposition->update($validated);
+
+            HistoriqueService::enregistrer(
+                action: 'modification',
+                module: 'propositions',
+                description: "A modifié la proposition de partenariat avec {$proposition->part_propos}",
+                elementId: $proposition->id_propos
+            );
+        });
 
         return response()->json([
             'message' => 'Proposition mise à jour avec succès',
@@ -188,6 +211,13 @@ class PropositionController extends Controller
                     'etat_propos' => 'valide',
                 ]);
 
+                HistoriqueService::enregistrer(
+                    action: 'validation',
+                    module: 'propositions',
+                    description: "A validé la proposition de partenariat avec {$proposition->part_propos}",
+                    elementId: $proposition->id_propos
+                );
+
                 return response()->json([
                     'message' => 'Proposition validée et partenaire créé avec succès',
                     'proposition' => $proposition->load('user'),
@@ -200,6 +230,13 @@ class PropositionController extends Controller
                 'etat_propos' => 'refuse',
                 'commentaire' => $validated['commentaire'] ?? null,
             ]);
+
+            HistoriqueService::enregistrer(
+                action: 'refus',
+                module: 'propositions',
+                description: "A refusé la proposition de partenariat avec {$proposition->part_propos}",
+                elementId: $proposition->id_propos
+            );
 
             return response()->json([
                 'message' => 'Proposition refusée avec succès',
@@ -225,7 +262,17 @@ class PropositionController extends Controller
             ], 403);
         }
 
-        $proposition->delete();
+        DB::transaction(function () use ($proposition) {
+
+            $proposition->delete();
+
+            HistoriqueService::enregistrer(
+                action: 'suppression',
+                module: 'propositions',
+                description: "A supprimé la proposition de partenariat avec {$proposition->part_propos}",
+                elementId: $proposition->id_propos
+            );
+        });
 
         return response()->json([
             'message' => 'Proposition supprimée avec succès',

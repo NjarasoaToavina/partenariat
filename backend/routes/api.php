@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Broadcast;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\HistoriqueController;
 
 Route::post('/register', [AuthController::class, 'register']);
 
@@ -34,6 +35,9 @@ Route::middleware('auth:sanctum')->group(function () {
             'permissions' => $user->getAllPermissions()->pluck('name')->values(),
         ]);
     });
+
+    //Historique
+    Route::get('/historiques', [HistoriqueController::class, 'index']);
 
     //Dashboard
     Route::get('/dashboard/stats', [DashboardController::class, 'stats']);

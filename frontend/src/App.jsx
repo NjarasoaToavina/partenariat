@@ -28,6 +28,7 @@
   import Profil from './pages/Profil.jsx'
   import Utilisateur from './pages/Utilisateur.jsx';
   import UserFormPage from "./pages/UserFormPage.jsx";
+  import Historique from "./pages/Historique";
 
   function App() {
     const { loading } = useAuth();
@@ -119,6 +120,10 @@
 
           <Route element={<ProtectedRoute permission="users.update" />}>
             <Route path="/utilisateurs/modifier/:id" element={<UserFormPage />} />
+          </Route>
+
+          <Route element={<ProtectedRoute permission="historiques.view" />}>
+            <Route path="/historiques" element={<Historique />} />
           </Route>
           
           {NAV_ITEMS

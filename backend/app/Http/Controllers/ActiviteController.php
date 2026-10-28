@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Activite;
 use Illuminate\Http\Request;
+use App\Services\HistoriqueService;
+use Illuminate\Support\Facades\DB;
 
 class ActiviteController extends Controller
 {
@@ -62,10 +64,22 @@ class ActiviteController extends Controller
         ]);
 
 
-        $activite = $user->activites()->create([
+        $activite = DB::transaction(function () use ($user, $validated) {
+
+            $activite = $user->activites()->create([
                 ...$validated,
                 'etat_activ' => 'planifie',
-        ]);
+            ]);
+
+            HistoriqueService::enregistrer(
+                action: 'creation',
+                module: 'activites',
+                description: "A créé l'activité {$activite->sujet}",
+                elementId: $activite->getKey()
+            );
+
+            return $activite;
+        });
 
         return response()->json([
             'message' => 'Activité créée avec succès',
@@ -124,7 +138,17 @@ class ActiviteController extends Controller
             'date_fin_activ' => ['required','date'],
         ]);
 
-        $activite->update($validated);
+        DB::transaction(function () use ($activite, $validated) {
+
+            $activite->update($validated);
+
+            HistoriqueService::enregistrer(
+                action: 'modification',
+                module: 'activites',
+                description: "A modifié l'activité {$activite->sujet}",
+                elementId: $activite->getKey()
+            );
+        });
 
         return response()->json([
             'message' => 'Activite mise à jour avec succès',
@@ -149,7 +173,25 @@ class ActiviteController extends Controller
             'commentaire' => ['nullable', 'string', 'max:255'],
         ]);
 
-        $activite->update($validated);
+        DB::transaction(function () use ($activite, $validated) {
+
+            $activite->update($validated);
+
+            $action = $activite->etat_activ === 'realise'
+                ? 'realisation'
+                : 'planification';
+
+            $description = $activite->etat_activ === 'realise'
+                ? "A marqué l'activité {$activite->sujet} comme réalisée"
+                : "A marqué l'activité {$activite->sujet} comme planifiée";
+
+            HistoriqueService::enregistrer(
+                action: $action,
+                module: 'activites',
+                description: $description,
+                elementId: $activite->getKey()
+            );
+        });
 
         return response()->json([
             'message' => "Etat de l'activité mis à jour",
@@ -174,7 +216,18 @@ class ActiviteController extends Controller
             ], 403);
         }
 
-        $activite->delete();
+        DB::transaction(function () use ($activite) {
+
+            $activite->delete();
+
+            HistoriqueService::enregistrer(
+                action: 'suppression',
+                module: 'activites',
+                description: "A supprimé l'activité {$activite->sujet}",
+                elementId: $activite->getKey()
+            );
+        });
+        
         return response()->json([
             'message' => 'Activité supprimée avec succès',
         ], 200);

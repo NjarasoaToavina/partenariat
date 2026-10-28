@@ -82,7 +82,7 @@ class PermissionSeeder extends Seeder
             'dashboard.view',
 
             // Historique
-            'historique.view',
+            'historiques.view',
 
             // Notifications
             'notifications.view',

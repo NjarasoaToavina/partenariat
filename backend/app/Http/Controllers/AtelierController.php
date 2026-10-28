@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Atelier;
 use Illuminate\Http\Request;
+use App\Services\HistoriqueService;
+use Illuminate\Support\Facades\DB;
 
 class AtelierController extends Controller
 {
@@ -42,7 +44,20 @@ class AtelierController extends Controller
             'statut_atel' => 'required|string|max:255',
         ]);
 
-        $atelier = Atelier::create($validated);
+        $atelier = DB::transaction(function () use ($validated) {
+
+            $atelier = Atelier::create($validated);
+
+            HistoriqueService::enregistrer(
+                action: 'creation',
+                module: 'ateliers',
+                description: "A ajouté un atelier pour la filière {$atelier->filiere_atel} au campus {$atelier->campus_atel}",
+                elementId: $atelier->getKey()
+            );
+
+            return $atelier;
+        });
+
         return response()->json($atelier, 201);
     }
 
@@ -80,7 +95,17 @@ class AtelierController extends Controller
             'statut_atel' => 'required|string|max:255',
         ]);
 
-        $atelier->update($validated);
+        DB::transaction(function () use ($atelier, $validated) {
+
+            $atelier->update($validated);
+
+            HistoriqueService::enregistrer(
+                action: 'modification',
+                module: 'ateliers',
+                description: "A modifié un atelier de la filière {$atelier->filiere_atel} au campus {$atelier->campus_atel}",
+                elementId: $atelier->getKey()
+            );
+        });
         return response()->json($atelier);
     }
 
@@ -90,7 +115,17 @@ class AtelierController extends Controller
     public function destroy(Atelier $atelier)
     {
         //
-        $atelier->delete();
+        DB::transaction(function () use ($atelier) {
+
+            $atelier->delete();
+
+            HistoriqueService::enregistrer(
+                action: 'suppression',
+                module: 'ateliers',
+                description: "A supprimé un atelier de la filière {$atelier->filiere_atel} au campus {$atelier->campus_atel}",
+                elementId: $atelier->getKey()
+            );
+        });
         return response()->json(null, 204);
     }
 }

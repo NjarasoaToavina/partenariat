@@ -6,6 +6,8 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
+use App\Services\HistoriqueService;
+use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
 {
@@ -65,31 +67,44 @@ class UserController extends Controller
             : null;
 
         try {
-            $user = User::create([
-                'name' => $validated['name'],
-                'email' => $validated['email'],
-                'password' => $validated['password'],
-                'image' => $imagePath,
+            $user = DB::transaction(function () use ($validated, $imagePath, $role) {
 
-                'fonction' => $role === 'partenaire'
-                    ? ($validated['fonction'] ?? null) : null,
+                $user = User::create([
+                    'name' => $validated['name'],
+                    'email' => $validated['email'],
+                    'password' => $validated['password'],
+                    'image' => $imagePath,
 
-                'nom_service' => $role === 'service'
-                    ? ($validated['nom_service'] ?? null) : null,
+                    'fonction' => $role === 'partenaire'
+                        ? ($validated['fonction'] ?? null) : null,
 
-                'nie' => $role === 'etudiant'
-                    ? ($validated['nie'] ?? null) : null,
+                    'nom_service' => $role === 'service'
+                        ? ($validated['nom_service'] ?? null) : null,
 
-                'filiere' => $role === 'etudiant'
-                    ? ($validated['filiere'] ?? null) : null,
+                    'nie' => $role === 'etudiant'
+                        ? ($validated['nie'] ?? null) : null,
 
-                'niveau' => $role === 'etudiant'
-                    ? ($validated['niveau'] ?? null) : null,
-            ]);
+                    'filiere' => $role === 'etudiant'
+                        ? ($validated['filiere'] ?? null) : null,
 
-            $user->assignRole($role);
+                    'niveau' => $role === 'etudiant'
+                        ? ($validated['niveau'] ?? null) : null,
+                ]);
+
+                $user->assignRole($role);
+
+                HistoriqueService::enregistrer(
+                    action: 'creation',
+                    module: 'utilisateurs',
+                    description: "A créé le compte utilisateur {$user->name}",
+                    elementId: $user->id
+                );
+
+                return $user;
+            });
 
         } catch (\Throwable $e) {
+
             if ($imagePath) {
                 Storage::disk('public')->delete($imagePath);
             }
@@ -169,8 +184,20 @@ class UserController extends Controller
         }
 
         try {
-            $user->save();
+            DB::transaction(function () use ($user) {
+
+                $user->save();
+
+                HistoriqueService::enregistrer(
+                    action: 'modification',
+                    module: 'utilisateurs',
+                    description: "A modifié le compte utilisateur {$user->name}",
+                    elementId: $user->id
+                );
+            });
+
         } catch (\Throwable $e) {
+
             if ($newImage) {
                 Storage::disk('public')->delete($newImage);
             }
@@ -203,8 +230,19 @@ class UserController extends Controller
 
         $image = $user->image;
 
-        $user->delete();
+        DB::transaction(function () use ($user) {
 
+            $user->delete();
+
+            HistoriqueService::enregistrer(
+                action: 'suppression',
+                module: 'utilisateurs',
+                description: "A supprimé le compte utilisateur {$user->name}",
+                elementId: $user->id
+            );
+        });
+
+        // Supprimer la photo après la transaction
         if ($image) {
             Storage::disk('public')->delete($image);
         }

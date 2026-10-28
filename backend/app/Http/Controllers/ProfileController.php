@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Hash;
+use App\Services\HistoriqueService;
+use Illuminate\Support\Facades\DB;
 
 class ProfileController extends Controller
 {
@@ -78,6 +80,7 @@ class ProfileController extends Controller
 
         // 5. Gestion de la photo de profil
         $oldImage = null;
+        $newImage = null;
 
         if ($request->hasFile('image')) {
 
@@ -85,15 +88,36 @@ class ProfileController extends Controller
             $oldImage = $user->image;
 
             // Enregistrer la nouvelle photo
-            $imagePath = $request->file('image')
+            $newImage = $request->file('image')
                 ->store('profiles', 'public');
 
             // Mettre à jour le chemin
-            $user->image = $imagePath;
+            $user->image = $newImage;
         }
 
-        // 6. Enregistrer les modifications
-        $user->save();
+        // 6. Enregistrer les modifications et l'historique
+        try {
+            DB::transaction(function () use ($user) {
+
+                $user->save();
+
+                HistoriqueService::enregistrer(
+                    action: 'modification',
+                    module: 'profil',
+                    description: "A modifié son profil",
+                    elementId: $user->id
+                );
+            });
+
+        } catch (\Throwable $e) {
+
+            // Supprimer la nouvelle photo si la transaction échoue
+            if ($newImage) {
+                Storage::disk('public')->delete($newImage);
+            }
+
+            throw $e;
+        }
 
         // 7. Supprimer l'ancienne photo si elle a été remplacée
         if ($oldImage && $oldImage !== $user->image) {

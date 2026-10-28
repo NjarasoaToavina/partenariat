@@ -6,6 +6,9 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use App\Services\HistoriqueService;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class AuthController extends Controller
 {
@@ -34,21 +37,44 @@ class AuthController extends Controller
             $imagePath = $request->file('image')->store('profiles', 'public');
         }
 
-        $user = User::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'password' => $validated['password'],
-            'image' => $imagePath,
-            'fonction' => $validated['fonction'] ?? null,
-            'nom_service' => $validated['nom_service'] ?? null,
-            'nie' => $validated['nie'] ?? null,
-            'filiere' => $validated['filiere'] ?? null,
-            'niveau' => $validated['niveau'] ?? null,
-        ]);
+        try {
+            [$user, $roles] = DB::transaction(function () use ($validated, $imagePath) {
 
-        $roles = $this->resolveRole($validated['userType']);
+                $user = User::create([
+                    'name' => $validated['name'],
+                    'email' => $validated['email'],
+                    'password' => $validated['password'],
+                    'image' => $imagePath,
+                    'fonction' => $validated['fonction'] ?? null,
+                    'nom_service' => $validated['nom_service'] ?? null,
+                    'nie' => $validated['nie'] ?? null,
+                    'filiere' => $validated['filiere'] ?? null,
+                    'niveau' => $validated['niveau'] ?? null,
+                ]);
 
-        $user->assignRole($roles);
+                $roles = $this->resolveRole($validated['userType']);
+
+                $user->assignRole($roles);
+
+                HistoriqueService::enregistrer(
+                    action: 'inscription',
+                    module: 'authentification',
+                    description: "Création du compte utilisateur {$user->name}",
+                    elementId: $user->id,
+                    userId: $user->id
+                );
+
+                return [$user, $roles];
+            });
+
+        } catch (\Throwable $e) {
+
+            if ($imagePath) {
+                Storage::disk('public')->delete($imagePath);
+            }
+
+            throw $e;
+        }
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
@@ -84,8 +110,20 @@ class AuthController extends Controller
 
         $permissions = $user->getAllPermissions()->pluck('name')->values(); // Récupère les permissions de l'utilisateur
 
-        // Générer un nouveau jeton d'accès Sanctum
-        $token = $user->createToken('auth_token')->plainTextToken;
+        $token = DB::transaction(function () use ($user) {
+
+            $token = $user->createToken('auth_token')->plainTextToken;
+
+            HistoriqueService::enregistrer(
+                action: 'connexion',
+                module: 'authentification',
+                description: "S'est connecté à l'application",
+                elementId: $user->id,
+                userId: $user->id
+            );
+
+            return $token;
+        });
 
         return response()->json([
             'message' => 'Connexion réussie.',
@@ -98,8 +136,20 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
-        // Supprime le jeton actuel utilisé pour cette requête
-        $request->user()->currentAccessToken()->delete();
+        $user = $request->user();
+
+        DB::transaction(function () use ($user) {
+
+            HistoriqueService::enregistrer(
+                action: 'deconnexion',
+                module: 'authentification',
+                description: "S'est déconnecté de l'application",
+                elementId: $user->id
+            );
+
+            // Supprime le jeton actuel utilisé pour cette requête
+            $user->currentAccessToken()->delete();
+        });
 
         return response()->json([
             'message' => 'Déconnexion réussie.'

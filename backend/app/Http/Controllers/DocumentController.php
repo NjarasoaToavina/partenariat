@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Document;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use App\Services\HistoriqueService;
+use Illuminate\Support\Facades\DB;
 
 class DocumentController extends Controller
 {
@@ -103,12 +105,24 @@ class DocumentController extends Controller
         */
 
         try {
-            $document = $user->documents()->create([
-                'type_doc' => $validated['type_doc'],
-                'fichier_doc' => $fichierPath,
-                'statut_doc' => 'collecte',
-                'date_envoi' => now(),
-            ]);
+           $document = DB::transaction(function () use ($user, $validated, $fichierPath) {
+
+                $document = $user->documents()->create([
+                    'type_doc' => $validated['type_doc'],
+                    'fichier_doc' => $fichierPath,
+                    'statut_doc' => 'collecte',
+                    'date_envoi' => now(),
+                ]);
+
+                HistoriqueService::enregistrer(
+                    action: 'creation',
+                    module: 'documents',
+                    description: "A envoyé un document de type {$document->type_doc}",
+                    elementId: $document->id_doc
+                );
+
+                return $document;
+            });
         } catch (\Throwable $e) {
             Storage::disk('public')->delete($fichierPath);
             throw $e;
@@ -167,6 +181,8 @@ class DocumentController extends Controller
 
         $ancienPath = $document->fichier_doc;
         $nouveauPath = null;
+        $estCorrection = $document->statut_doc === 'correction'
+        && $request->hasFile('fichier_doc');
 
         if ($request->hasFile('fichier_doc')) {
             $nouveauPath = $request
@@ -192,7 +208,21 @@ class DocumentController extends Controller
         $document->type_doc = $validated['type_doc'];
 
         try {
-            $document->save();
+            DB::transaction(function () use ($document, $estCorrection) {
+
+                // Enregistrer les modifications du document
+                $document->save();
+
+                // Enregistrer l'historique
+                HistoriqueService::enregistrer(
+                    action: $estCorrection ? 'correction' : 'modification',
+                    module: 'documents',
+                    description: $estCorrection
+                        ? "A envoyé une correction du document {$document->type_doc}"
+                        : "A modifié le document de type {$document->type_doc}",
+                    elementId: $document->id_doc
+                );
+            });
         } catch (\Throwable $e) {
             if ($nouveauPath) {
                 Storage::disk('public')->delete($nouveauPath);
@@ -239,7 +269,33 @@ class DocumentController extends Controller
             ],
         ]);
 
-        $document->update($validated);
+        DB::transaction(function () use ($document, $validated) {
+
+            $document->update($validated);
+
+            $actions = [
+                'collecte' => 'collecte',
+                'correction' => 'demande_correction',
+                'validation' => 'attente_validation',
+                'vivier' => 'validation',
+            ];
+
+            $descriptions = [
+                'collecte' => 'A remis le document en collecte',
+                'correction' => 'A demandé une correction du document',
+                'validation' => 'A placé le document en attente de validation',
+                'vivier' => 'A validé le document',
+            ];
+
+            $statut = $document->statut_doc;
+
+            HistoriqueService::enregistrer(
+                action: $actions[$statut],
+                module: 'documents',
+                description: "{$descriptions[$statut]} de type {$document->type_doc}",
+                elementId: $document->id_doc
+            );
+        });
 
         return response()->json([
             'message' => 'Statut du document mis à jour',
@@ -305,7 +361,17 @@ class DocumentController extends Controller
         $fichierPath = $document->fichier_doc;
 
         // Supprimer l'enregistrement
-        $document->delete();
+        DB::transaction(function () use ($document) {
+
+            $document->delete();
+
+            HistoriqueService::enregistrer(
+                action: 'suppression',
+                module: 'documents',
+                description: "A supprimé le document de type {$document->type_doc}",
+                elementId: $document->id_doc
+            );
+        });
 
         // Supprimer le fichier associé
         if ($fichierPath) {

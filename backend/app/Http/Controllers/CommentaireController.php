@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Commentaire;
 use Illuminate\Http\Request;
+use App\Services\HistoriqueService;
+use Illuminate\Support\Facades\DB;
 
 class CommentaireController extends Controller
 {
@@ -32,12 +34,24 @@ class CommentaireController extends Controller
             'contenu_com' => 'required|string',
         ]);
 
-        $commentaire = Commentaire::create([
-            'user_id' => $request->user()->id,
-            'id_pub' => $validated['id_pub'],
-            'contenu_com' => $validated['contenu_com'],
-            'date_com' => now(),
-        ]);
+        $commentaire = DB::transaction(function () use ($request, $validated) {
+
+            $commentaire = Commentaire::create([
+                'user_id' => $request->user()->id,
+                'id_pub' => $validated['id_pub'],
+                'contenu_com' => $validated['contenu_com'],
+                'date_com' => now(),
+            ]);
+
+            HistoriqueService::enregistrer(
+                action: 'creation',
+                module: 'commentaires',
+                description: "A ajouté un commentaire sur la publication n°{$commentaire->id_pub}",
+                elementId: $commentaire->id_com
+            );
+
+            return $commentaire;
+        });
 
         return response()->json([
             'message' => 'Commentaire ajouté avec succès.',
@@ -76,7 +90,17 @@ class CommentaireController extends Controller
             'contenu_com' => 'required|string',
         ]);
 
-        $commentaire->update($validated);
+        DB::transaction(function () use ($commentaire, $validated) {
+
+            $commentaire->update($validated);
+
+            HistoriqueService::enregistrer(
+                action: 'modification',
+                module: 'commentaires',
+                description: "A modifié son commentaire sur la publication n°{$commentaire->id_pub}",
+                elementId: $commentaire->id_com
+            );
+        });
 
         return response()->json([
             'message' => 'Commentaire modifié avec succès.',
@@ -98,7 +122,17 @@ class CommentaireController extends Controller
             ], 403);
         }
 
-        $commentaire->delete();
+        DB::transaction(function () use ($commentaire) {
+
+            $commentaire->delete();
+
+            HistoriqueService::enregistrer(
+                action: 'suppression',
+                module: 'commentaires',
+                description: "A supprimé son commentaire sur la publication n°{$commentaire->id_pub}",
+                elementId: $commentaire->id_com
+            );
+        });
 
         return response()->json([
             'message' => 'Commentaire supprimé avec succès.'

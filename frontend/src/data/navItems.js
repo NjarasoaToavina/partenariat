@@ -6,7 +6,8 @@ import {
   ClipboardCheck,
   File,
   Network,
-  UsersRound
+  UsersRound,
+  History
 } from "lucide-react";
 
 export const NAV_ITEMS = [
@@ -18,6 +19,7 @@ export const NAV_ITEMS = [
   { label: "Documents", icon: File, path: "/documents", permission:"documents.view" },
   { label: "Relations", icon: Network, path: "/relations", permission:"publications.view" },
   { label: "Utilisateurs", icon: UsersRound, path: "/utilisateurs", permission:"users.view" },
+  { label: "Historiques", icon: History, path: "/historiques", permission:"historiques.view" },
 ];
 
 export const getDefaultRoute = (permissions = []) => {

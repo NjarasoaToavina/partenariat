@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Partenariat;
 use Illuminate\Http\Request;
+use App\Services\HistoriqueService;
+use Illuminate\Support\Facades\DB;
 
 class PartenariatController extends Controller
 {
@@ -43,7 +45,19 @@ class PartenariatController extends Controller
             'observation' => 'nullable|string',
         ]);
 
-        $partenariat = Partenariat::create($validated);
+       $partenariat = DB::transaction(function () use ($validated) {
+
+            $partenariat = Partenariat::create($validated);
+
+            HistoriqueService::enregistrer(
+                action: 'creation',
+                module: 'partenariats',
+                description: "A ajouté le partenariat {$partenariat->nom_part}",
+                elementId: $partenariat->id_part
+            );
+
+            return $partenariat;
+        });
 
         return response()->json($partenariat, 201);
     }
@@ -82,7 +96,17 @@ class PartenariatController extends Controller
             'observation' => 'sometimes|required|string',
         ]);
 
-        $partenariat->update($validated);
+        DB::transaction(function () use ($partenariat, $validated) {
+
+            $partenariat->update($validated);
+
+            HistoriqueService::enregistrer(
+                action: 'modification',
+                module: 'partenariats',
+                description: "A modifié le partenariat {$partenariat->nom_part}",
+                elementId: $partenariat->id_part
+            );
+        });
 
         return response()->json($partenariat);
     }
@@ -93,7 +117,17 @@ class PartenariatController extends Controller
     public function destroy(Partenariat $partenariat)
     {
         //
-        $partenariat->delete();
+        DB::transaction(function () use ($partenariat) {
+
+            $partenariat->delete();
+
+            HistoriqueService::enregistrer(
+                action: 'suppression',
+                module: 'partenariats',
+                description: "A supprimé le partenariat {$partenariat->nom_part}",
+                elementId: $partenariat->id_part
+            );
+        });
 
         return response()->json([
             'message' => 'Partenariat supprimé avec succès.'

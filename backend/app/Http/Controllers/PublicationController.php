@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Publication;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use App\Services\HistoriqueService;
+use Illuminate\Support\Facades\DB;
 
 class PublicationController extends Controller
 {
@@ -96,14 +98,36 @@ class PublicationController extends Controller
                 ->store('publications', 'public');
         }
 
-        $publication = Publication::create([
-            'user_id' => $request->user()->id,
-            'titre_pub' => $validated['titre_pub'],
-            'contenu_pub' => $validated['contenu_pub'],
-            'photo_pub' => $photoPath,
-            'reaction' => 0,
-            'date_pub' => now(),
-        ]);
+        try {
+            $publication = DB::transaction(function () use ($request, $validated, $photoPath) {
+
+                $publication = Publication::create([
+                    'user_id' => $request->user()->id,
+                    'titre_pub' => $validated['titre_pub'],
+                    'contenu_pub' => $validated['contenu_pub'],
+                    'photo_pub' => $photoPath,
+                    'reaction' => 0,
+                    'date_pub' => now(),
+                ]);
+
+                HistoriqueService::enregistrer(
+                    action: 'creation',
+                    module: 'publications',
+                    description: "A créé la publication {$publication->titre_pub}",
+                    elementId: $publication->id_pub
+                );
+
+                return $publication;
+            });
+
+        } catch (\Throwable $e) {
+
+            if ($photoPath) {
+                Storage::disk('public')->delete($photoPath);
+            }
+
+            throw $e;
+        }
 
         return response()->json($publication, 201);
     }
@@ -136,6 +160,8 @@ class PublicationController extends Controller
     public function update(Request $request, $id)
     {
         $publication = Publication::findOrFail($id);
+        $anciennePhoto = $publication->photo_pub;
+        $nouvellePhoto = null;
 
         $validated = $request->validate([
             'titre_pub' => 'sometimes|required|string|max:255',
@@ -145,20 +171,41 @@ class PublicationController extends Controller
 
         if ($request->hasFile('photo_pub')) {
 
-            $nouveauPath = $request->file('photo_pub')
+            $nouvellePhoto = $request->file('photo_pub')
                 ->store('publications', 'public');
 
-            if ($publication->photo_pub) {
-                Storage::disk('public')->delete($publication->photo_pub);
-            }
-
-            $publication->photo_pub = $nouveauPath;
+            $publication->photo_pub = $nouvellePhoto;
         }
 
         unset($validated['photo_pub']);
 
         $publication->fill($validated);
-        $publication->save();
+        
+        try {
+            DB::transaction(function () use ($publication) {
+
+                $publication->save();
+
+                HistoriqueService::enregistrer(
+                    action: 'modification',
+                    module: 'publications',
+                    description: "A modifié la publication {$publication->titre_pub}",
+                    elementId: $publication->id_pub
+                );
+            });
+
+        } catch (\Throwable $e) {
+
+            if ($nouvellePhoto) {
+                Storage::disk('public')->delete($nouvellePhoto);
+            }
+
+            throw $e;
+        }
+
+        if ($nouvellePhoto && $anciennePhoto) {
+            Storage::disk('public')->delete($anciennePhoto);
+        }
 
         return response()->json([
             'message' => 'Publication modifiée avec succès.',
@@ -173,14 +220,27 @@ class PublicationController extends Controller
     {
         $publication = Publication::findOrFail($id);
 
-        if ($publication->photo_pub) {
-            Storage::disk('public')->delete($publication->photo_pub);
-        }
+      $photoPath = $publication->photo_pub;
 
-        $publication->delete();
+DB::transaction(function () use ($publication) {
 
-        return response()->json([
-            'message' => 'Publication supprimée avec succès.'
-        ], 200);
+    $publication->delete();
+
+    HistoriqueService::enregistrer(
+            action: 'suppression',
+            module: 'publications',
+            description: "A supprimé la publication {$publication->titre_pub}",
+            elementId: $publication->id_pub
+        );
+    });
+
+    // Supprimer la photo après la transaction
+    if ($photoPath) {
+        Storage::disk('public')->delete($photoPath);
+    }
+
+    return response()->json([
+        'message' => 'Publication supprimée avec succès.'
+    ], 200);
     }
 }

@@ -49,6 +49,7 @@ class RolePermissionSeeder extends Seeder
             'users.create',
             'users.update',
             'users.delete',
+            'historiques.view',
         );
 
         $service->syncPermissions(

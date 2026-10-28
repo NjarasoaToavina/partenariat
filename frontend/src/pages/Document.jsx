@@ -174,7 +174,7 @@ export default function Document() {
     };
 
     // On parcourt tous les documents récupérés de l'API
-    documents.forEach((doc) => {
+    filtered.forEach((doc) => {
       if (doc.statut_doc === "collecte") counts.collecte++;
       if (doc.statut_doc === "correction") counts.correction++;
       if (doc.statut_doc === "validation") counts.validation++;
@@ -185,7 +185,7 @@ export default function Document() {
     counts.total = counts.collecte + counts.correction + counts.validation + counts.vivier;
 
     return counts;
-  }, [documents]); // Se re-calcule uniquement quand la liste des documents change
+  }, [filtered]); // Se re-calcule uniquement quand la liste des documents change
 
   const handleOnDownload = async (doc) => {
       try {

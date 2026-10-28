@@ -4,10 +4,11 @@ import { CAMPUS_ROWS } from "../data/campusData";
 
 export default function Dashboard() {
   return (
-    <>
+    <div className="space-y-6">
+
       <StatusTable rows={CAMPUS_ROWS} />
- 
-      <div className="flex flex-col lg:flex-row gap-6">
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {CAMPUS_ROWS.map((row) => (
           <DonutCard
             key={row.key}
@@ -17,6 +18,7 @@ export default function Dashboard() {
           />
         ))}
       </div>
-    </>
+
+    </div>
   );
 }

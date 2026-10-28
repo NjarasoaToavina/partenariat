@@ -12,7 +12,7 @@ import Loader from "../components/common/Loader";
 import { useAuth } from "../context/AuthContext";
 import {URL} from "../services/api";
 import ImportDocumentModal from "../components/document/ImportDocumentModal";
-import ConfirmModal from "../components/common/Confirmmodal";
+import ConfirmModal from "../components/common/ConfirmModal";
 
 
 const PAGE_SIZE = 6;

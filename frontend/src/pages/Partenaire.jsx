@@ -5,7 +5,7 @@ import Loader from "../components/common/Loader";
 import { deletePartnership, getAllPartnerships } from "../services/partenariatService";
 import { useToast } from "../context/ToastContext.jsx";
 import { useNavigate } from "react-router-dom";
-import ConfirmModal from "../components/common/Confirmmodal.jsx";
+import ConfirmModal from "../components/common/ConfirmModal.jsx";
 import Pagination from "../components/common/Pagination.jsx";
 
 const PAGE_SIZE = 6;

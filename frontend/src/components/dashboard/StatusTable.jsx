@@ -54,7 +54,7 @@ const STATUS_COLUMNS = [
 
 export default function StatusTable({
   rows = [],
-  title = "Statut des partenaires par campus",
+  title = "Statut des partenariats par campus",
 }) {
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5">

@@ -1,0 +1,31 @@
+export const PARTNERSHIP_EVOLUTION = {
+  2025: [
+    { mois: "Jan", esmia: 2, beati: 1 },
+    { mois: "Fév", esmia: 4, beati: 2 },
+    { mois: "Mar", esmia: 3, beati: 3 },
+    { mois: "Avr", esmia: 5, beati: 2 },
+    { mois: "Mai", esmia: 6, beati: 4 },
+    { mois: "Juin", esmia: 4, beati: 3 },
+    { mois: "Juil", esmia: 7, beati: 5 },
+    { mois: "Août", esmia: 6, beati: 4 },
+    { mois: "Sep", esmia: 8, beati: 6 },
+    { mois: "Oct", esmia: 7, beati: 5 },
+    { mois: "Nov", esmia: 9, beati: 7 },
+    { mois: "Déc", esmia: 10, beati: 8 },
+  ],
+
+  2026: [
+    { mois: "Jan", esmia: 3, beati: 2 },
+    { mois: "Fév", esmia: 5, beati: 3 },
+    { mois: "Mar", esmia: 4, beati: 4 },
+    { mois: "Avr", esmia: 7, beati: 3 },
+    { mois: "Mai", esmia: 6, beati: 5 },
+    { mois: "Juin", esmia: 9, beati: 6 },
+    { mois: "Juil", esmia: 8, beati: 4 },
+    { mois: "Août", esmia: 10, beati: 7 },
+    { mois: "Sep", esmia: 12, beati: 8 },
+    { mois: "Oct", esmia: 11, beati: 9 },
+    { mois: "Nov", esmia: 0, beati: 0 },
+    { mois: "Déc", esmia: 0, beati: 0 },
+  ],
+};

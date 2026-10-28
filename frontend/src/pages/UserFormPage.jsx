@@ -57,7 +57,7 @@ export default function UserFormPage() {
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[400px]">
-        <Loader />
+        <Loader fullScreen={false} label="Chargement de la page..." />
       </div>
     );
   }

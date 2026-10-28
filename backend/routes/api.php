@@ -15,6 +15,7 @@ use App\Http\Controllers\NotificationController;
 use Illuminate\Support\Facades\Broadcast;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\DashboardController;
 
 Route::post('/register', [AuthController::class, 'register']);
 
@@ -34,7 +35,9 @@ Route::middleware('auth:sanctum')->group(function () {
         ]);
     });
 
-    
+    //Dashboard
+    Route::get('/dashboard/stats', [DashboardController::class, 'stats']);
+
     // Gestion des utilisateurs
     Route::apiResource('users', UserController::class)
         ->except(['update']);

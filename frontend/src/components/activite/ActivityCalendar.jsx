@@ -1,6 +1,7 @@
 import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { JOURS, getEtat } from "../../data/activiteData";
 import { buildMonthGrid, dayKey, fmtTime } from "./activiteUtils";
+import Loader from "../common/Loader";
 
 export default function ActivityCalendar({
   cursor,
@@ -52,7 +53,7 @@ export default function ActivityCalendar({
       <div className="relative">
         {loading && (
           <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/70">
-            <Loader2 size={28} className="animate-spin text-[#0065CD]" />
+             <Loader fullScreen={false} label="Chargement des activités..." />
           </div>
         )}
 

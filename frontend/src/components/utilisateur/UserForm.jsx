@@ -377,7 +377,7 @@ export default function UserForm({
               className="flex items-center gap-2 px-5 py-3 rounded-xl bg-[#0065CD] text-white font-semibold hover:bg-[#0055AE] disabled:opacity-60"
             >
               {isLoading ? (
-                <Loader />
+                <Loader fullScreen={false} label="Chargement de la pageform..." />
               ) : isEditing ? (
                 <Save size={18} />
               ) : (

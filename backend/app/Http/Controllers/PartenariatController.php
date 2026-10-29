@@ -12,12 +12,22 @@ class PartenariatController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
-        $partenariats = Partenariat::all();
+         $user = $request->user();
+
+        $query = Partenariat::query();
+
+        // Si l'utilisateur est un partenaire,
+        // afficher uniquement son partenariat
+        if ($user->hasRole('partenaire')) {
+            $query->where('nom_part', $user->name);
+        }
+
+        $partenariats = $query->get();
 
         return response()->json($partenariats);
+        
     }
 
     /**
@@ -91,9 +101,9 @@ class PartenariatController extends Controller
             'statut_part' => 'sometimes|required|string|max:255',
             'type_part' => 'sometimes|required|string|max:255',
             'nbr_intervention' => 'sometimes|required|integer|min:0',
-            'prochaine_action' => 'sometimes|required|string|max:255',
+            'prochaine_action' => 'sometimes|nullable|string|max:255',
             'contact_part' => 'sometimes|required|string|max:255',
-            'observation' => 'sometimes|required|string',
+            'observation' => 'sometimes|nullable|string',
         ]);
 
         DB::transaction(function () use ($partenariat, $validated) {

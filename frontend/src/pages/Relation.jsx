@@ -22,7 +22,7 @@ const apiError = (err, fallback) => err?.response?.data?.message || fallback;
 
 export default function Relation() {
   const toast = useToast();
-  const { user } = useAuth(); // { id, name, image, ... }
+  const { user,hasPermission } = useAuth(); // { id, name, image, ... }
 
   const [publications, setPublications] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -176,13 +176,15 @@ export default function Relation() {
             Offres et opportunités publiées par les partenaires.
           </p>
         </div>
-        <button
-          onClick={() => setModal({ publication: null })}
-          className="inline-flex items-center gap-2 rounded-lg bg-[#0065CD] px-4 py-2 text-sm font-medium text-white hover:bg-[#0054A8]"
-        >
-          <Plus size={18} />
-          Nouvelle publication
-        </button>
+        {hasPermission('publications.create') && (
+          <button
+            onClick={() => setModal({ publication: null })}
+            className="inline-flex items-center gap-2 rounded-lg bg-[#0065CD] px-4 py-2 text-sm font-medium text-white hover:bg-[#0054A8]"
+          >
+            <Plus size={18} />
+            Nouvelle publication
+          </button>
+        )}
       </div>
 
       {error && (

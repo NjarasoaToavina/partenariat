@@ -69,6 +69,7 @@ class RolePermissionSeeder extends Seeder
 
         $partenaire->syncPermissions(
             'partenariats.view',
+            'conventions.view',
             'propositions.view',
             'propositions.activites.view',
             'activites.view',

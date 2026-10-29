@@ -6,6 +6,7 @@ import Loader from "../components/common/Loader.jsx";
 import TitleForm from "../components/common/TitleForm";
 import ConventionToolbar from "../components/partners/ConventionToolbar.jsx";
 import ConventionCardGrid from "../components/partners/ConventionCardGrid.jsx";
+import { useLocation } from "react-router-dom";
 
 export default function Convention() {
   const navigate = useNavigate();
@@ -14,6 +15,8 @@ export default function Convention() {
   const [conventions, setConventions] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const location = useLocation();
+  const statut_part = location.state?.statut_part;
 
   useEffect(() => {
     const fetchConventions = async () => {
@@ -61,6 +64,7 @@ export default function Convention() {
         onSearchChange={setSearch}
         onAddConvention={() => navigate(`/partenaires/${id}/conventions/ajouter`)}
         id_part={conventions.length > 0 ? conventions[0].partenariat?.id_part : ""}
+        statut_part={statut_part}
       />
 
       {isLoading ? (

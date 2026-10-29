@@ -7,10 +7,15 @@ import { useToast } from "../context/ToastContext.jsx";
 import { useNavigate } from "react-router-dom";
 import ConfirmModal from "../components/common/ConfirmModal.jsx";
 import Pagination from "../components/common/Pagination.jsx";
+import PartnerDetails from "../components/partners/PartnerDetails.jsx";
+import { useAuth } from "../context/AuthContext.jsx";
 
 const PAGE_SIZE = 6;
 
 export default function Partenaire() {
+  const { roles } = useAuth();
+  const isPartenaire = roles?.includes("partenaire");
+
   const [search, setSearch] = useState("");
   const [campusFilter, setCampusFilter] = useState("Tous");
   const [statusFilter, setStatusFilter] = useState("Tous");
@@ -86,9 +91,12 @@ export default function Partenaire() {
   };
 
   const handleOnConventionClick = (partner) => {
-    // Brancher ici l'ouverture d'un formulaire d'édition
-    navigate(`/partenaires/${partner.id_part}/conventions`)
-  }
+    navigate(`/partenaires/${partner.id_part}/conventions`, {
+      state: {
+        statut_part: partner.statut_part
+      }
+    });
+  };
 
   const handleDelete = async () => {
     setIsLoading2(true)
@@ -124,38 +132,38 @@ export default function Partenaire() {
         />
 
         <div className="bg-white rounded-2xl shadow-sm border border-slate-100">
-          {isLoading ? (
-            <Loader fullScreen={false} label="Chargement des partenaires..." />
+         {isLoading ? (
+            <Loader
+              fullScreen={false}
+              label="Chargement des partenaires..."
+            />
+          ) : isPartenaire ? (
+            <PartnerDetails
+              partner={partenaires[0]}
+              onConventionClick={handleOnConventionClick}
+            />
           ) : (
-            <>
-              <PartnersTable 
-                partners={paginated} 
-                onEdit={handleEdit} 
-                onDelete={
-                (partner) => {
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-100">
+              <PartnersTable
+                partners={paginated}
+                onEdit={handleEdit}
+                onDelete={(partner) => {
                   setConfirmOpen(true);
                   setSelectedPart(partner);
                 }}
                 onConventionClick={handleOnConventionClick}
               />
-              {/* <Pagination
+
+              <Pagination
                 total={filtered.length}
-                shown={paginated.length}
+                rangeStart={filtered.length === 0 ? 0 : (page - 1) * PAGE_SIZE + 1}
+                rangeEnd={Math.min(page * PAGE_SIZE, filtered.length)}
                 currentPage={page}
                 totalPages={totalPages}
-                onPrevious={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                onNext={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-              /> */}
-              <Pagination
-                 total={filtered.length}
-                 rangeStart={filtered.length === 0 ? 0 : (page - 1) * PAGE_SIZE + 1}
-                 rangeEnd={Math.min(page * PAGE_SIZE, filtered.length)}
-                 currentPage={page}
-                 totalPages={totalPages}
-                 onPageChange={setCurrentPage}
-                 label="partenaires"
-               />
-            </>
+                onPageChange={setCurrentPage}
+                label="partenaires"
+              />
+            </div>
           )}
         </div>
       </div>

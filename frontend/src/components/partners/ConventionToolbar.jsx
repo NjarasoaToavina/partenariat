@@ -5,10 +5,13 @@ export default function ConventionToolbar({
   search,
   onSearchChange,
   onAddConvention,
-  id_part
+  id_part,
+  statut_part
 }) {
   const {hasPermission} = useAuth();
-  const canAddConvention = hasPermission("conventions.create");
+  const canAddConvention =
+    hasPermission("conventions.create") &&
+    statut_part === "signe";
 
     return (
         <div className="flex flex-col lg:flex-row lg:items-center gap-3">

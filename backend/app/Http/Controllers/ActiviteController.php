@@ -325,7 +325,19 @@ class ActiviteController extends Controller
 
         DB::transaction(function () use ($activite, $validated) {
 
+            $ancienStatut = $activite->etat_activ;
             $activite->update($validated);
+
+            // Incrémenter si l'activité devient réalisée
+            if ($ancienStatut !== 'realise' && $activite->etat_activ === 'realise') {
+
+                $auteur = $activite->user;
+
+                if ($auteur && $auteur->hasRole('partenaire')) {
+                    $auteur->partenariat?->increment('nbr_intervention');
+                }
+            }
+            
 
             $action = $activite->etat_activ === 'realise'
                 ? 'realisation'

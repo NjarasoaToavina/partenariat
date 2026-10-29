@@ -3,7 +3,7 @@ import { X, Save, UserPlus, Lock, Mail, User, Building2, Briefcase, GraduationCa
 
 import FormField from "../auth/FormField";
 import PhotoUpload from "../auth/PhotoUpload";
-import Loader from "../common/Loader";
+import Spinner from "../common/Spinner";
 
 import { createUser, updateUser } from "../../services/userService";
 import { useToast } from "../../context/ToastContext";
@@ -377,7 +377,7 @@ export default function UserForm({
               className="flex items-center gap-2 px-5 py-3 rounded-xl bg-[#0065CD] text-white font-semibold hover:bg-[#0055AE] disabled:opacity-60"
             >
               {isLoading ? (
-                <Loader fullScreen={false} label="Chargement de la pageform..." />
+                <Spinner size={18} className="text-white" />
               ) : isEditing ? (
                 <Save size={18} />
               ) : (

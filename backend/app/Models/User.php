@@ -74,5 +74,10 @@ class User extends Authenticatable
     {
         return $this->hasMany(Reaction::class, 'user_id', 'id');
     }
+
+    public function partenariat()
+    {
+        return $this->hasOne(Partenariat::class, 'nom_part', 'name');
+    }
     
 }

@@ -49,9 +49,10 @@ class PublicationController extends Controller
      */
     public function index(Request $request)
     {
-        $userId = $request->user()->id;
+        $user = $request->user();
+        $userId = $user->id;
 
-        $publications = Publication::with([
+        $query = Publication::with([
             'user:id,name,image',
             'commentaires.user:id,name,image'
         ])
@@ -60,9 +61,16 @@ class PublicationController extends Controller
             'reactions as has_reacted' => function ($query) use ($userId) {
                 $query->where('user_id', $userId);
             }
-        ])
-        ->orderBy('date_pub', 'desc')
-        ->get();
+        ]);
+
+        // Le partenaire voit uniquement ses propres publications
+        if ($user->hasRole('partenaire')) {
+            $query->where('user_id', $userId);
+        }
+
+        $publications = $query
+            ->orderBy('date_pub', 'desc')
+            ->get();
 
         // Utiliser le nombre réel de réactions
         $publications->each(function ($publication) {
@@ -85,6 +93,13 @@ class PublicationController extends Controller
      */
     public function store(Request $request)
     {
+        \Log::info('Diagnostic photo publication', [
+            'hasFile' => $request->hasFile('photo_pub'),
+            'hasInput' => $request->exists('photo_pub'),
+            'photoInput' => $request->input('photo_pub'),
+            'files' => array_keys($request->allFiles()),
+            'contentType' => $request->header('Content-Type'),
+        ]);
         $validated = $request->validate([
             'titre_pub' => 'required|string|max:255',
             'contenu_pub' => 'required|string',
@@ -109,6 +124,12 @@ class PublicationController extends Controller
                     'reaction' => 0,
                     'date_pub' => now(),
                 ]);
+
+                $user = $request->user();
+
+                if ($user->hasRole('partenaire')) {
+                    $user->partenariat?->increment('nbr_intervention');
+                }
 
                 HistoriqueService::enregistrer(
                     action: 'creation',

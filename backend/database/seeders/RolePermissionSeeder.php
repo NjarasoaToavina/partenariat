@@ -76,7 +76,8 @@ class RolePermissionSeeder extends Seeder
             'activites.create',
             'activites.propose',
             'ateliers.view',
-            'publications.view'
+            'publications.view',
+            'publications.create'
         );
 
         $etudiant->syncPermissions(

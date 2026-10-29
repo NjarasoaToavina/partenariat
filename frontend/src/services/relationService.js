@@ -14,7 +14,21 @@ export const getPublicationById = async (id) => {
 
 // Ajouter une publication
 export const createPublication = async (data) => {
-  const response = await api.post("/publications", data);
+  const formData = new FormData();
+
+  Object.entries(data).forEach(([key, value]) => {
+    if (value !== null && value !== undefined && value !== "") {
+      if (key === "photo_pub") {
+        if (value instanceof File) {
+          formData.append(key, value);
+        }
+      } else {
+        formData.append(key, value);
+      }
+    }
+  });
+
+  const response = await api.post("/publications", formData);
   return response.data;
 };
 

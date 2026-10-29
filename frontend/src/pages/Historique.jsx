@@ -300,7 +300,7 @@ export default function Historique() {
             <div className="overflow-x-auto">
               <table className="w-full min-w-[850px] text-left text-sm">
 
-                <thead className="bg-[#063C58] text-white">
+                <thead className="bg-[#0065CD] text-white">
                   <tr>
                     <th className="px-5 py-4 font-semibold">
                       Utilisateur

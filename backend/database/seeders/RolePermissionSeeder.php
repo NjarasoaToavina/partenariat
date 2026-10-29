@@ -31,12 +31,16 @@ class RolePermissionSeeder extends Seeder
             'conventions.update',
             'conventions.delete',
             'propositions.view',
+            'propositions.partenaires.view',
+            'propositions.activites.view',
             'propositions.validate',
             'propositions.reject',
             'activites.view',
             'activites.create',
             'activites.update',
             'activites.delete',
+            'activites.validate',
+            'activites.reject',
             'ateliers.view',
             'ateliers.create',
             'ateliers.update',
@@ -66,8 +70,10 @@ class RolePermissionSeeder extends Seeder
         $partenaire->syncPermissions(
             'partenariats.view',
             'propositions.view',
+            'propositions.activites.view',
             'activites.view',
             'activites.create',
+            'activites.propose',
             'ateliers.view',
             'publications.view'
         );

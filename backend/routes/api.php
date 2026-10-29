@@ -86,6 +86,11 @@ Route::middleware('auth:sanctum')->group(function () {
         '/activites/{id}/statut',
         [ActiviteController::class, 'updateStatut']
     );
+    Route::patch(
+        '/activites/{id}/traiter',
+        [ActiviteController::class, 'traiterProposition']
+    );
+    Route::post('/activites/proposer', [ActiviteController::class, 'proposer']);
 
     //route document
     Route::patch(

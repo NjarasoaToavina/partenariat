@@ -1,5 +1,5 @@
-import { CalendarDays, Import, Users2 } from "lucide-react";
-import { ACTIVITY_PROPOSALS, PARTNER_PROPOSALS, mapProposition } from "../data/propositionData";
+import { CalendarDays, Users2 } from "lucide-react";
+import { mapProposition } from "../data/propositionData";
 import ProposalSection from "../components/proposition/ProposalSection";
 import { useToast } from "../context/ToastContext";
 import { useEffect, useState } from "react";
@@ -8,7 +8,11 @@ import Loader from "../components/common/Loader";
 import RejectPropositionModal from "../components/proposition/RejectPropositionModal";
 import { useAuth } from "../context/AuthContext";
 import AddPartnerProposalModal from "../components/proposition/AddPartnerProposalModal";
-import ConfirmModal from "../components/common/Confirmmodal";
+import ConfirmModal from "../components/common/ConfirmModal";
+import { getPropositionsActivites, proposerActivite, traiterPropositionActivite,} from "../services/activitePropositionService";
+import { mapActiviteProposition } from "../data/propositionData";
+import AddActivityProposalModal from "../components/proposition/AddActivityProposalModal";
+
 
 export default function Proposition() {
   const toast = useToast();
@@ -25,22 +29,185 @@ export default function Proposition() {
   const [isDeleting,setIsDeleting] = useState(false);
   const [propToEdit,setPropToEdit] = useState({});
 
-  useEffect(()=>{
+  const [activitesProposees, setActivitesProposees] = useState([]);
+  const [isLoadingActivites, setIsLoadingActivites] = useState(false);
+  const [validatingIdActivite, setValidatingIdActivite] = useState(null);
+  const [selectedActivite, setSelectedActivite] = useState(null);
+  const [isActivityModalOpen, setIsActivityModalOpen] = useState(false);
+  const [isCreatingActivity, setIsCreatingActivity] = useState(false);
+
+  useEffect(() => {
+    if (!hasPermission("propositions.activites.view")) {
+      setActivitesProposees([]);
+      setIsLoadingActivites(false);
+      return;
+    }
+
+    const fetchActivites = async () => {
+      setIsLoadingActivites(true);
+
+      try {
+        const response = await getPropositionsActivites();
+
+        const formatted = response.data
+          .filter((activite) =>
+            activite.user?.roles?.some(
+              (role) => role.name === "partenaire"
+            )
+          )
+          .map(mapActiviteProposition);
+
+        setActivitesProposees(formatted);
+
+      } catch (error) {
+        console.error("Erreur chargement activités :", error);
+        toast.error("Impossible de charger les propositions d'activités.");
+      } finally {
+        setIsLoadingActivites(false);
+      }
+    };
+
+    fetchActivites();
+  }, [toast, hasPermission]);
+
+
+  const handleCreateActivityProposal = async (data) => {
+    if (isCreatingActivity) return;
+
+    setIsCreatingActivity(true);
+
+    try {
+      // Envoyer la proposition à Laravel
+      await proposerActivite(data);
+
+      // Actualiser les propositions d'activités
+      const response = await getPropositionsActivites();
+
+      const formatted = response.data
+        .filter((activite) =>
+          activite.user?.roles?.some(
+            (role) => role.name === "partenaire"
+          )
+        )
+        .map(mapActiviteProposition);
+
+      setActivitesProposees(formatted);
+
+      // Fermer la modale
+      setIsActivityModalOpen(false);
+
+      toast.success("Votre proposition d'activité a été envoyée avec succès.");
+
+    } catch (error) {
+      console.error("Erreur création proposition d'activité :", error);
+
+      toast.error(
+        error?.response?.data?.message ||
+        "Impossible d'envoyer la proposition d'activité."
+      );
+
+    } finally {
+      setIsCreatingActivity(false);
+    }
+  };
+
+  const handleValidateActivite = async (item) => {
+    if (validatingIdActivite !== null) return;
+
+    setValidatingIdActivite(item.id);
+
+    try {
+      await traiterPropositionActivite(item.id, {
+        etat_activ: "planifie",
+      });
+
+      setActivitesProposees((prev) =>
+        prev.map((activite) =>
+          activite.id === item.id
+            ? { ...activite, statut: "planifie" }
+            : activite
+        )
+      );
+
+      toast.success(`L'activité "${item.titre}" a été validée.`);
+
+    } catch (error) {
+      console.error("Erreur validation activité :", error);
+      toast.error(
+        error?.response?.data?.message ||
+        "Impossible de valider cette activité."
+      );
+    } finally {
+      setValidatingIdActivite(null);
+    }
+  };
+
+  const handleRejectActivite = (item) => {
+    setSelectedActivite(item);
+  };
+
+  const handleConfirmRejectActivite = async () => {
+    if (!selectedActivite || isRejecting) return;
+
+    setIsRejecting(true);
+
+    try {
+      await traiterPropositionActivite(selectedActivite.id, {
+        etat_activ: "refuse",
+      });
+
+      setActivitesProposees((prev) =>
+        prev.map((activite) =>
+          activite.id === selectedActivite.id
+            ? { ...activite, statut: "refuse" }
+            : activite
+        )
+      );
+
+      toast.success(
+        `L'activité "${selectedActivite.titre}" a été refusée.`
+      );
+
+      setSelectedActivite(null);
+
+    } catch (error) {
+      console.error("Erreur refus activité :", error);
+      toast.error(
+        error?.response?.data?.message ||
+        "Impossible de refuser cette activité."
+      );
+    } finally {
+      setIsRejecting(false);
+    }
+  };
+
+  useEffect(() => {
+    // Vérifier si l'utilisateur possède la permission
+    if (!hasPermission("propositions.partenaires.view")) {
+      setPropositions([]);
+      setIsLoadingProp(false);
+      return;
+    }
+
+    const fetchPropositions = async () => {
       setIsLoadingProp(true);
-      const fetchPropositions = async () => {
-          try {
-            const response = await getAllPropositions();
-            const formattedPropositions = response.data.map(mapProposition);
-            setPropositions(formattedPropositions);
-          } catch (error) {
-            toast.error("Impossible de charger la liste des propositions.");
-          } finally {
-            setIsLoadingProp(false);
-          }
-      };
-  
-      fetchPropositions();
-    },[toast]);
+
+      try {
+        const response = await getAllPropositions();
+
+        const formattedPropositions = response.data.map(mapProposition);
+
+        setPropositions(formattedPropositions);
+      } catch (error) {
+        console.error("Erreur chargement propositions :", error);
+        toast.error("Impossible de charger la liste des propositions.");
+      } finally {
+        setIsLoadingProp(false);
+      }
+    };
+
+    fetchPropositions();
+  }, [toast, hasPermission]);
 
   const handleValidate = async (item) => {
     if (validatingId !== null) return;
@@ -211,79 +378,121 @@ export default function Proposition() {
       setIsCreating(false);
     }
   };
+
+
   
   return (
     <>
-    <div className="space-y-4">
-      <div>
-        <p className="text-xs text-slate-400">Visualisation des informations</p>
-        <h1 className="text-lg font-bold text-slate-900">Propositions</h1>
+      <div className="space-y-4">
+        <div>
+          <p className="text-xs text-slate-400">
+            Visualisation des informations
+          </p>
+          <h1 className="text-lg font-bold text-slate-900">
+            Propositions
+          </h1>
+        </div>
+
+        {/* PROPOSITIONS D'ACTIVITÉS */}
+        {hasPermission("propositions.activites.view") && (
+          isLoadingActivites ? (
+            <Loader
+              fullScreen={false}
+              label="Chargement des propositions d'activités..."
+            />
+          ) : (
+            <ProposalSection
+              icon={CalendarDays}
+              title="Propositions d'activités (par les partenaires)"
+              type="activite"
+              items={activitesProposees}
+              itemLabel="propositions"
+              onValidate={handleValidateActivite}
+              onReject={handleRejectActivite}
+              validatingId={validatingIdActivite}
+              canAdd={hasPermission("activites.propose")}
+              onAdd={() => setIsActivityModalOpen(true)}
+            />
+          )
+        )}
+
+        {hasPermission("propositions.partenaires.view") && (
+          isLoadingProp ? (
+            <Loader
+              fullScreen={false}
+              label="Chargement des propositions..."
+            />
+          ) : (
+            <ProposalSection
+              icon={Users2}
+              title="Propositions de partenaires (par les services de l'ESMIA)"
+              type="partenaire"
+              items={propositions}
+              itemLabel="partenaires proposés"
+              onValidate={handleValidate}
+              onReject={handleReject}
+              validatingId={validatingId}
+              canAdd={hasPermission("propositions.create")}
+              onAdd={handleAdd}
+              onEdit={handleEdit}
+              onDelete={(prop) => {
+                setSelectedProp(prop);
+                setConfirmOpen(true);
+              }}
+            />
+          )
+        )}
       </div>
 
-      <ProposalSection
-        icon={CalendarDays}
-        title="Propositions d'activités (par les partenaires)"
-        items={ACTIVITY_PROPOSALS}
-        itemLabel="propositions"
-        onValidate={handleValidate}
-        onReject={handleReject}
-        onOpenFilters={() => {/* à brancher */}}
-        validatingId={validatingId}
+      {/* MODALE DE REFUS : ACTIVITÉS ET PARTENAIRES */}
+      <RejectPropositionModal
+        open={!!selectedProposition || !!selectedActivite}
+        proposition={selectedActivite || selectedProposition}
+        isLoading={isRejecting}
+        onConfirm={
+          selectedActivite
+            ? handleConfirmRejectActivite
+            : handleConfirmReject
+        }
+        onCancel={() => {
+          setSelectedProposition(null);
+          setSelectedActivite(null);
+        }}
       />
 
-      {isLoadingProp ? (
-        <Loader fullScreen={false} label="Chargement des propositions..." />
-              ) : (
-        <ProposalSection
-          icon={Users2}
-          title="Propositions de partenaires (par les services de l'ESMIA)"
-          items={propositions}
-          itemLabel="partenaires proposés" 
-          onValidate={handleValidate}
-          onReject={handleReject}
-          onOpenFilters={() => {/* à brancher */}}
-          validatingId={validatingId}
-          canAdd={hasPermission("propositions.create")}
-          onAdd={handleAdd}
-          onEdit={handleEdit}
-          onDelete={(prop)=>{
-            setSelectedProp(prop);
-            setConfirmOpen(true);
-          }}
+      {/* MODALE D'AJOUT / MODIFICATION D'UN PARTENAIRE */}
+      <AddPartnerProposalModal
+        open={isPartnerModalOpen}
+        onCancel={() => setIsPartnerModalOpen(false)}
+        onConfirm={
+          propToEdit
+            ? handleUpdatePartnerProposal
+            : handleCreatePartnerProposal
+        }
+        isLoading={isCreating}
+        propToEdit={propToEdit}
+      />
 
-        />
-      )}
-    </div>
-    <RejectPropositionModal
-      open={!!selectedProposition}
-      proposition={selectedProposition}
-      isLoading={isRejecting}
-      onConfirm={handleConfirmReject}
-      onCancel={() => setSelectedProposition(null)}
-    />
-    <AddPartnerProposalModal
-      open={isPartnerModalOpen}
-      onCancel={()=>setIsPartnerModalOpen(false)}
-      onConfirm={
-        propToEdit
-          ? handleUpdatePartnerProposal
-          : handleCreatePartnerProposal
-      }
-      isLoading={isCreating}
-      propToEdit={propToEdit}
-    />
-    <ConfirmModal
-      open={confirmOpen}
-      variant="danger"
-      title="Supprimer une proposition?"
-      message={`Voulez-vous vraiment supprimer la proposition n°${selectedProp?.id} ?`}
-      confirmLabel="Confirmer"
-      cancelLabel="Annuler"
-      onConfirm={handleDelete}
-      onCancel={() => setConfirmOpen(false)}
-      isLoading={isDeleting}
-       />
+      {/* MODALE D'AJOUT / MODIFICATION D'UNE ACTIVITE */}
+      <AddActivityProposalModal
+        open={isActivityModalOpen}
+        onCancel={() => setIsActivityModalOpen(false)}
+        onConfirm={handleCreateActivityProposal}
+        isLoading={isCreatingActivity}
+      />
 
+      {/* MODALE DE SUPPRESSION */}
+      <ConfirmModal
+        open={confirmOpen}
+        variant="danger"
+        title="Supprimer une proposition ?"
+        message={`Voulez-vous vraiment supprimer la proposition n°${selectedProp?.id} ?`}
+        confirmLabel="Confirmer"
+        cancelLabel="Annuler"
+        onConfirm={handleDelete}
+        onCancel={() => setConfirmOpen(false)}
+        isLoading={isDeleting}
+      />
     </>
   );
 }

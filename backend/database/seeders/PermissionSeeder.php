@@ -25,6 +25,8 @@ class PermissionSeeder extends Seeder
 
             // Propositions
             'propositions.view',
+            'propositions.partenaires.view',
+            'propositions.activites.view',
             'propositions.create',
             'propositions.update',
             'propositions.delete',

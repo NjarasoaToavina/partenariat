@@ -22,7 +22,7 @@ class NouvellePropositionNotification extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-            'titre' => 'Nouvelle proposition',
+            'titre' => 'Nouvelle proposition de partenariat',
             'message' => 'Une nouvelle proposition de partenariat avec '
                 . $this->proposition->part_propos . ' a été créée.',
             'id_propos' => $this->proposition->id_propos,

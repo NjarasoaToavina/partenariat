@@ -13,6 +13,7 @@ export default function ProposalCard({
   heure,
   description,
   proposeLe,
+  type = "partenaire",
   onValidate,
   campus,
   contact,
@@ -26,22 +27,44 @@ export default function ProposalCard({
   const { hasPermission } = useAuth();
   const hasPartnerInfo = Boolean(campus || contact);
 
-  // Vérifier le statut
-  const isPending = statut === "attente";
+  console.log("Type :", type);
+  console.log("Statut :", statut);
+  console.log("Permission validation :", hasPermission("activites.validate"));
+  console.log("Permission refus :", hasPermission("activites.reject"));
 
-  // Vérifier les permissions
-  const canValidate = hasPermission("propositions.validate");
-  const canReject = hasPermission("propositions.reject");
-  const canUpdate = hasPermission("propositions.update");
-  const canDelete = hasPermission("propositions.delete");
+  // Identifier le type de proposition
+  const isActivity = type === "activite";
+
+  // Vérifier le statut selon le type
+  const isPending = isActivity
+    ? statut === "propose"
+    : statut === "attente";
+
+  // Permissions selon le type
+  const canValidate = isActivity
+    ? hasPermission("activites.validate")
+    : hasPermission("propositions.validate");
+
+  const canReject = isActivity
+    ? hasPermission("activites.reject")
+    : hasPermission("propositions.reject");
+
+  const canUpdate = isActivity
+    ? hasPermission("activites.update")
+    : hasPermission("propositions.update");
+
+  const canDelete = isActivity
+    ? hasPermission("activites.delete")
+    : hasPermission("propositions.delete");
 
   // Actions autorisées selon le statut
   const showValidateAction = isPending && canValidate;
   const showRejectAction = isPending && canReject;
-  const showUpdateAction = isPending && canUpdate;
 
-  // La suppression est autorisée quel que soit le statut
-  const showDeleteAction = canDelete;
+  // Pour les activités, nous ne gérons pas encore
+  // la modification et la suppression depuis cette section.
+  const showUpdateAction = !isActivity && isPending && canUpdate;
+  const showDeleteAction = !isActivity && canDelete;
 
   // Vérifier si au moins une action est disponible
   const hasActions =
@@ -49,6 +72,18 @@ export default function ProposalCard({
     showRejectAction ||
     showUpdateAction ||
     showDeleteAction;
+
+    // DEBUG : placer ici
+console.log({
+  titre: title,
+  type,
+  statut,
+  isPending,
+  canValidate,
+  canReject,
+  showValidateAction,
+  showRejectAction,
+});
 
   return (
     <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 flex flex-col gap-3">

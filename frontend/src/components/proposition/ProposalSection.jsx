@@ -9,6 +9,7 @@ export default function ProposalSection({
   icon: Icon,
   title,
   items,
+  type = "partenaire",
   pageSize = 3,
   itemLabel = "propositions",
   onValidate,
@@ -25,8 +26,18 @@ export default function ProposalSection({
   const [page, setPage] = useState(1);
 
   const counts = useMemo(() => {
-    const c = { attente: 0, valide: 0, refuse: 0 };
-    items.forEach((it) => { c[it.statut] = (c[it.statut] ?? 0) + 1; });
+    const c = {
+      attente: 0,
+      valide: 0,
+      propose: 0,
+      planifie: 0,
+      refuse: 0,
+    };
+
+    items.forEach((it) => {
+      c[it.statut] = (c[it.statut] ?? 0) + 1;
+    });
+
     return c;
   }, [items]);
 
@@ -55,12 +66,60 @@ export default function ProposalSection({
     filtered.length
   );
 
-  const tabs = [
-    { key: "toutes", label: "Toutes", count: items.length, dotClass: "bg-slate-500" },
-    { key: "attente", label: "En attente", count: counts.attente, dotClass: "bg-amber-500" },
-    { key: "valide", label: "Validés", count: counts.valide, dotClass: "bg-emerald-500" },
-    { key: "refuse", label: "Refusés", count: counts.refuse, dotClass: "bg-rose-500" },
-  ];
+  const tabs =
+    type === "activite"
+      ? [
+          {
+            key: "toutes",
+            label: "Toutes",
+            count: items.length,
+            dotClass: "bg-slate-500",
+          },
+          {
+            key: "propose",
+            label: "Proposées",
+            count: counts.propose,
+            dotClass: "bg-amber-500",
+          },
+          {
+            key: "planifie",
+            label: "Validées",
+            count: counts.planifie,
+            dotClass: "bg-emerald-500",
+          },
+          {
+            key: "refuse",
+            label: "Refusées",
+            count: counts.refuse,
+            dotClass: "bg-rose-500",
+          },
+        ]
+      : [
+          {
+            key: "toutes",
+            label: "Toutes",
+            count: items.length,
+            dotClass: "bg-slate-500",
+          },
+          {
+            key: "attente",
+            label: "En attente",
+            count: counts.attente,
+            dotClass: "bg-amber-500",
+          },
+          {
+            key: "valide",
+            label: "Validés",
+            count: counts.valide,
+            dotClass: "bg-emerald-500",
+          },
+          {
+            key: "refuse",
+            label: "Refusés",
+            count: counts.refuse,
+            dotClass: "bg-rose-500",
+          },
+      ];
 
   const handleTabChange = (key) => { setTab(key); setPage(1); };
   const handleSearchChange = (v) => { setSearch(v); setPage(1); };
@@ -102,6 +161,7 @@ export default function ProposalSection({
         {pageItems.map((it) => (
           <ProposalCard
             key={it.id}
+            type={type}
             icon={it.icon}
             iconBg={it.iconBg}
             title={it.titre}

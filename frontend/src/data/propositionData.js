@@ -1,21 +1,27 @@
-import { ShieldCheck, Database, TrendingUp, Lightbulb, Building2, Settings, GraduationCap } from "lucide-react";
+import { ShieldCheck, Database, TrendingUp, Lightbulb, Building2, Settings, GraduationCap, CalendarDays } from "lucide-react";
 
 export const PROPOSITION_STATUS_LABELS = {
   attente: "En attente",
+  propose: "Proposé",
   valide: "Validé",
+  planifie: "Planifié",
   refuse: "Refusé",
 };
 
 // "En attente" en plein (comme sur la capture), les deux autres en pastel
 export const PROPOSITION_STATUS_STYLES = {
   attente: "bg-amber-500 text-white",
+  propose: "bg-amber-500 text-white",
   valide: "bg-emerald-50 text-emerald-600",
+  planifie: "bg-emerald-50 text-emerald-600",
   refuse: "bg-rose-50 text-rose-500",
 };
 
 export const PROPOSITION_STATUS_DOT = {
   attente: "bg-amber-500",
+  propose: "bg-amber-500",
   valide: "bg-emerald-500",
+  planifie: "bg-emerald-500",
   refuse: "bg-rose-500",
 };
 
@@ -143,5 +149,43 @@ export const mapProposition = (proposition) => {
     campus: proposition.campus_propos,
     contact: proposition.contact_propos,
     proposePar: proposition.user?.name ?? null,
+  };
+};
+
+export const mapActiviteProposition = (activite) => {
+  const debut = new Date(activite.date_debut_activ);
+  const fin = new Date(activite.date_fin_activ);
+
+  const formatDate = (date) =>
+    date.toLocaleDateString("fr-FR");
+
+  const formatHeure = (date) =>
+    date.toLocaleTimeString("fr-FR", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
+  const memeJour = formatDate(debut) === formatDate(fin);
+
+  return {
+    id: activite.id_activ,
+    icon: CalendarDays,
+    iconBg: "bg-blue-600",
+    titre: activite.sujet,
+    source: activite.user?.name ?? "Partenaire",
+    statut: activite.etat_activ,
+
+    date: memeJour
+      ? formatDate(debut)
+      : `${formatDate(debut)} – ${formatDate(fin)}`,
+
+    heure: `${formatHeure(debut)} – ${formatHeure(fin)}`,
+
+    description: memeJour
+      ? "Activité prévue sur une journée."
+      : "Activité prévue sur plusieurs jours.",
+
+    proposeLe: new Date(activite.created_at).toLocaleDateString("fr-FR"),
+    proposePar: activite.user?.name ?? "Non renseigné",
   };
 };

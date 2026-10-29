@@ -6,25 +6,176 @@ use App\Models\Activite;
 use Illuminate\Http\Request;
 use App\Services\HistoriqueService;
 use Illuminate\Support\Facades\DB;
+use App\Models\User;
+use App\Notifications\NouvelleActiviteProposeeNotification;
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\DecisionActiviteNotification;
 
 class ActiviteController extends Controller
 {
+   
     /**
-     * Display a listing of the resource.
+     * Proposer une activité par un partenaire
      */
+   /**
+     * Proposer une activité par un partenaire
+     */
+    public function proposer(Request $request)
+    {
+        $user = $request->user();
+
+        if (!$user->hasRole('partenaire')) {
+            return response()->json([
+                'message' => 'Seul un partenaire peut proposer une activité'
+            ], 403);
+        }
+
+        $validated = $request->validate([
+            'sujet' => ['required', 'string', 'max:255'],
+            'date_debut_activ' => ['required', 'date'],
+            'date_fin_activ' => [
+                'required',
+                'date',
+                'after_or_equal:date_debut_activ'
+            ],
+        ]);
+
+        $activite = DB::transaction(function () use ($user, $validated) {
+
+            $activite = $user->activites()->create([
+                ...$validated,
+                'etat_activ' => 'propose',
+            ]);
+
+            HistoriqueService::enregistrer(
+                action: 'creation',
+                module: 'activites',
+                description: "A proposé l'activité {$activite->sujet}",
+                elementId: $activite->getKey()
+            );
+
+            return $activite;
+        });
+
+        // Envoyer une notification aux responsables
+        $responsables = User::role('responsable')->get();
+
+        Notification::send(
+            $responsables,
+            new NouvelleActiviteProposeeNotification(
+                $activite->load('user')
+            )
+        );
+
+        return response()->json([
+            'message' => 'Proposition d’activité envoyée avec succès',
+            'activite' => $activite,
+        ], 201);
+    }
+
+
+    /**
+     * Accepter ou refuser une activité proposée par un partenaire
+    */
+    public function traiterProposition(Request $request, $id)
+    {
+        $user = $request->user();
+
+        // Seul le responsable peut traiter une proposition
+        if (!$user->hasRole('responsable')) {
+            return response()->json([
+                'message' => 'Seul le responsable peut traiter une proposition'
+            ], 403);
+        }
+
+        $validated = $request->validate([
+            'etat_activ' => ['required', 'in:planifie,refuse'],
+        ]);
+
+        $resultat = DB::transaction(function () use ($id, $validated) {
+
+            $activite = Activite::with('user')
+                ->lockForUpdate()
+                ->findOrFail($id);
+
+            // Vérifier que l'activité est encore proposée
+            if ($activite->etat_activ !== 'propose') {
+                return [
+                    'erreur' => true,
+                    'message' => 'Cette proposition a déjà été traitée'
+                ];
+            }
+
+            // Vérifier que l'activité appartient à un partenaire
+            if (!$activite->user || !$activite->user->hasRole('partenaire')) {
+                return [
+                    'erreur' => true,
+                    'message' => 'Cette activité ne provient pas d’un partenaire'
+                ];
+            }
+
+            // Mettre à jour le statut
+            $activite->update([
+                'etat_activ' => $validated['etat_activ'],
+            ]);
+
+            $acceptee = $validated['etat_activ'] === 'planifie';
+
+            // Enregistrer dans l'historique
+            HistoriqueService::enregistrer(
+                action: $acceptee ? 'validation' : 'refus',
+                module: 'activites',
+                description: $acceptee
+                    ? "A accepté la proposition d'activité {$activite->sujet}"
+                    : "A refusé la proposition d'activité {$activite->sujet}",
+                elementId: $activite->getKey()
+            );
+
+            return [
+                'erreur' => false,
+                'activite' => $activite
+            ];
+        });
+
+        if ($resultat['erreur']) {
+            return response()->json([
+                'message' => $resultat['message']
+            ], 422);
+        }
+
+        $activite = $resultat['activite'];
+
+        // Notifier le partenaire après la transaction
+        Notification::send(
+            $activite->user,
+            new DecisionActiviteNotification($activite)
+        );
+
+        return response()->json([
+            'message' => $activite->etat_activ === 'planifie'
+                ? 'Proposition acceptée avec succès'
+                : 'Proposition refusée avec succès',
+
+            'activite' => $activite->load('user'),
+        ], 200);
+    }
+    
+
+    /**
+    * Display a listing of the resource.
+    */
     public function index(Request $request)
     {
-        //
         $user = $request->user();
-        if ($user->hasRole('responsable') || $user->hasRole('service')) {
-            $activites = Activite::with('user')->get();
 
+        if ($user->hasRole('responsable') || $user->hasRole('service')) {
+            $activites = Activite::with('user.roles')->get();
         }
         elseif ($user->hasRole('partenaire')) {
             $activites = $user->activites()
-                ->with('user')
+                ->with('user.roles')
                 ->get();
-        } 
+        }
         else {
             return response()->json([
                 'message' => 'Accès non autorisé'
@@ -32,7 +183,6 @@ class ActiviteController extends Controller
         }
 
         return response()->json($activites, 200);
-        
     }
 
     /**

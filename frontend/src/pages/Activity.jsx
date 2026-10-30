@@ -30,10 +30,18 @@ export default function Activity() {
   const load = useCallback(async (showSpinner = true) => {
     if (showSpinner) setLoading(true);
     setError(null);
+
     try {
       const response = await getActivites();
-      console.log("Réponse getActivites :", response);
-      setActivites(response.data);
+
+      // Garder uniquement les activités planifiées et réalisées
+      const activitesFiltrees = response.data.filter(
+        (activite) =>
+          ["planifie", "realise"].includes(activite.etat_activ)
+      );
+
+      setActivites(activitesFiltrees);
+
     } catch (err) {
       console.error("Erreur chargement activités :", err);
       setError("Impossible de charger les activités.");

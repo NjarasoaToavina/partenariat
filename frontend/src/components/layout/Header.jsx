@@ -8,8 +8,8 @@ import Loader from "../common/Loader.jsx";
 import { useNavigate } from "react-router-dom";
 
 export default function Header({
-  section = "Visualisation des informations",
-  page = "Partenaires",
+  section = "",
+  page = "",
   userName = "Nom complet",
   userRole = "Responsable",
   onMenuClick = () => {},

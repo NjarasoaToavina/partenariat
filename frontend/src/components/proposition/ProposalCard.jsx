@@ -92,10 +92,14 @@ console.log({
           <span className={`w-10 h-10 rounded-full flex items-center justify-center text-white shrink-0 ${iconBg}`}>
             <Icon size={18} />
           </span>
-          <div className="min-w-0">
-            <p className="text-sm font-bold text-slate-900 truncate">{title}</p>
-            <p className="flex items-center gap-1.5 text-xs text-slate-500 mt-0.5 truncate">
-              <Building2 size={12} className="shrink-0" /> {orgLabel}
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-bold text-slate-900 leading-snug break-words">
+              {title}
+            </p>
+
+            <p className="flex items-center gap-1.5 text-xs text-slate-500 mt-1">
+              <Building2 size={12} className="shrink-0" />
+              <span className="break-words">{orgLabel}</span>
             </p>
           </div>
         </div>

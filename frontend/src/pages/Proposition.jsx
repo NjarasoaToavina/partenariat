@@ -53,7 +53,8 @@ export default function Proposition() {
           .filter((activite) =>
             activite.user?.roles?.some(
               (role) => role.name === "partenaire"
-            )
+            ) &&
+            activite.etat_activ !== "realise"
           )
           .map(mapActiviteProposition);
 

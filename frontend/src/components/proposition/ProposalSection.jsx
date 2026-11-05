@@ -83,7 +83,7 @@ export default function ProposalSection({
           },
           {
             key: "planifie",
-            label: "Validées",
+            label: "Planifiées",
             count: counts.planifie,
             dotClass: "bg-emerald-500",
           },

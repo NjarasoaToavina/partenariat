@@ -39,22 +39,29 @@ export default function ActivityList({ items, loading, onEdit, onDelete }) {
                 >
                   {etat.label}
                 </span>
-                <div className="flex shrink-0 items-center">
-                  <button
-                    onClick={() => onEdit(a)}
-                    className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-[#0065CD]"
-                    aria-label={`Modifier ${a.sujet}`}
-                  >
-                    <Pencil size={16} />
-                  </button>
-                  <button
-                    onClick={() => onDelete(a)}
-                    className="rounded-lg p-2 text-slate-500 hover:bg-red-50 hover:text-red-600"
-                    aria-label={`Supprimer ${a.sujet}`}
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                </div>
+                {(onEdit || onDelete) && (
+                  <div className="flex shrink-0 items-center">
+                    {onEdit && (
+                      <button
+                        onClick={() => onEdit(a)}
+                        className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-[#0065CD]"
+                        aria-label={`Modifier ${a.sujet}`}
+                      >
+                        <Pencil size={16} />
+                      </button>
+                    )}
+
+                    {onDelete && (
+                      <button
+                        onClick={() => onDelete(a)}
+                        className="rounded-lg p-2 text-slate-500 hover:bg-red-50 hover:text-red-600"
+                        aria-label={`Supprimer ${a.sujet}`}
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    )}
+                  </div>
+                )}
               </li>
             );
           })}

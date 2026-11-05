@@ -18,7 +18,7 @@ export default function PartnershipEvolutionChart({
   year,
   onYearChange,
 }) {
-  const startYear = 2025;
+  const startYear = 2014;
   const currentYear = new Date().getFullYear();
 
   const years = Array.from(

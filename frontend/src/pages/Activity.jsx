@@ -12,8 +12,16 @@ import {
   updateActivite,
 } from "../services/activiteService";
 import { filterByMonth, groupByDay } from "../components/activite/activiteUtils";
+import { useAuth } from "../context/AuthContext.jsx";
 
 export default function Activity() {
+  const { hasPermission } = useAuth();
+
+  const canCreate = hasPermission("activites.create");
+  const canUpdate = hasPermission("activites.update");
+  const canDelete = hasPermission("activites.delete");
+
+
   const toast = useToast();
 
   const [activites, setActivites] = useState([]);
@@ -125,13 +133,15 @@ export default function Activity() {
             Organisez et suivez les activités du partenariat.
           </p>
         </div>
-        <button
-          onClick={() => openCreate()}
-          className="inline-flex items-center gap-2 rounded-lg bg-[#0065CD] px-4 py-2 text-sm font-medium text-white hover:bg-[#0054A8]"
-        >
-          <Plus size={18} />
-          Nouvelle activité
-        </button>
+        {canCreate && (
+          <button
+            onClick={() => openCreate()}
+            className="inline-flex items-center gap-2 rounded-lg bg-[#0065CD] px-4 py-2 text-sm font-medium text-white hover:bg-[#0054A8]"
+          >
+            <Plus size={18} />
+            Nouvelle activité
+          </button>
+        )}
       </div>
 
       {error && (
@@ -152,15 +162,15 @@ export default function Activity() {
         loading={loading}
         onMonthChange={changeMonth}
         onToday={goToday}
-        onCreate={openCreate}
-        onEdit={openEdit}
+        onCreate={canCreate ? openCreate : undefined}
+        onEdit={canUpdate ? openEdit : undefined}
       />
 
       <ActivityList
         items={monthList}
         loading={loading}
-        onEdit={openEdit}
-        onDelete={setToDelete}
+        onEdit={canUpdate ? openEdit : undefined}
+        onDelete={canDelete ? setToDelete : undefined}
       />
 
       {modal && (

@@ -96,7 +96,7 @@ export default function PartnersForm ({ initialValues, onSubmit, onCancel, savin
               <input
                 className={inputCls()}
                 type="text"
-                placeholder="Ex : Académique"
+                placeholder="Académique, Silver ou Gold"
                 value={form.type_part}
                 onChange={set("type_part")}
               />

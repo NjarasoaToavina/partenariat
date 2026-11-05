@@ -13,7 +13,7 @@ import { useAuth } from "../context/AuthContext.jsx";
 const PAGE_SIZE = 6;
 
 export default function Partenaire() {
-  const { roles } = useAuth();
+  const { roles, hasPermission } = useAuth();
   const isPartenaire = roles?.includes("partenaire");
 
   const [search, setSearch] = useState("");
@@ -119,17 +119,20 @@ export default function Partenaire() {
   return (
     <>
       <div className="space-y-4">
-        <PartnersToolbar
-          search={search}
-          onSearchChange={updateFilter(setSearch)}
-          campusFilter={campusFilter}
-          onCampusFilterChange={updateFilter(setCampusFilter)}
-          statusFilter={statusFilter}
-          onStatusFilterChange={updateFilter(setStatusFilter)}
-          onAddPartner={handleAddPartner}
-          campusOptions={campusOptions}
-          statusOptions={statusOptions}
-        />
+        {hasPermission('partenariats.create') && (
+          <PartnersToolbar
+            search={search}
+            onSearchChange={updateFilter(setSearch)}
+            campusFilter={campusFilter}
+            onCampusFilterChange={updateFilter(setCampusFilter)}
+            statusFilter={statusFilter}
+            onStatusFilterChange={updateFilter(setStatusFilter)}
+            onAddPartner={handleAddPartner}
+            campusOptions={campusOptions}
+            statusOptions={statusOptions}
+          />
+
+        )}
 
         <div className="bg-white rounded-2xl shadow-sm border border-slate-100">
          {isLoading ? (

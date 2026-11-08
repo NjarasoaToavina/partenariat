@@ -29,6 +29,7 @@ export default function AtelierTable({ ateliers, sortAsc, onToggleSort, onEdit,o
               Contenu (Thematique)
             </th>
             <th className="text-left font-semibold px-4 py-3">Intervenant</th>
+            <th className="text-left font-semibold px-4 py-3">Partenaire</th>
             <th className="text-left font-semibold px-4 py-3">Statut</th>
             { hasPermission("ateliers.update") && hasPermission("ateliers.delete") && (
               <th className="text-left font-semibold px-4 py-3 rounded-r-xl">
@@ -67,6 +68,9 @@ export default function AtelierTable({ ateliers, sortAsc, onToggleSort, onEdit,o
               </td>
               <td className="px-4 py-4 align-top">
                 <IntervenantAvatar name={a.intervenant} />
+              </td>
+              <td className="px-4 py-4 align-top text-sm text-slate-700 max-w-[220px]">
+                {a.partenaire?.nom_part || "Aucun partenaire"}
               </td>
               <td className="px-4 py-4 align-top">
                 <StatutBadge statut={a.statut_atel} />

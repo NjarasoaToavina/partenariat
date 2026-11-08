@@ -15,7 +15,8 @@ class AtelierController extends Controller
     public function index()
     {
         //
-        $ateliers = Atelier::all();
+        // $ateliers = Atelier::all();
+        $ateliers = Atelier::with('partenaire')->get();
         return response()->json($ateliers);
     }
 
@@ -42,11 +43,19 @@ class AtelierController extends Controller
             'contenu_atel' => 'required|string',
             'intervenant' => 'required|string|max:255',
             'statut_atel' => 'required|string|max:255',
+            'id_part' => 'nullable|exists:partenariats,id_part',
         ]);
 
         $atelier = DB::transaction(function () use ($validated) {
 
             $atelier = Atelier::create($validated);
+
+            if (
+                $atelier->statut_atel === 'realise' &&
+                $atelier->id_part
+            ) {
+                $atelier->partenaire()->increment('nbr_intervention');
+            }
 
             HistoriqueService::enregistrer(
                 action: 'creation',
@@ -93,11 +102,21 @@ class AtelierController extends Controller
             'contenu_atel' => 'required|string',
             'intervenant' => 'required|string|max:255',
             'statut_atel' => 'required|string|max:255',
+            'id_part' => 'nullable|exists:partenariats,id_part',
         ]);
 
         DB::transaction(function () use ($atelier, $validated) {
 
+            $ancienStatut = $atelier->statut_atel;
             $atelier->update($validated);
+
+            if (
+                $ancienStatut !== 'realise' &&
+                $atelier->statut_atel === 'realise' &&
+                $atelier->id_part
+            ) {
+                $atelier->partenaire()->increment('nbr_intervention');
+            }
 
             HistoriqueService::enregistrer(
                 action: 'modification',

@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import Field from "../common/Field.jsx";
 import { STATUT_OPTIONS } from "../../data/atelierData";
+import { getAllPartnerships } from "../../services/partenariatService";  
+import { useToast } from "../../context/ToastContext.jsx";
 
 const CAMPUS_OPTIONS = ["ESMIA", "BEATI"];
 
@@ -10,6 +12,26 @@ const inputCls = (error) =>
    ${error ? "border-red-400" : "border-slate-200 hover:border-slate-300"}`;
 
 export default function AtelierForm({ initialValues, onSubmit, onCancel, saving }) {
+  const [partenaires, setPartenaires] = useState([]);
+  const toast = useToast();
+  useEffect(() => {
+      const fetchPartenaires = async () => {
+          try {
+              const res = await getAllPartnerships();
+              setPartenaires(
+                  res.data.filter((p) =>
+                      ["signe", "officieux"].includes(p.statut_part)
+                  )
+              );
+          } catch (error) {
+              toast.error("Erreur chargement partenaires :", error);
+          }
+      };
+
+      fetchPartenaires();
+  }, []);
+
+
 
   const [form, setForm] = useState({
     date_debut_atel: "",
@@ -20,6 +42,7 @@ export default function AtelierForm({ initialValues, onSubmit, onCancel, saving 
     contenu_atel: "",
     intervenant: "",
     statut_atel: "planifie",
+    id_part: null,
     ...initialValues,
   });
 
@@ -124,7 +147,7 @@ export default function AtelierForm({ initialValues, onSubmit, onCancel, saving 
             </Field>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {/* Intervenant + Statut */}
             <Field label="Intervenant" required error={errors.intervenant}>
               <input
@@ -141,6 +164,22 @@ export default function AtelierForm({ initialValues, onSubmit, onCancel, saving 
                 {STATUT_OPTIONS.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
               </select>
             </Field>
+
+            <Field label="Partenaire associé">
+              <select
+                  className={inputCls(false)}
+                  value={form.id_part ?? ""}
+                  onChange={set("id_part")}
+              >
+                  <option value="">Aucun partenaire</option>
+
+                  {partenaires.map((p) => (
+                      <option key={p.id_part} value={p.id_part}>
+                          {p.nom_part}
+                      </option>
+                  ))}
+              </select>
+          </Field>
           
           </div>
 

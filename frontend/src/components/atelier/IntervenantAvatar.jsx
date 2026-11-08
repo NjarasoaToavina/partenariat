@@ -1,10 +1,10 @@
 const AVATAR_COLORS = [
   "bg-blue-600",
-  "bg-indigo-600",
-  "bg-orange-500",
-  "bg-teal-600",
-  "bg-violet-600",
-  "bg-rose-600",
+  // "bg-indigo-600",
+  // "bg-orange-500",
+  // "bg-teal-600",
+  // "bg-violet-600",
+  // "bg-rose-600",
 ];
 
 function initials(name) {

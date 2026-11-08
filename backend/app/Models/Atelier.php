@@ -15,12 +15,19 @@ class Atelier extends Model
         'campus_atel',
         'atelier_atel',
         'groupe',
+        'filiere_atel',
         'contenu_atel',
         'intervenant',
         'statut_atel',
+        'id_part',
     ];
     
     protected $casts = [
         'date_atel' => 'datetime',
     ];
+
+    public function partenaire()
+    {
+        return $this->belongsTo(Partenariat::class, 'id_part', 'id_part');
+    }
 }

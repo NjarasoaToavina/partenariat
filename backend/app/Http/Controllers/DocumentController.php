@@ -7,6 +7,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Services\HistoriqueService;
 use Illuminate\Support\Facades\DB;
+use App\Models\User;
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\DocumentNotification;
 
 class DocumentController extends Controller
 {
@@ -128,6 +131,16 @@ class DocumentController extends Controller
             throw $e;
         }
 
+        // Notifier tous les responsables
+        Notification::send(
+            User::role('responsable')->get(),
+            new DocumentNotification(
+                $document,
+                'Nouveau document',
+                "L'étudiant {$user->name} a envoyé un document de type {$document->type_doc}."
+            )
+        );
+
         return response()->json([
             'message' => 'Document envoyé avec succès',
             'document' => $document->load('user'),
@@ -236,6 +249,16 @@ class DocumentController extends Controller
             Storage::disk('public')->delete($ancienPath);
         }
 
+        // Notifier tous les responsables
+        Notification::send(
+            User::role('responsable')->get(),
+            new DocumentNotification(
+                $document,
+                'Document modifié',
+                "L'étudiant {$user->name} a modifié son document de type {$document->type_doc}."
+            )
+        );
+
         return response()->json([
             'message' => 'Document modifié avec succès',
             'document' => $document->load('user'),
@@ -269,6 +292,8 @@ class DocumentController extends Controller
             ],
         ]);
 
+
+        $ancienStatut = $document->statut_doc;
         DB::transaction(function () use ($document, $validated) {
 
             $document->update($validated);
@@ -296,6 +321,20 @@ class DocumentController extends Controller
                 elementId: $document->id_doc
             );
         });
+
+        // Notifier l'étudiant si le statut a changé
+        if ($ancienStatut !== $document->statut_doc) {
+            $document->load('user');
+
+            Notification::send(
+                $document->user,
+                new DocumentNotification(
+                    $document,
+                    'Mise à jour du document',
+                    "Le statut de votre document {$document->type_doc} est maintenant : {$document->statut_doc}."
+                )
+            );
+        }
 
         return response()->json([
             'message' => 'Statut du document mis à jour',
@@ -377,7 +416,16 @@ class DocumentController extends Controller
         if ($fichierPath) {
             Storage::disk('public')->delete($fichierPath);
         }
-
+        
+        Notification::send(
+            User::role('responsable')->get(),
+            new DocumentNotification(
+                $document,
+                'Suppression de document',
+                "L'étudiant {$user->name} a supprimé un document de type {$document->type_doc}."
+            )
+        );
+        
         return response()->json([
             'message' => 'Document supprimé avec succès'
         ], 200);

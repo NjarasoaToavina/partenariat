@@ -75,6 +75,7 @@ class RolePermissionSeeder extends Seeder
             'propositions.activites.view',
             'activites.view',
             'activites.propose',
+            'ateliers.view',    
             'publications.view',
             'publications.create'
         );

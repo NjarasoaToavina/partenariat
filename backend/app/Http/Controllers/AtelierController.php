@@ -12,12 +12,23 @@ class AtelierController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
-        // $ateliers = Atelier::all();
-        $ateliers = Atelier::with('partenaire')->get();
-        return response()->json($ateliers);
+        $user = $request->user();
+
+        $query = Atelier::with('partenaire');
+
+        if ($user->hasRole('partenaire')) {
+            $partenariat = $user->partenariat;
+
+            if (!$partenariat) {
+                return response()->json([]);
+            }
+
+            $query->where('id_part', $partenariat->id_part);
+        }
+
+        return response()->json($query->get());
     }
 
     /**

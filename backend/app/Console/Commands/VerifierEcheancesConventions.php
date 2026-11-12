@@ -16,7 +16,7 @@ class VerifierEcheancesConventions extends Command
 
     public function handle()
     {
-        $delais = [30, 15, 7, 0];
+        $delais = [30, 15, 7, 1, 0];
 
         $responsables = User::role('responsable')->get();
 

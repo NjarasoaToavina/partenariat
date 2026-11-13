@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Notification;
 use App\Models\Partenariat;
 use Illuminate\Support\Facades\DB;
 use App\Services\HistoriqueService;
+use App\Events\PropositionActualisee;
 
 class PropositionController extends Controller
 {
@@ -84,6 +85,12 @@ class PropositionController extends Controller
             new NouvellePropositionNotification($proposition)
         );
 
+        event(new PropositionActualisee(
+            type: 'partenaire',
+            action: 'created',
+            id: $proposition->id_propos
+        ));
+
         return response()->json([
             'message' => 'Proposition créée avec succès',
             'proposition' => $proposition->load('user'),
@@ -157,6 +164,13 @@ class PropositionController extends Controller
             );
         });
 
+
+        event(new PropositionActualisee(
+            type: 'partenaire',
+            action: 'updated',
+            id: $proposition->id_propos
+        ));
+
         return response()->json([
             'message' => 'Proposition mise à jour avec succès',
             'proposition' => $proposition->load('user'),    
@@ -218,6 +232,14 @@ class PropositionController extends Controller
                     elementId: $proposition->id_propos
                 );
 
+                DB::afterCommit(function () use ($proposition) {
+                    event(new PropositionActualisee(
+                        type: 'partenaire',
+                        action: 'status_changed',
+                        id: $proposition->id_propos
+                    ));
+                });
+
                 return response()->json([
                     'message' => 'Proposition validée et partenaire créé avec succès',
                     'proposition' => $proposition->load('user'),
@@ -237,6 +259,14 @@ class PropositionController extends Controller
                 description: "A refusé la proposition de partenariat avec {$proposition->part_propos}",
                 elementId: $proposition->id_propos
             );
+
+            DB::afterCommit(function () use ($proposition) {
+                event(new PropositionActualisee(
+                    type: 'partenaire',
+                    action: 'status_changed',
+                    id: $proposition->id_propos
+                ));
+            });
 
             return response()->json([
                 'message' => 'Proposition refusée avec succès',
@@ -272,6 +302,16 @@ class PropositionController extends Controller
                 description: "A supprimé la proposition de partenariat avec {$proposition->part_propos}",
                 elementId: $proposition->id_propos
             );
+
+            $idProposition = $proposition->id_propos;
+
+            DB::afterCommit(function () use ($idProposition) {
+                event(new PropositionActualisee(
+                    type: 'partenaire',
+                    action: 'deleted',
+                    id: $idProposition
+                ));
+            });
         });
 
         return response()->json([

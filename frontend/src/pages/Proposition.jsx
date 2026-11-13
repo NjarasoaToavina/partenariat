@@ -12,6 +12,7 @@ import ConfirmModal from "../components/common/ConfirmModal";
 import { getPropositionsActivites, proposerActivite, traiterPropositionActivite,} from "../services/activitePropositionService";
 import { mapActiviteProposition } from "../data/propositionData";
 import AddActivityProposalModal from "../components/proposition/AddActivityProposalModal";
+import { useCallback } from "react";
 
 
 export default function Proposition() {
@@ -36,6 +37,39 @@ export default function Proposition() {
   const [isActivityModalOpen, setIsActivityModalOpen] = useState(false);
   const [isCreatingActivity, setIsCreatingActivity] = useState(false);
 
+  const fetchActivites = useCallback(async () => {
+    if (!hasPermission("propositions.activites.view")) return;
+
+    try {
+      const response = await getPropositionsActivites();
+
+      const formatted = response.data
+        .filter(
+          (activite) =>
+            activite.user?.roles?.some(
+              (role) => role.name === "partenaire"
+            ) &&
+            activite.etat_activ !== "realise"
+        )
+        .map(mapActiviteProposition);
+
+      setActivitesProposees(formatted);
+    } catch (error) {
+      console.error("Erreur chargement activités :", error);
+    }
+  }, [hasPermission]);
+
+  const fetchPropositions = useCallback(async () => {
+    if (!hasPermission("propositions.partenaires.view")) return;
+    try {
+      const response = await getAllPropositions();
+      setPropositions(response.data.map(mapProposition));
+    } catch (error) {
+      console.error("Erreur chargement propositions :", error);
+    }
+  }, [hasPermission]);
+  
+
   useEffect(() => {
     if (!hasPermission("propositions.activites.view")) {
       setActivitesProposees([]);
@@ -43,33 +77,56 @@ export default function Proposition() {
       return;
     }
 
-    const fetchActivites = async () => {
+    const charger = async () => {
       setIsLoadingActivites(true);
+      await fetchActivites();
+      setIsLoadingActivites(false);
+    };
 
-      try {
-        const response = await getPropositionsActivites();
+    charger();
+  }, [hasPermission, fetchActivites]);
 
-        const formatted = response.data
-          .filter((activite) =>
-            activite.user?.roles?.some(
-              (role) => role.name === "partenaire"
-            ) &&
-            activite.etat_activ !== "realise"
-          )
-          .map(mapActiviteProposition);
+  useEffect(() => {
+    if (!hasPermission("propositions.partenaires.view")) {
+      setPropositions([]);
+      setIsLoadingProp(false);
+      return;
+    }
 
-        setActivitesProposees(formatted);
+    const charger = async () => {
+      setIsLoadingProp(true);
+      await fetchPropositions();
+      setIsLoadingProp(false);
+    };
 
-      } catch (error) {
-        console.error("Erreur chargement activités :", error);
-        toast.error("Impossible de charger les propositions d'activités.");
-      } finally {
-        setIsLoadingActivites(false);
+    charger();
+  }, [hasPermission, fetchPropositions]);
+
+  useEffect(() => {
+    const handlePropositionActualisee = (event) => {
+      const { type } = event.detail;
+
+      if (type === "partenaire") {
+        fetchPropositions();
+      }
+
+      if (type === "activite") {
+        fetchActivites();
       }
     };
 
-    fetchActivites();
-  }, [toast, hasPermission]);
+    window.addEventListener(
+      "proposition-actualisee",
+      handlePropositionActualisee
+    );
+
+    return () => {
+      window.removeEventListener(
+        "proposition-actualisee",
+        handlePropositionActualisee
+      );
+    };
+  }, [fetchPropositions, fetchActivites]);
 
 
   const handleCreateActivityProposal = async (data) => {
@@ -82,17 +139,7 @@ export default function Proposition() {
       await proposerActivite(data);
 
       // Actualiser les propositions d'activités
-      const response = await getPropositionsActivites();
-
-      const formatted = response.data
-        .filter((activite) =>
-          activite.user?.roles?.some(
-            (role) => role.name === "partenaire"
-          )
-        )
-        .map(mapActiviteProposition);
-
-      setActivitesProposees(formatted);
+      await fetchActivites();
 
       // Fermer la modale
       setIsActivityModalOpen(false);
@@ -182,34 +229,6 @@ export default function Proposition() {
     }
   };
 
-  useEffect(() => {
-    // Vérifier si l'utilisateur possède la permission
-    if (!hasPermission("propositions.partenaires.view")) {
-      setPropositions([]);
-      setIsLoadingProp(false);
-      return;
-    }
-
-    const fetchPropositions = async () => {
-      setIsLoadingProp(true);
-
-      try {
-        const response = await getAllPropositions();
-
-        const formattedPropositions = response.data.map(mapProposition);
-
-        setPropositions(formattedPropositions);
-      } catch (error) {
-        console.error("Erreur chargement propositions :", error);
-        toast.error("Impossible de charger la liste des propositions.");
-      } finally {
-        setIsLoadingProp(false);
-      }
-    };
-
-    fetchPropositions();
-  }, [toast, hasPermission]);
-
   const handleValidate = async (item) => {
     if (validatingId !== null) return;
 
@@ -296,12 +315,7 @@ export default function Proposition() {
       await createProposition(data);
 
       // Récupérer la liste actualisée
-      const response = await getAllPropositions();
-
-      const formattedPropositions = response.data.map(mapProposition);
-
-      // Mettre à jour les cartes
-      setPropositions(formattedPropositions);
+      await fetchPropositions();
 
       // Fermer la modale
       setIsPartnerModalOpen(false);
@@ -363,9 +377,7 @@ export default function Proposition() {
     try {
       await updateProposition(propToEdit.id, data);
 
-      const response = await getAllPropositions();
-
-      setPropositions(response.data.map(mapProposition));
+      await fetchPropositions();
 
       toast.success("La proposition a été modifiée avec succès.");
 

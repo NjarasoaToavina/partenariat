@@ -48,21 +48,35 @@ export const NotificationProvider = ({ children }) => {
   }, [user?.id, fetchNotifications]);
 
   // Écouter les notifications en temps réel
+  // Écouter les notifications et les modifications en temps réel
   useEffect(() => {
     if (!user?.id) return;
 
     const echo = createEcho();
 
+    // Écouter les notifications personnelles
     echo.private(`App.Models.User.${user.id}`)
       .notification((notification) => {
         console.log("Nouvelle notification :", notification);
-
-        // Récupérer la liste actualisée depuis Laravel
         fetchNotifications();
+      });
+
+    // Écouter les modifications des propositions
+    echo.private("propositions")
+      .listen(".proposition.actualisee", (event) => {
+        console.log("Proposition actualisée :", event);
+
+        // On pourra actualiser les listes depuis Proposition.jsx
+        window.dispatchEvent(
+          new CustomEvent("proposition-actualisee", {
+            detail: event,
+          })
+        );
       });
 
     return () => {
       echo.leave(`App.Models.User.${user.id}`);
+      echo.leave("propositions");
       echo.disconnect();
     };
   }, [user?.id, fetchNotifications]);

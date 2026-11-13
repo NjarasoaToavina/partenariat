@@ -55,14 +55,13 @@ export const AuthProvider = ({ children }) => {
         setPermissions([]);
     }
 
-    const hasPermission = (permission) => { 
-        
-        return permissions.includes(permission); 
-    };
+    const hasPermission = useCallback((permission) => {
+        return permissions.includes(permission);
+    }, [permissions]);
 
-    const hasRoles = (role) => {
+    const hasRoles = useCallback((role) => {
         return roles.includes(role);
-    }
+    }, [roles]);
 
     return (
         <AuthContext.Provider value={{ user, loading, roles, permissions, fetchUser, loginUser, logoutUser, hasPermission, hasRoles }}>

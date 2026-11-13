@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Notifications\NouvelleActiviteProposeeNotification;
 use Illuminate\Support\Facades\Notification;
 use App\Notifications\DecisionActiviteNotification;
+use App\Events\PropositionActualisee;
 
 class ActiviteController extends Controller
 {
@@ -66,6 +67,12 @@ class ActiviteController extends Controller
                 $activite->load('user')
             )
         );
+
+        event(new PropositionActualisee(
+            type: 'activite',
+            action: 'created',
+            id: $activite->getKey()
+        ));
 
         return response()->json([
             'message' => 'Proposition d’activité envoyée avec succès',
@@ -150,6 +157,12 @@ class ActiviteController extends Controller
             $activite->user,
             new DecisionActiviteNotification($activite)
         );
+
+        event(new PropositionActualisee(
+            type: 'activite',
+            action: 'status_changed',
+            id: $activite->getKey()
+        ));
 
         return response()->json([
             'message' => $activite->etat_activ === 'planifie'
@@ -300,6 +313,12 @@ class ActiviteController extends Controller
             );
         });
 
+        event(new PropositionActualisee(
+            type: 'activite',
+            action: 'updated',
+            id: $activite->getKey()
+        ));
+
         return response()->json([
             'message' => 'Activite mise à jour avec succès',
             'activite' => $activite->load('user'),    
@@ -355,6 +374,12 @@ class ActiviteController extends Controller
             );
         });
 
+        event(new PropositionActualisee(
+            type: 'activite',
+            action: 'status_changed',
+            id: $activite->getKey()
+        ));
+
         return response()->json([
             'message' => "Etat de l'activité mis à jour",
             'activite' => $activite->load('user'),
@@ -369,6 +394,7 @@ class ActiviteController extends Controller
         //
         $user = request()->user();
         $activite = Activite::findOrFail($id);
+        $idActivite = $activite->getKey();
 
         if (
             !$user->hasRole('responsable')
@@ -390,6 +416,12 @@ class ActiviteController extends Controller
             );
         });
         
+        event(new PropositionActualisee(
+            type: 'activite',
+            action: 'deleted',
+            id: $idActivite
+        ));
+
         return response()->json([
             'message' => 'Activité supprimée avec succès',
         ], 200);

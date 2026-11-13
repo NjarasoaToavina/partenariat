@@ -24,9 +24,10 @@ export default function ProposalCard({
   isValidating = false,
 }) {
 
-  const { hasPermission } = useAuth();
+  const { hasPermission, hasRoles } = useAuth();
+  const isPartenaire = hasRoles("partenaire");
   const hasPartnerInfo = Boolean(campus || contact);
-
+  
   console.log("Type :", type);
   console.log("Statut :", statut);
   console.log("Permission validation :", hasPermission("activites.validate"));
@@ -63,8 +64,8 @@ export default function ProposalCard({
 
   // Pour les activités, nous ne gérons pas encore
   // la modification et la suppression depuis cette section.
-  const showUpdateAction = isActivity && isPending && canUpdate;
-  const showDeleteAction = isActivity && isPending && canDelete;
+  const showUpdateAction = isActivity && isPending && canUpdate && isPartenaire;
+  const showDeleteAction = isActivity && isPending && canDelete && isPartenaire;
 
   // Vérifier si au moins une action est disponible
   const hasActions =

@@ -7,12 +7,40 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Services\HistoriqueService;
 use Illuminate\Support\Facades\DB;
+use App\Models\User;
+use App\Notifications\PublicationNotification;
 
 class PublicationController extends Controller
 {
     /**
      * Ajouter une réaction à une publication
      */
+    private function notifierUtilisateurs($acteur, $publication, $action)
+    {
+        $messages = [
+            'creation' => "Une nouvelle publication a été ajoutée : {$publication->titre_pub}",
+            'modification' => "La publication {$publication->titre_pub} a été modifiée.",
+            'suppression' => "La publication {$publication->titre_pub} a été supprimée.",
+        ];
+
+        $titres = [
+            'creation' => 'Nouvelle publication',
+            'modification' => 'Publication modifiée',
+            'suppression' => 'Publication supprimée',
+        ];
+
+        User::where('id', '!=', $acteur->id)
+            ->get()
+            ->each(function ($user) use ($publication, $action, $messages, $titres) {
+                $user->notify(new PublicationNotification(
+                    titre: $titres[$action],
+                    message: $messages[$action],
+                    id_pub: $publication->id_pub,
+                    action: $action
+                ));
+            });
+    }
+
     public function react(Request $request, $id)
     {
         $publication = Publication::findOrFail($id);
@@ -150,6 +178,12 @@ class PublicationController extends Controller
             throw $e;
         }
 
+        $this->notifierUtilisateurs(
+            $request->user(),
+            $publication,
+            'creation'
+        );
+
         return response()->json($publication, 201);
     }
 
@@ -228,6 +262,12 @@ class PublicationController extends Controller
             Storage::disk('public')->delete($anciennePhoto);
         }
 
+        $this->notifierUtilisateurs(
+            $request->user(),
+            $publication,
+            'modification'
+        );
+
         return response()->json([
             'message' => 'Publication modifiée avec succès.',
             'publication' => $publication
@@ -237,31 +277,40 @@ class PublicationController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
         $publication = Publication::findOrFail($id);
 
-      $photoPath = $publication->photo_pub;
+        $photoPath = $publication->photo_pub;
 
-DB::transaction(function () use ($publication) {
+        // Conserver les informations avant suppression
+        $publicationPourNotification = clone $publication;
 
-    $publication->delete();
+        DB::transaction(function () use ($publication) {
 
-    HistoriqueService::enregistrer(
-            action: 'suppression',
-            module: 'publications',
-            description: "A supprimé la publication {$publication->titre_pub}",
-            elementId: $publication->id_pub
+            $publication->delete();
+
+            HistoriqueService::enregistrer(
+                action: 'suppression',
+                module: 'publications',
+                description: "A supprimé la publication {$publication->titre_pub}",
+                elementId: $publication->id_pub
+            );
+        });
+
+        if ($photoPath) {
+            Storage::disk('public')->delete($photoPath);
+        }
+
+        // Notifier les autres utilisateurs
+        $this->notifierUtilisateurs(
+            $request->user(),
+            $publicationPourNotification,
+            'suppression'
         );
-    });
 
-    // Supprimer la photo après la transaction
-    if ($photoPath) {
-        Storage::disk('public')->delete($photoPath);
-    }
-
-    return response()->json([
-        'message' => 'Publication supprimée avec succès.'
-    ], 200);
+        return response()->json([
+            'message' => 'Publication supprimée avec succès.'
+        ], 200);
     }
 }

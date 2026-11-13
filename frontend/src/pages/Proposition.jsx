@@ -9,7 +9,7 @@ import RejectPropositionModal from "../components/proposition/RejectPropositionM
 import { useAuth } from "../context/AuthContext";
 import AddPartnerProposalModal from "../components/proposition/AddPartnerProposalModal";
 import ConfirmModal from "../components/common/ConfirmModal";
-import { getPropositionsActivites, proposerActivite, traiterPropositionActivite,} from "../services/activitePropositionService";
+import { deletePropositionActivite, getPropositionsActivites, proposerActivite, traiterPropositionActivite, updatePropositionActivite,} from "../services/activitePropositionService";
 import { mapActiviteProposition } from "../data/propositionData";
 import AddActivityProposalModal from "../components/proposition/AddActivityProposalModal";
 import { useCallback } from "react";
@@ -27,8 +27,10 @@ export default function Proposition() {
   const [isCreating, setIsCreating] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [selectedProp,setSelectedProp] = useState({});
+  const [selectedPropActiv,setSelectedPropActiv] = useState({});
   const [isDeleting,setIsDeleting] = useState(false);
   const [propToEdit,setPropToEdit] = useState({});
+  const [activPropToEdit,setActivPropToEdit] = useState({});
 
   const [activitesProposees, setActivitesProposees] = useState([]);
   const [isLoadingActivites, setIsLoadingActivites] = useState(false);
@@ -360,6 +362,32 @@ export default function Proposition() {
     }
   };
 
+  const handleDeleteActiv = async () => {
+    if (!selectedPropActiv?.id || isDeleting) return;
+
+    setIsDeleting(true);
+
+    try {
+      await deletePropositionActivite(selectedPropActiv.id);
+
+      setActivitesProposees((prev) =>
+        prev.filter((activite) => activite.id !== selectedPropActiv.id)
+      );
+
+      toast.success(`Proposition n°${selectedPropActiv.id} supprimée`);
+
+      setConfirmOpen(false);
+      setSelectedPropActiv({});
+    } catch (error) {
+      console.error("Erreur lors de la suppression :", error);
+      toast.error("Impossible de supprimer l'activité proposée.");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+
+  //props part
   const handleAdd = () => {
     setPropToEdit(null);
     setIsPartnerModalOpen(true);
@@ -367,6 +395,16 @@ export default function Proposition() {
   const handleEdit = (prop) => {
     setPropToEdit(prop);
     setIsPartnerModalOpen(true);
+  };
+
+  //prop activ
+  const handleAddActiv = () => {
+    setActivPropToEdit(null);
+    setIsActivityModalOpen(true);
+  };
+  const handleEditActiv = (prop) => {
+    setActivPropToEdit(prop);
+    setIsActivityModalOpen(true);
   };
 
   const handleUpdatePartnerProposal = async (data) => {
@@ -389,6 +427,29 @@ export default function Proposition() {
       toast.error("Impossible de modifier la proposition.");
     } finally {
       setIsCreating(false);
+    }
+  };
+
+  const handleUpdateActivProposal = async (data) => {
+    if (!activPropToEdit || isCreatingActivity) return;
+
+    setIsCreatingActivity(true);
+
+    try {
+      await updatePropositionActivite(activPropToEdit.id, data);
+
+      await fetchActivites();
+
+      toast.success("L'activité proposée a été modifiée avec succès.");
+
+      setIsActivityModalOpen(false);
+      setActivPropToEdit(null);
+
+    } catch (error) {
+      console.error("Erreur modification proposition activité :", error);
+      toast.error("Impossible de modifier l'activité proposée.");
+    } finally {
+      setIsCreatingActivity(false);
     }
   };
 
@@ -424,7 +485,12 @@ export default function Proposition() {
               onReject={handleRejectActivite}
               validatingId={validatingIdActivite}
               canAdd={hasPermission("activites.propose")}
-              onAdd={() => setIsActivityModalOpen(true)}
+              onAdd={handleAddActiv}
+              onEdit={handleEditActiv}
+              onDelete={(prop) => {
+                setSelectedPropActiv(prop);
+                setConfirmOpen(true);
+              }}
             />
           )
         )}
@@ -489,9 +555,17 @@ export default function Proposition() {
       {/* MODALE D'AJOUT / MODIFICATION D'UNE ACTIVITE */}
       <AddActivityProposalModal
         open={isActivityModalOpen}
-        onCancel={() => setIsActivityModalOpen(false)}
-        onConfirm={handleCreateActivityProposal}
+        onCancel={() => {
+          setIsActivityModalOpen(false);
+          setActivPropToEdit(null);
+        }}
+        onConfirm={
+          activPropToEdit
+            ? handleUpdateActivProposal
+            : handleCreateActivityProposal
+        }
         isLoading={isCreatingActivity}
+        activite={activPropToEdit}
       />
 
       {/* MODALE DE SUPPRESSION */}
@@ -499,11 +573,19 @@ export default function Proposition() {
         open={confirmOpen}
         variant="danger"
         title="Supprimer une proposition ?"
-        message={`Voulez-vous vraiment supprimer la proposition n°${selectedProp?.id} ?`}
+        message={`Voulez-vous vraiment supprimer la proposition?`}
         confirmLabel="Confirmer"
         cancelLabel="Annuler"
-        onConfirm={handleDelete}
-        onCancel={() => setConfirmOpen(false)}
+        onConfirm={
+          selectedPropActiv?.id
+            ? handleDeleteActiv
+            : handleDelete
+        }
+        onCancel={() => {
+          setConfirmOpen(false);
+          setSelectedProp({});
+          setSelectedPropActiv({});
+        }}
         isLoading={isDeleting}
       />
     </>

@@ -175,6 +175,10 @@ export const mapActiviteProposition = (activite) => {
     source: activite.user?.name ?? "Partenaire",
     statut: activite.etat_activ,
 
+    // Conserver les dates originales pour la modification
+    date_debut_activ: activite.date_debut_activ,
+    date_fin_activ: activite.date_fin_activ,
+
     date: memeJour
       ? formatDate(debut)
       : `${formatDate(debut)} – ${formatDate(fin)}`,

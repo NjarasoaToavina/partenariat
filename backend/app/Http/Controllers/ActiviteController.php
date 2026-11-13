@@ -284,12 +284,24 @@ class ActiviteController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
         $user = $request->user();
         $activite = Activite::findOrFail($id);
 
-        if ( !$user->hasRole('responsable')) 
-        {
+        // Le responsable peut modifier les activités.
+        // Le partenaire peut uniquement modifier sa propre proposition.
+        if ($user->hasRole('partenaire')) {
+
+            if (
+                $activite->user_id !== $user->id ||
+                $activite->etat_activ !== 'propose'
+            ) {
+                return response()->json([
+                    'message' => 'Vous ne pouvez modifier que vos propres propositions en attente.'
+                ], 403);
+            }
+
+        } elseif (!$user->hasRole('responsable')) {
+
             return response()->json([
                 'message' => 'Vous ne pouvez pas modifier cette activité'
             ], 403);
@@ -297,8 +309,12 @@ class ActiviteController extends Controller
 
         $validated = $request->validate([
             'sujet' => ['required', 'string', 'max:255'],
-            'date_debut_activ' => ['required','date'],
-            'date_fin_activ' => ['required','date'],
+            'date_debut_activ' => ['required', 'date'],
+            'date_fin_activ' => [
+                'required',
+                'date',
+                'after_or_equal:date_debut_activ'
+            ],
         ]);
 
         DB::transaction(function () use ($activite, $validated) {
@@ -320,8 +336,8 @@ class ActiviteController extends Controller
         ));
 
         return response()->json([
-            'message' => 'Activite mise à jour avec succès',
-            'activite' => $activite->load('user'),    
+            'message' => 'Activité mise à jour avec succès',
+            'activite' => $activite->load('user'),
         ], 200);
     }
 
@@ -391,14 +407,25 @@ class ActiviteController extends Controller
      */
     public function destroy($id)
     {
-        //
         $user = request()->user();
         $activite = Activite::findOrFail($id);
+
         $idActivite = $activite->getKey();
 
-        if (
-            !$user->hasRole('responsable')
-        ) {
+        // Le partenaire peut uniquement supprimer sa propre proposition.
+        if ($user->hasRole('partenaire')) {
+
+            if (
+                $activite->user_id !== $user->id ||
+                $activite->etat_activ !== 'propose'
+            ) {
+                return response()->json([
+                    'message' => 'Vous ne pouvez supprimer que vos propres propositions en attente.'
+                ], 403);
+            }
+
+        } elseif (!$user->hasRole('responsable')) {
+
             return response()->json([
                 'message' => 'Vous ne pouvez pas supprimer cette activité'
             ], 403);
@@ -415,7 +442,7 @@ class ActiviteController extends Controller
                 elementId: $activite->getKey()
             );
         });
-        
+
         event(new PropositionActualisee(
             type: 'activite',
             action: 'deleted',

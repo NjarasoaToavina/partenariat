@@ -14,3 +14,13 @@ export const proposerActivite = (data) => {
 export const traiterPropositionActivite = (id, data) => {
   return api.patch(`/activites/${id}/traiter`, data);
 };
+
+// Modifier une proposition d'activité
+export const updatePropositionActivite = (id, data) => {
+  return api.put(`/activites/${id}`, data);
+};
+
+// Supprimer une proposition d'activité
+export const deletePropositionActivite = (id) => {
+  return api.delete(`/activites/${id}`);
+};

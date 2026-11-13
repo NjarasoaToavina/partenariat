@@ -63,8 +63,8 @@ export default function ProposalCard({
 
   // Pour les activités, nous ne gérons pas encore
   // la modification et la suppression depuis cette section.
-  const showUpdateAction = !isActivity && isPending && canUpdate;
-  const showDeleteAction = !isActivity && canDelete;
+  const showUpdateAction = isActivity && isPending && canUpdate;
+  const showDeleteAction = isActivity && isPending && canDelete;
 
   // Vérifier si au moins une action est disponible
   const hasActions =

@@ -2,12 +2,19 @@ import { useEffect, useState } from "react";
 import { X, CalendarDays } from "lucide-react";
 import Spinner from "../common/Spinner";
 
+const formatDateTimeLocal = (value) => {
+  if (!value) return "";
+  return String(value).replace(" ", "T").slice(0, 16);
+};
+
 export default function AddActivityProposalModal({
   open,
   onCancel,
   onConfirm,
   isLoading = false,
+  activite = null
 }) {
+  const isEditing = !!activite;
   const [form, setForm] = useState({
     sujet: "",
     date_debut_activ: "",
@@ -17,12 +24,16 @@ export default function AddActivityProposalModal({
   useEffect(() => {
     if (open) {
       setForm({
-        sujet: "",
-        date_debut_activ: "",
-        date_fin_activ: "",
+        sujet: activite?.sujet || activite?.titre || "",
+        date_debut_activ: formatDateTimeLocal(
+          activite?.date_debut_activ
+        ),
+        date_fin_activ: formatDateTimeLocal(
+          activite?.date_fin_activ
+        ),
       });
     }
-  }, [open]);
+  }, [open, activite]);
 
   if (!open) return null;
 
@@ -68,11 +79,14 @@ export default function AddActivityProposalModal({
             </div>
 
             <div>
-              <h2 className="text-lg font-bold text-slate-900">
-                Proposer une activité
-              </h2>
+             <h2 className="text-lg font-bold text-slate-900">
+              {isEditing ? "Modifier la proposition" : "Proposer une activité"}
+             </h2>
+
               <p className="text-xs text-slate-500">
-                Soumettre une proposition d'activité
+                {isEditing
+                  ? "Modifier les informations de votre proposition"
+                  : "Soumettre une proposition d'activité"}
               </p>
             </div>
           </div>
